@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+  {% include head.html %}
+
+  <body>
+
+    {% include header.html %}
+    <div id="oscilloscope" height=200></div>
+
+    <div class="page-content">
+      <div class="wrapper">
+        {{ content }}
+      </div>
+    </div>
+
+    {% include footer.html %}
+
+  </body>
+
+<script type="text/javascript">
+
+  var fp = new FourierPolynomial([1, 1, 1])
+  var osc = new Oscilloscope(fp)
+
+  osc.render('div#oscilloscope')
+    setInterval(function() {
+      osc.cycle()
+      osc.render()
+  }, 10)
+
+</script>
+
+</html>
