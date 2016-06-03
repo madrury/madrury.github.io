@@ -50,3 +50,15 @@ var FourierPolynomial = function(cs) {
     },
   }
 }
+
+var _runif = function(low, high) {
+    return (high - low) * Math.random() + low
+}
+
+var randomPolynomial = function(degree) {
+    var coefs = []
+    for(var i = 0; i <= degree; i++) {
+        coefs.push(_runif(-1, 1))
+    }
+    return new FourierPolynomial(coefs)
+}

@@ -43,7 +43,6 @@ var Oscilloscope = function(fourierp, xs) {
       _ys.push(y0)
       // TODO: Modulo by one to prevent overflow
       _phase += 1 / this._nframes
-      console.log(_phase)
     },
 
     // Update the internals of the osciliscope to display a new fourier 

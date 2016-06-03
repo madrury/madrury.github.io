@@ -19,16 +19,9 @@
   </body>
 
 <script type="text/javascript">
-
-  var fp = new FourierPolynomial([1, 1, 1])
+  var fp = randomPolynomial(8) 
   var osc = new Oscilloscope(fp)
-
   osc.render('div#oscilloscope')
-    setInterval(function() {
-      osc.cycle()
-      osc.render()
-  }, 10)
-
 </script>
 
 </html>
