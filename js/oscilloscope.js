@@ -17,7 +17,7 @@ var Oscilloscope = function(fourierp, xs) {
   // it is always some cycling of _fourierp.
   var _xs = (function() {
     if(xs === undefined) {
-      return d3.range(0, 1, .01)
+      return d3.range(0, 1, .0025)
     } else {
       return xs
     }

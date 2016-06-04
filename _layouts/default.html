@@ -6,7 +6,7 @@
   <body>
 
     {% include header.html %}
-    <div id="oscilloscope" height=200></div>
+    <div id="oscilloscope-top" height=200></div>
 
     <div class="page-content">
       <div class="wrapper">
@@ -14,14 +14,18 @@
       </div>
     </div>
 
+    <div id="oscilloscope-bottom" height=200></div>
     {% include footer.html %}
 
   </body>
 
 <script type="text/javascript">
-  var fp = randomPolynomial(8) 
-  var osc = new Oscilloscope(fp)
-  osc.render('div#oscilloscope')
+  var fp1 = randomPolynomial(15) 
+  var osc1 = new Oscilloscope(fp1)
+  osc1.render('div#oscilloscope-bottom')
+  var fp2 = randomPolynomial(15) 
+  var osc2 = new Oscilloscope(fp2)
+  osc2.render('div#oscilloscope-top')
 </script>
 
 </html>

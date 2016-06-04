@@ -25,8 +25,8 @@ var FourierPolynomial = function(cs) {
     // Evaluate the polynomial at a number after shifting by a given 
     // phase.
     _eval: function(x, phase) {
-      phase = phase || 0
       var acc, i
+      phase = phase || 0
       acc = 0
       for(i = 0; i <= this.degree; i++) {
         acc += _cs[i] * Math.sin(2 * i * Math.PI * (x - phase))
