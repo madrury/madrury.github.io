@@ -26,6 +26,19 @@
   var fp2 = randomPolynomial(15) 
   var osc2 = new Oscilloscope(fp2)
   osc2.render('div#oscilloscope-top')
+
+  document.addEventListener("DOMContentLoaded", function(event) { 
+
+    window.addEventListener("resize", function() {
+        var top = document.getElementById('oscilloscope-top')
+        var bottom = document.getElementById('oscilloscope-bottom')
+        top.removeChild(top.lastChild)
+        bottom.removeChild(bottom.lastChild)
+        osc1.render('div#oscilloscope-top')
+        osc2.render('div#oscilloscope-bottom')
+    })
+
+  })
 </script>
 
 </html>

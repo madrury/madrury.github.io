@@ -56,7 +56,7 @@ var Oscilloscope = function(fourierp, xs) {
     render: function(e) {
       var xscale, yscale, data, line
       // Bind a the oscilliscope to a dom element
-      if(typeof e !== "undefined" && typeof _elem == "undefined") {
+      if(typeof e !== "undefined") {
         _elem = e
         _width = parseInt(d3.select(_elem).style("width"))
         //_height = parseInt(d3.select(_elem).style("height"))
