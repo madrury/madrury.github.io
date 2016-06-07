@@ -4,20 +4,20 @@
 
 var FourierPolynomial = function(cs) {
   
-  var _cs = cs
+  var _coefs = cs
 
   return {
   
     get degree() {
-      return _cs.length - 1
+      return _coefs.length - 1
     },
 
     // The maximum possible value obtained by the polynomial
     get pmax() {
       var s, i
       s = 0
-      for(i = 0; i < _cs.length; i++) {
-        s += Math.abs(_cs[i])
+      for(i = 0; i < _coefs.length; i++) {
+        s += Math.abs(_coefs[i])
       }
       return s
     },
@@ -29,7 +29,7 @@ var FourierPolynomial = function(cs) {
       phase = phase || 0
       acc = 0
       for(i = 0; i <= this.degree; i++) {
-        acc += _cs[i] * Math.sin(2 * i * Math.PI * (x - phase))
+        acc += _coefs[i] * Math.sin(2 * i * Math.PI * (x - phase))
       }
       return acc
     },
@@ -46,7 +46,7 @@ var FourierPolynomial = function(cs) {
     // Transform a fourier series by passing it through a transformation
     // tree.
     transform: function(ttree) {
-      _cs = ttree.eval(_cs)
+      _coefs = ttree.eval(_coefs)
     },
   }
 }
