@@ -174,7 +174,6 @@
 }
 
 .post-list {
-    margin-left: 0;
     list-style: none;
 
     > li {
@@ -188,8 +187,8 @@
 }
 
 .post-link {
-    display: block;
-    font-size: 24px;
+    font-size: 18px;
+    padding-left: 30px;
 }
 
 
