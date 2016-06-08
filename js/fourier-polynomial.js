@@ -43,11 +43,6 @@ var FourierPolynomial = function(cs) {
       return ys
     },
 
-    // Transform a fourier series by passing it through a transformation
-    // tree.
-    transform: function(ttree) {
-      _coefs = ttree.eval(_coefs)
-    },
   }
 }
 
@@ -60,5 +55,7 @@ var randomPolynomial = function(degree) {
     for(var i = 0; i <= degree; i++) {
         coefs.push(_runif(-1, 1))
     }
+    //coefs = coefs.sort(function(a, b) {return b - a})
+    console.log(coefs)
     return new FourierPolynomial(coefs)
 }
