@@ -1,0 +1,235 @@
+---
+layout: post
+title:  "How R Fits Linear Model "
+date:   2016-06-03 08:52:55 -0700
+categories: jekyll update
+---
+
+[R](https://www.r-project.org/) is a high level language for statistical computations.  Many user's comfortably interact with R without giving much thought to what happens under the covers when simple requests are fufilled by the language.  None the less, it is an interesting topic, especially for anyone with an interest in general computing and programming languages.  In the spirit of the famous thought experiment "[what happens when you google something](https://github.com/alex/what-happens-when)", I'd like to discuss what heppens when you fit a linear model in R.  The answer will pass through three different programming languages, and lead back to some of the earliest open source code in existence.
+
+This post is inspired by a question of Antoni Parellada's on CrossValidated.  It may seem cheap that I'm recycling material for a first essay on this site, but it's nice to have something comfortable to discuss while I figure out the mechanics of this thing.  I tried to add more detail to make up for the self-plagerism.
+
+We will make heavy use of the R source code, which you can find [here](https://github.com/wch/r-source).
+
+The R Layer
+-----------
+
+Our point or orgin is `lm``, the interface exposed to the R programmer.  It offers a friendly way to specify models using the core R formula and dataframe datatypes
+
+{% highlight r %}
+lm <- function (formula, data, subset, weights, na.action,
+		method = "qr", model = TRUE, x = FALSE, y = FALSE,
+		qr = TRUE, singular.ok = TRUE, contrasts = NULL,
+		offset, ...)
+{% endhighlight %}
+
+You can look at the source for this (or any function) by just typing `lm` at the R console.  The majority of it (like the majority of most production level code) is busy work: checking inputs,
+
+{% highlight r %}
+    if (!is.null(w) && !is.numeric(w)) 
+        stop("'weights' must be a numeric vector")
+{% endhighlight %}
+
+and setting of object attributes 
+
+{% highlight r %}
+z$na.action <- attr(mf, "na.action")
+z$offset <- offset
+z$contrasts <- attr(x, "contrasts")
+z$xlevels <- .getXlevels(mt, mf)
+{% endhighlight %}
+
+and throwing of errors.
+
+If we think at a high level there are two fundamental tasks that `lm` must accomplish
+
+  - It must consume the formula and dataframe it recieves and produce a design matrix $X$.
+  - It must use this design matrix and some linear algebra to compute the linear regression coefficients.
+
+<br>
+both of these tasks turn out to be interesting.
+
+
+Constructing the Design Matrix
+------------------------------
+
+The first of these two tasks is completed here
+
+{% highlight r %}
+mf <- match.call(expand.dots = FALSE)
+m <- match(c("formula", "data", "subset", "weights", "na.action", 
+             "offset"), names(mf), 0L)
+mf <- mf[c(1L, m)]
+mf$drop.unused.levels <- TRUE
+mf[[1L]] <- quote(stats::model.frame)
+mf <- eval(mf, parent.frame())
+{% endhighlight %}
+
+This small block highlights a strange idom of R programming, its direct manipulation of function calls, frozen in time.  The function `match.call`, when called in the local scope of another function, returns an object of type `call` which captures the call to the enclosing function along with the values bound to its formal arguments.  The `call` object is a small wonder, it can be indexed into and manipulated much like other R objects.  The first index always gives the name of the function that was called (not as a string, as a `symbol` object).  In this case the function we called is `lm`, so the line
+
+{% highlight r %}
+mf[[1L]] <- quote(stats::model.frame)
+{% endhighlight %}
+
+replaces `lm` in the call object with `model.frame`.  Similarly, the lines
+
+{% highlight r %}
+m <- match(c("formula", "data", "subset", "weights", "na.action", 
+             "offset"), names(mf), 0L)
+mf <- mf[c(1L, m)]
+mf$drop.unused.levels <- TRUE
+{% endhighlight %}
+
+discard any of the various arguments to `lm` that are not needed to construct the design matrix.  
+
+Alltogether, we have gone from a call to `lm` like
+
+{% highlight r %}
+lm(y ~ x1 + x2, weights = w, data = df)
+{% endhighlight %}
+
+to a call to `model.frame` like
+
+{% highlight r %}
+model.frame(y ~ x1 + x2, weights = w, data = df)
+{% endhighlight %}
+
+Which is pretty neat.
+
+
+The final step is quite obvious at this point.  We directly pass the newly constructed call to ``model.frame`` to `eval, which evaluates it.
+
+We now, courtesy of `model.frame`, have a `data.frame type object (a `data.frame` with some additional attributes attached) that contains all the terms in our formula fully evaluated.  For example
+
+{% highlight r %}
+df <- data.frame(
+     y = c(1, 2, 3, 4, 5),
+     x = c(5, 4, 3, 2, 1)
+)
+model.frame(y ~ log(x), data = df)
+>   y    log(x)
+> 1 1 1.6094379
+> 2 2 1.3862944
+> 3 3 1.0986123
+> 4 4 0.6931472
+> 5 5 0.0000000
+{% endhighlight %}
+
+Attached to this is a [terms](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/terms.object.html) attribute, which contains metadata needed to identify which column represents the response, and which the predictors
+
+{% highlight r %}
+mt <- attr(mf, "terms")
+{% endhighlight %}
+
+Using all this, we can construt the final design matrix, which is accomplished here
+
+{% highlight r %}
+x <- model.matrix(mt, mf, contrasts)
+{% endhighlight %}
+
+
+Calculating the Regression
+--------------------------
+
+but this line sticks out
+
+{% highlight r %}
+lm.fit(x, y, offset = offset, singular.ok = singular.ok, ...)
+{% endhighlight %}
+
+`lm.fit` is another R function, you can call it yourself.  While `lm` conveniently works with formulas and data frame, `lm.fit` wants matrices, so that's one level of abstraction removed.  Checking the source for `lm.fit`, more busywork, and the following really interesting line
+
+{% highlight r %}
+    z <- .Call(C_Cdqrls, x, y, tol, FALSE)
+{% endhighlight %}
+
+Now we are getting somewhere.  `.Call` is R's way of calling into C code.  There is a C function, C_Cdqrls in the R source somewhere, and we need to find it.  [Here it is][1].
+
+Looking at the C function, again, we find mostly bounds checking, error cleanup, and busy work.  But this line is different
+
+{% highlight c %}
+    F77_CALL(dqrls)(REAL(qr), &n, &p, REAL(y), &ny, &rtol,
+		    REAL(coefficients), REAL(residuals), REAL(effects),
+		    &rank, INTEGER(pivot), REAL(qraux), work);
+{% endhighlight %}
+
+So now we are on our third language, R has called C which is calling into fortran.  [Here's the fortran code][2].
+
+The first comment tells it all
+
+{% highlight fortran %}
+    c     dqrfit is a subroutine to compute least squares solutions
+    c     to the system
+    c
+    c     (1)               x * b = y
+{% endhighlight %}
+
+(interestingly, looks like the name of this routine was changed at some point, but someone forgot to update the comment).  So we're finally at the point where we can do some linear algebra, and actually solve the system of equations.  This is the sort of thing that fortran is really good at, which explains why we passed through so many layers to get here. 
+
+The comment also explains what the code is going to do
+
+{% highlight fortran %}
+    c     on return
+    c
+    c        x      contains the output array from dqrdc2.
+    c               namely the qr decomposition of x stored in
+    c               compact form.
+{% endhighlight %}
+
+So fortran is going to solve the system by finding the $QR$ decomposition.
+
+The first thing that happens, and by far the most important, is
+
+{% highlight fortran %}
+    call dqrdc2(x,n,n,p,tol,k,qraux,jpvt,work)
+{% endhighlight %}
+
+This calls the fortran function `dqrdc2` on our input matrix `x`.  Whats this?  
+
+{% highlight fortran %}
+     c     dqrfit uses the linpack routines dqrdc and dqrsl.
+{% endhighlight %}
+
+So we've finally made it to [linpack][3].  Linpack is a fortran linear algebra library that has been around since the 70s.  Most serious linear algebra eventualy finds its way to linpack.  In our case, we are using the function [dqrdc2][4]
+
+{% highlight fortran %}
+    c     dqrdc2 uses householder transformations to compute the qr
+    c     factorization of an n by p matrix x.
+{% endhighlight %}
+
+This is where the actual work is done.  It would take a good full day for me to figure out what this code is doing, it is as low level as they come.  But generically, we have a matrix $X$ and we want to factor it into a product $X = QR$ where $Q$ is an orthogonal matrix and $R$ is an upper triangular matrix.  This is a smart thing to do, because once you have $Q$ and $R$ you can solve the linear equations for regression
+
+$$ X^t X \beta = X^t Y $$
+
+very easily.  Indeed
+
+$$ X^t X = R^t Q^t Q R = R^t R $$
+
+so the whole system becomes
+
+$$ R^t R \beta = R^t Q^t y $$
+
+but $R$ is upper triangular and has the same rank as $X^t X$, so as long as our problem is well posed, it is full rank, and we may as well just solve the reduced system
+
+$$ R \beta = Q^t y $$
+
+But here's the awesome thing.  $R$ is upper triangular, so the last linear equation here is just `constant * beta_n = constant`, so solving for $\beta_n$ is trivial.  You can then go up the rows, one by one, and substitute in the $\beta$s you already know, each time getting a simple one variable linear equation to solve.  So, once you have $Q$ and $R$, the whole thing collapses to what is called *backwards substitution*, which is easy.  You can read about this in more detail [here][5], where an explicit small example is fully worked out.
+
+
+  [1]: https://github.com/wch/r-source/blob/trunk/src/library/stats/src/lm.c
+  [2]: https://github.com/wch/r-source/blob/trunk/src/appl/dqrls.f
+  [3]: http://en.wikipedia.org/wiki/LINPACK
+  [4]: https://github.com/wch/r-source/blob/trunk/src/appl/dqrdc2.f
+  [5]: http://www.seas.ucla.edu/~vandenbe/103/lectures/qr.pdf
+
+{% highlight ruby %}
+def print_hi(name)
+  puts "Hi, #{name}"
+end
+print_hi('Tom')
+#=> prints 'Hi, Tom' to STDOUT.
+{% endhighlight %}
+
+[jekyll-docs]: http://jekyllrb.com/docs/home
+[jekyll-gh]:   https://github.com/jekyll/jekyll
+[jekyll-talk]: https://talk.jekyllrb.com/
