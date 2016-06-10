@@ -48,6 +48,79 @@ Our goal will be to translate this algorithm into a python module written in C.
 Creating a Module Object
 ------------------------
 
+Were going to create a python module `primes` which contains the `primes_less_than` function, only with the source code written in C.  To being, lets create a file `primes.c`.  Since our goal is to interface directly wih python, we need to import the python C api by including the appropriate header
+
+{% highlight c %}
+#include <Python.h>
+{% endhighlight %}
+
+Before we can get to implementing the algorithm, we need to do the somewhat boring work of creatin the module object, and telling C what functions and objects we want to put inside it.
+
+We will do the second part first, creating what python calls the *method table*
+
+{% highlight c %}
+static PyMethodDef PrimesMethods[] = {
+    {"primes_less_than", primes_primes_less_than, METH_VARARGS,
+     "Compute a list of all the primes up to an integer n."},
+    {NULL, NULL, 0, NULL}        /* Sentinel */
+};
+{% endhighlight %}
+
+`PyMethodDef` is a structure type defined by the python header, it is a `struct` with four entries
+
+  - `char* ml_name`: The name of the method, as called from python.
+  - `PyCFunction ml_func`: A pointer to the C function implementing the method.  The naming convention for python methods is `module_name + '_' + method_name`, which is how we ended up with the awkward function name `primes_primes_less_than`.
+  - `int ml_flags`: A python header defined set of flags controlling the method calling convention.  We will be using the simplest possible calling convention (positional arguments only), which corosponds to the `METH_VARARGS` flag.
+  - `char* ml_doc`: A documentation string for the method.
+
+Now we have to define the module object and tell it about our method table.
+
+{% highlight c %}
+static struct PyModuleDef primes_module = {
+   PyModuleDef_HEAD_INIT,
+   "primes",
+   "Methods for working with primes and prime factorizations.",
+   -1,
+   PrimesMethods
+};
+{% endhighlight %}
+
+Here again there are some internal python things, which we mostly dont have to worry about very much.  The first entry in this struct is always set to `PyModuleDef_HEAD_INIT` (the documentation is very explicit about this), and the `-1` is a flag controling how memory is allocated for module level objects.  The remaining entries in the struct are interesting to us
+
+  - `char* m_name`: The name of module.
+  - `char* m_doc`: A documentation string for the module.
+  - `PyMethodDef* m_methods`: The method table of the module being created.
+
+Finally we need to initialize the module, i.e. tell python what to do when we `import` it
+
+{% highlight c %}
+PyMODINIT_FUNC PyInit_primes(void) {
+    PyObject *m;
+
+    m = PyModule_Create(&primes_module);
+    if (m == NULL)
+        return NULL;
+
+    return m;
+}
+{% endhighlight %}
+
+The return type `PyMODINiT_FUNC` is defined in a maze of compiler marcros [here](https://github.com/python/cpython/blob/8707d182ea722da19ace7fe994f3785cb77a679d/Include/pyport.h#L734).  The simplest definition possible is used when compiling modules into python itself
+
+{% highlight c %}
+# define PyMODINIT_FUNC PyObject*
+{% endhighlight %}
+
+In our case we have a working install of python, so we need to compile our module as a shared library (compiled code usable from other compiled code), which uses the following definition
+
+{% highlight c %}
+#define PyMODINIT_FUNC __declspec(dllexport) PyObject*
+{% endhighlight %}
+
+Luckily, we don't have to manage the compiler flags ourselves to get this to work out correctly, as we will see when building our module.
+
+This is the end of the neccesarry setup, so we can get on to writing the code to solve our actual problem.  We will leave this setup code at the bottom of the module (as it references the yet to be written method `primes_primes_less_than`, which we will need to define above the module method table, or else the compiler will complain.
+
 Implementing the Algorithm
 --------------------------
 
