@@ -216,6 +216,45 @@ static PyObject* primes_primes_less_than(PyObject* self, PyObject *args) {
 Implementing the Algorithm
 --------------------------
 
+Let's turn to implementing the algorithm in our private function
+
+{% highlight c %}
+static PyObject* _primes_less_than(long n)
+{% endhighlight %}
+
+Reviewing our pure python implementation, we need two data structures
+
+  - A fixed length boolean array (length `n`) to record which intergers we have determened to be composite so far, we called this `could_be_prime` in our python implementation.
+  - A varaible length array for accumulating our prime numbers.
+
+We only need the boolean array for the life of the function call, so we can create it on the stack and let C collect it automatically when it falls out of scope.  We only know the size of the array at runtime, but modern C (C99) allows us to get away with that.
+
+To accumulate our prime numbers, we will use a python list, since we need to return it anyway, and it saves us from writing our own expandable array type.
+
+{% highlight c %}
+static PyObject* _primes(long n) {
+    bool could_be_prime[n];
+    PyObject* primes = PyList_New(0);
+
+    /* Algorithm */
+
+    return primes;
+}
+{% endhighlight %}
+
+Again, we don't need to clean up `could_be_prime` manually, as we allocate it on the stack, and C cleans up our local namespace for us.
+
+Our `could_be_prime` array is initially filled with garbage data, so we need to initialize it before we get to work
+
+{% highlight c %}
+for(long i = 0; i < n; i++) {
+    maybe_prime[i] = 1;
+}
+maybe_prime[0] = 0;  // Not prime
+maybe_prime[1] = 0;  // Not prime
+{% endhighlight %}
+
+The implementation of the sieve is not quite straighforward.  We only need to know how to create an integer object that python can use, and how to add these to our python list.
 
 Building The Module
 -------------------
