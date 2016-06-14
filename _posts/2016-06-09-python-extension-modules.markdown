@@ -286,6 +286,54 @@ Building and Testing the Module
 
 The last step is is to build our extension module, then test to make sure it works.
 
+Building is easy, we only need to create a very simple python script containing metadata needed for the build.  The complete `setup.py` script for our `primes` module is
+
+{% highlight c %}
+from distutils.core import setup, Extension
+
+primes = Extension('primes',
+                   sources = ['primes.c'])
+
+setup(name = 'primes',
+      version = '1.0',
+      description = 'C functions for working with prime numbers.',
+      ext_modules = [primes])
+{% endhighlight %}
+
+Setup scripts can be [much more complicated](https://github.com/numpy/numpy/blob/master/setup.py), but our simple case is self explanatory and to the point.
+
+Now we cross our fingers and build the module
+
+{% highlight bash %}
+$ python setup.py build
+running build
+running build_ext
+building 'primes' extension
+...
+{% endhighlight %}
+
+If we're very lucky, the module will compile without error, otherwise we have some bugs to fix.  In any case, once that's all resolved we have a build directory which contains our sharded library
+
+{% highlight bash %}
+$ ls build/
+lib.macosx-10.10-x86_64-3.5  temp.macosx-10.10-x86_64-3.5
+$ ls build/lib.macosx-10.10-x86_64-3.5/
+primes.cpython-35m-darwin.so
+{% endhighlight %}
+
+If we navigate to the directory containing the shared object file and drop into python, we can import the module and use our method
+
+{% highlight bash %}
+$ cd build/lib.macosx-10.10-x86_64-3.5/; python
+Python 3.5.1 (default, Mar  2 2016, 03:41:10)
+[GCC 4.2.1 Compatible Apple LLVM 6.1.0 (clang-602.0.53)] on darwin
+type "help", "copyright", "credits" or "license" for more information.
+>>> import pycmath
+>>> pycmath.primes_less_than(25)
+[2, 3, 5, 7, 11, 13, 17, 19, 23]
+{% endhighlight %}
+
+Success!
 
 Comparison
 ----------
