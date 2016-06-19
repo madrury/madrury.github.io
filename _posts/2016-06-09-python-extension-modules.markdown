@@ -328,8 +328,8 @@ $ cd build/lib.macosx-10.10-x86_64-3.5/; python
 Python 3.5.1 (default, Mar  2 2016, 03:41:10)
 [GCC 4.2.1 Compatible Apple LLVM 6.1.0 (clang-602.0.53)] on darwin
 type "help", "copyright", "credits" or "license" for more information.
->>> import pycmath
->>> pycmath.primes_less_than(25)
+>>> import primes
+>>> primes.primes_less_than(25)
 [2, 3, 5, 7, 11, 13, 17, 19, 23]
 {% endhighlight %}
 
@@ -337,3 +337,62 @@ Success!
 
 Comparison
 ----------
+
+Now that we have working python and C implementation of the algorithm, we can compare thier performance and see what we have won.  Let's wrap a call to the `primes_less_than` function in two python scripts, one calling the python implementation, and one calling the C implementation.  Here's the `c-test.py` script
+
+{% highlight python %}
+import primes
+primes.primes_less_than(10**8)
+{% endhighlight %}
+
+The python implementation takes a good deal of time to generate such an extensive list of primes
+
+{% highlight bash %}
+$ time python py-test.py
+
+real	0m25.156s
+user	0m24.887s
+sys	0m0.264s
+{% endhighlight %}
+
+Unfortuantely, running the test for the extension module causes an unexpected error
+
+{% highlight bash %}
+$ time python c-test.py
+Segmentation fault
+{% endhighlight %}
+
+The dreaded segmentation fault!  What's going on here?  Why did our program crash here when we verified that it worked for a smaller list of primes?  Recall from earlier that we created our working array `could_be_prime` in the local scope of a function, i.e. we created the array on the stack.  The stack is generally a small segment of memory, on a unix system the stack size can be determined with the `ulimit` command
+
+{% highlight bash %}
+$ ulimit -s -a
+...
+stack size              (kbytes, -s) 8192
+...
+{% endhighlight %}
+
+Clearly our list of $10^8$ booleans is overflowing this limit.  We could solve this issue by using `ulimit` to allow our program a (much) bigger stack, but this is brittle.  Instead, we can just allocate space for `could_be_prime` on the heap
+
+{% highlight c %}
+static PyObject* _primes(long n) {
+    bool* could_be_prime = malloc(sizeof(bool) * n);
+    PyObject* primes = PyList_New(0);
+
+    /* Algorithm */
+
+    free(could_be_prime);
+    return primes;
+}
+{% endhighlight %}
+
+After recompiling, let's try again
+
+{% highlight bash %}
+$ time python c-test.py
+
+real	0m2.293s
+user	0m2.021s
+sys	0m0.270s
+{% endhighlight %}
+
+So we got about an order of magnitude of speedup for our effort.  For an algorithm that is used in a tight loop, this coud be a very signifigant boon.
