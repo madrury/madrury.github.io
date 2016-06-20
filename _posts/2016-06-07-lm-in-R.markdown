@@ -128,30 +128,84 @@ x <- model.matrix(mt, mf, contrasts)
 {% endhighlight %}
 
 
-Calculating the Regression
---------------------------
+Calculating the Regression - R
+------------------------------
 
-but this line sticks out
+Now that our design matrix is constructed, we can move on to fitting the regression, this happens here
 
 {% highlight r %}
 lm.fit(x, y, offset = offset, singular.ok = singular.ok, ...)
 {% endhighlight %}
 
-`lm.fit` is another R function, you can call it yourself.  While `lm` conveniently works with formulas and data frame, `lm.fit` wants matrices, so that's one level of abstraction removed.  Checking the source for `lm.fit`, more busywork, and the following really interesting line
+`lm.fit` is another R function, which we could call ourself if we are so inclined
 
 {% highlight r %}
-    z <- .Call(C_Cdqrls, x, y, tol, FALSE)
+X = matrix(c(1, 1, 1, 1, 2, 3), nrow = 3)
+y = c(2, 3, 4)
+lm.fit(X, y)
+> $coefficients
+> x1 x2 
+>  1  1 
+> ...
 {% endhighlight %}
 
-Now we are getting somewhere.  `.Call` is R's way of calling into C code.  There is a C function, C_Cdqrls in the R source somewhere, and we need to find it.  [Here it is][1].
+While `lm` conveniently works with formulas and `data.frame`s, `lm.fit` needs matrices, so moving from `lm` to `lm.fit` removes one layer of abstraction.  
 
-Looking at the C function, again, we find mostly bounds checking, error cleanup, and busy work.  But this line is different
+Checking the source for `lm.fit`, there is much more busywork, which we will simply ignore.  The really interesting action is in this one line
+
+{% highlight r %}
+z <- .Call(C_Cdqrls, x, y, tol, FALSE)
+{% endhighlight %}
+
+Now we are getting somewhere.  `.Call` is modern R's way of calling into C code.  The first argument to `.Call` is a sting or symbol identifying a compiled C function that is either compiled into the R distribution, or linked as a shared library.  In some cases where the calle function is part of the R source code, the function name is prepended with a `C_`. In our case, we are calling a C function called `Cdqrls`.  The remaining arguemnts are passed as R objects into the C function, as we will see shortly.
+
+
+Calculating the Regression - C
+------------------------------
+
+The `Cdqrls` is found in the R source [here][1].  Note its peculiar signature
+
+{% highlight c %}
+SEXP Cdqrls(SEXP x, SEXP y, SEXP tol, SEXP chk)
+{% endhighlight %}
+
+A `SEXP` is the datatpye that R's source assigns to a general R object.  Essentailly everything that an R programmer manipulates when working day to day is internally an `SEXP`.  There are various subypes of `SEXP`s used for more specific types of objects, for example
+
+  - A `INTSXP` is an integer vector.
+  - A `REALSXP` is a vector of floating point numbers.
+  - A `VECSXP` is an R list.
+
+even more advanced types are `SEXP`s, a `CLOSXP` is an R function.
+
+Knowing these types, we can make some sense of the code in `Cdqrls`.  Here a list is created to hold the ouput object
+
+{% highlight c %}
+const char *ansNms[] = {"qr", "coefficients", "residuals", "effects",
+			    "rank", "pivot", "qraux", "tol", "pivoted", ""};
+PROTECT(ans = mkNamed(VECSXP, ansNms));
+{% endhighlight %}
+
+Here a vector of floating point numbers is created to hold the fit coefficints, and then inserted in the appropriate slot in the ouput object (notice that depending on the shape of `y`, this vector can be either a matrix or a regular vector)
+
+{% highlight c %}
+coefficients = (ny > 1) ? allocMatrix(REALSXP, p, ny) : allocVector(REALSXP, p);
+PROTECT(coefficients);
+SET_VECTOR_ELT(ans, 1, coefficients);
+{% endhighlight %}
+
+The `PROTECT` macro issues instruction to Rs garbage collector, new objects must be `PROTECTE`D, lest they be collected.
+
+Yet again, the majority of the work in `Cdqrls` is concerned with checking invariants of inputs, and constructing and initilizing new objects.  And, once more, the real work of fitting the model is passed to another function, further, we once again pass to another language 
 
 {% highlight c %}
     F77_CALL(dqrls)(REAL(qr), &n, &p, REAL(y), &ny, &rtol,
 		    REAL(coefficients), REAL(residuals), REAL(effects),
 		    &rank, INTEGER(pivot), REAL(qraux), work);
 {% endhighlight %}
+
+
+Calculating the Regression - FORTRAN
+------------------------------------
 
 So now we are on our third language, R has called C which is calling into fortran.  [Here's the fortran code][2].
 
