@@ -1,13 +1,13 @@
 ---
 layout: post
-title:  "How R Fits Linear Model "
+title:  "How R Fits a Linear Model "
 date:   2016-06-03 08:52:55 -0700
 categories: jekyll update
 ---
 
 [R](https://www.r-project.org/) is a high level language for statistical computations.  Many user's comfortably interact with R without giving much thought to what happens under the covers when simple requests are fufilled by the language.  None the less, it is an interesting topic, especially for anyone with an interest in general computing and programming languages.  In the spirit of the famous thought experiment "[what happens when you google something](https://github.com/alex/what-happens-when)", I'd like to discuss what heppens when you fit a linear model in R.  The answer will pass through three different programming languages, and lead back to some of the earliest open source code in existence.
 
-This post is inspired by a question of Antoni Parellada's on CrossValidated.  It may seem cheap that I'm recycling material for a first essay on this site, but it's nice to have something comfortable to discuss while I figure out the mechanics of this thing.  I tried to add more detail to make up for the self-plagerism.
+This post is inspired by a question of Antoni Parellada's on CrossValidated.  It is essentially a much expanded version of my answer there. 
 
 We will make heavy use of the R source code, which you can find [here](https://github.com/wch/r-source).
 
@@ -65,13 +65,36 @@ mf[[1L]] <- quote(stats::model.frame)
 mf <- eval(mf, parent.frame())
 {% endhighlight %}
 
-This small block highlights a strange idom of R programming, its direct manipulation of function calls, frozen in time.  The function `match.call`, when called in the local scope of another function, returns an object of type `call` which captures the call to the enclosing function along with the values bound to its formal arguments.  The `call` object is a small wonder, it can be indexed into and manipulated much like other R objects.  The first index always gives the name of the function that was called (not as a string, as a `symbol` object).  In this case the function we called is `lm`, so the line
+This small block highlights a strange idom of R programming, its direct manipulation of function calls, frozen in time.  The function `match.call`, when called in the local scope of another function, returns an object of type `call` which captures the call to the enclosing function along with the values bound to its formal arguments.
+
+{% highlight r %}
+> f <- function(x, y) {
+>   cl <- match.call()
+>   cl
+> }
+> f(1, 2)
+f(x = 1, y = 2)
+> class(f(1, 2))
+[1] "call"
+{% endhighlight %}
+
+A `call` object is a small wonder, it can be indexed into and manipulated much like other R objects.  The first index always gives the name of the function that was called (not as a string, as a `symbol` object), the others give the arguments passed into the call
+
+{% highlight r %}
+> cl <- f(1, 2)
+> cl[[1]]
+f
+> cl[[2]]
+[1] 1
+{% endhighlight %}
+
+In our current situation the function we called is `lm`, so the line
 
 {% highlight r %}
 mf[[1L]] <- quote(stats::model.frame)
 {% endhighlight %}
 
-replaces `lm` in the call object with `model.frame`.  Similarly, the lines
+replaces `lm` in the call object with `model.frame` (the `quote` creates a symbol out of the name).  Similarly, the lines
 
 {% highlight r %}
 m <- match(c("formula", "data", "subset", "weights", "na.action", 
@@ -97,33 +120,28 @@ model.frame(y ~ x1 + x2, weights = w, data = df)
 Which is pretty neat.
 
 
-The final step is quite obvious at this point.  We directly pass the newly constructed call to ``model.frame`` to `eval, which evaluates it.
+The final step is quite obvious at this point.  We directly pass the newly constructed call to `model.frame` to `eval', which evaluates it.
 
-We now, courtesy of `model.frame`, have a `data.frame type object (a `data.frame` with some additional attributes attached) that contains all the terms in our formula fully evaluated.  For example
+We now, courtesy of `model.frame`, have a `data.frame` type object (a `data.frame` with some additional attributes attached) that contains all the terms in our formula fully evaluated.  For example
 
 {% highlight r %}
-df <- data.frame(
-     y = c(1, 2, 3, 4, 5),
-     x = c(5, 4, 3, 2, 1)
-)
-model.frame(y ~ log(x), data = df)
->   y    log(x)
-> 1 1 1.6094379
-> 2 2 1.3862944
-> 3 3 1.0986123
-> 4 4 0.6931472
-> 5 5 0.0000000
+> df <- data.frame(
+>      y = c(1, 2, 3, 4, 5),
+>      x = c(5, 4, 3, 2, 1)
+> )
+>model.frame(y ~ log(x), data = df)
+   y    log(x)
+ 1 1 1.6094379
+ 2 2 1.3862944
+ 3 3 1.0986123
+ 4 4 0.6931472
+ 5 5 0.0000000
 {% endhighlight %}
 
-Attached to this is a [terms](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/terms.object.html) attribute, which contains metadata needed to identify which column represents the response, and which the predictors
+Attached to this is a [terms](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/terms.object.html) attribute, which contains metadata needed to identify which column represents the response, and which the predictors (the encoding of the information is pretty obscure, so I wont bother to unwind it here).  Using the data frame and the terms data, we can construct the final design matrix
 
 {% highlight r %}
 mt <- attr(mf, "terms")
-{% endhighlight %}
-
-Using all this, we can construt the final design matrix, which is accomplished here
-
-{% highlight r %}
 x <- model.matrix(mt, mf, contrasts)
 {% endhighlight %}
 
@@ -140,13 +158,13 @@ lm.fit(x, y, offset = offset, singular.ok = singular.ok, ...)
 `lm.fit` is another R function, which we could call ourself if we are so inclined
 
 {% highlight r %}
-X = matrix(c(1, 1, 1, 1, 2, 3), nrow = 3)
-y = c(2, 3, 4)
-lm.fit(X, y)
-> $coefficients
-> x1 x2 
->  1  1 
-> ...
+> X = matrix(c(1, 1, 1, 1, 2, 3), nrow = 3)
+> y = c(2, 3, 4)
+> lm.fit(X, y)
+ $coefficients
+ x1 x2 
+  1  1 
+ ...
 {% endhighlight %}
 
 While `lm` conveniently works with formulas and `data.frame`s, `lm.fit` needs matrices, so moving from `lm` to `lm.fit` removes one layer of abstraction.  
@@ -157,7 +175,7 @@ Checking the source for `lm.fit`, there is much more busywork, which we will sim
 z <- .Call(C_Cdqrls, x, y, tol, FALSE)
 {% endhighlight %}
 
-Now we are getting somewhere.  `.Call` is modern R's way of calling into C code.  The first argument to `.Call` is a sting or symbol identifying a compiled C function that is either compiled into the R distribution, or linked as a shared library.  In some cases where the calle function is part of the R source code, the function name is prepended with a `C_`. In our case, we are calling a C function called `Cdqrls`.  The remaining arguemnts are passed as R objects into the C function, as we will see shortly.
+Now we are getting somewhere.  `.Call` is modern R's way of calling into C code.  The first argument to `.Call` is a sting or symbol identifying a compiled C function that is either part of the R distribution, or linked as a shared library.  In some cases where the called function is part of the R source code, the function name is prepended with a `C_`. In our case, we are calling a C function named `Cdqrls`.  The remaining arguemnts to `.Call` are passed as R objects into the C function, as we will see shortly.
 
 
 Calculating the Regression - C
@@ -175,9 +193,9 @@ A `SEXP` is the datatpye that R's source assigns to a general R object.  Essenta
   - A `REALSXP` is a vector of floating point numbers.
   - A `VECSXP` is an R list.
 
-even more advanced types are `SEXP`s, a `CLOSXP` is an R function.
+More advanced types are also `SEXP`s, a `CLOSXP` is an R function.
 
-Knowing these types, we can make some sense of the code in `Cdqrls`.  Here a list is created to hold the ouput object
+Knowing these types, we can make some sense of the code in `Cdqrls`.  Here, a list is created to hold the output object
 
 {% highlight c %}
 const char *ansNms[] = {"qr", "coefficients", "residuals", "effects",
@@ -185,13 +203,15 @@ const char *ansNms[] = {"qr", "coefficients", "residuals", "effects",
 PROTECT(ans = mkNamed(VECSXP, ansNms));
 {% endhighlight %}
 
-Here a vector of floating point numbers is created to hold the fit coefficints, and then inserted in the appropriate slot in the ouput object (notice that depending on the shape of `y`, this vector can be either a matrix or a regular vector)
+Here, a vector of floating point numbers is created to hold the fit coefficints, which is then inserted in the appropriate slot in the ouput object
 
 {% highlight c %}
 coefficients = (ny > 1) ? allocMatrix(REALSXP, p, ny) : allocVector(REALSXP, p);
 PROTECT(coefficients);
 SET_VECTOR_ELT(ans, 1, coefficients);
-{% endhighlight %}
+{% endhighlight %} 
+
+notice that, depending on the shape of `y`, `coefficients` can be either a matrix or a regular vector.
 
 The `PROTECT` macro issues instruction to Rs garbage collector, new objects must be `PROTECTE`D, lest they be collected.
 
