@@ -5,9 +5,9 @@ date:   2016-06-07 08:52:55 -0700
 categories: jekyll update
 ---
 
-I like to solve [project euler](https://projecteuler.net/) problems using python.  Over time, I've bult up a small library of helper routines that are useful for many different problems.  Since these routines get used so often, it pays to make them as efficient as possible, which brought me to trying my hand at writing them as a C extension module.
+I like to solve [project euler](https://projecteuler.net/) problems using python.  Over time, I've bult up a small library of helper routines that are useful for many different problems.  Since these routines get used so often, it pays to make them as efficient as possible.
 
-A C extension module is a python module, only written in C.  The main python runtime, the program that interpretes and runs python programs, is written is C (it's often refered to as `cpython`).  It is possible to write a python module as a collection of C functions that is interacts directly with the python runtime, which are then callable from a running python interpreter.  For tasks requiring heavy computation, this can result in considerable speedups to many algorithms (computationally heavy parts of numpy and scipy, for example, are written as C extension modules).
+A C extension module is a python module, only written in C.  This is possible because the main python runtime, the program that interpretes and runs python programs, is written is C (a fact embedded into the programs name, `cpython`).  It is therefore possible to write a python module as a collection of C functions that is interacts directly with the python runtime.  For tasks requiring heavy computation, this can result in considerable speedups to many algorithms (computationally heavy parts of numpy and scipy, for example, are written as C extension modules).
 
 In this post I will be using python 3; I believe there are a few minor details that are different if you are writing extension modules for python 2.
 
@@ -19,9 +19,9 @@ The Problem
 An efficient algorithm for producing such a list is the [Sieve of Eratosthenes](https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes), which goes like this
 
   - Initalize a boolean list of length $$n$$, which we will use to record whether or not each integer is prime.
-  - Zero and one are not prime.
-  - Two is prime, mark it as such.  All other multiples of two are not prime, mark them so.
-  - The next unmarked number is not divisible by any of the primes we have already marked, so it must be prime; mark it, then mark all its multiples as not prime.  (In the first case, this number is three).
+  - Zero and one are not prime, mark them so.
+  - Two is prime, mark it as such.  All other multiples of two are not prime.
+  - The next unmarked number is not divisible by any of the primes we have already marked, so it must be prime; mark it, then mark all its multiples as not prime.  (the first time we get to this step, this unmarked number is three).
   - Repeat the above procedure until the list is exhausted.
 
 There is one minor optimization to the above algorithm that it is always worth employing.  When we find a prime $$p$$ we have, in previous steps, marked as non-prime all multiples of all primes in the interval $$\left[ 0, p \right]$$.  This means that we must have found all non-primes less than $$p^2$$, for any composite number $$< p^2$$ must be divisible by some number $$< \sqrt{p^2} = p$$. So, when marking mulitples of a prime $$p$$, we can start marking at $$p^2$$.
@@ -52,13 +52,15 @@ Our goal will be to translate this algorithm into a python module written in C.
 Creating a Module Object
 ------------------------
 
-We are going to create a python module `primes` which contains the `primes_less_than` function, so let's begin with a file `primes.c`.  Before we can get to implementing the algorithm, we need to do the somewhat boring work of creating the module object, then telling C what functions and objects we want to put inside it.
+We are going to create a python module `primes` which contains the `primes_less_than` function, so let's begin with a file `primes.c`.  Before we can get to implementing the algorithm, we need to do the somewhat boring work of creating the module object, and then telling C what functions and objects we want to put inside it.
+
+Since our goal is to interface directly wih python, we need to import the python C api by including the appropriate header
 
 {% highlight c %}
 #include <Python.h>
 {% endhighlight %}
 
-Since our goal is to interface directly wih python, we need to import the python C api by including the appropriate header
+including this header makes the C python api available to us.
 
 First, lets record what functions we intend to include in our module by creating what python calls the *method table*
 
@@ -72,8 +74,8 @@ static PyMethodDef PrimesMethods[] = {
 
 `PyMethodDef` is a [defined](https://github.com/python/cpython/blob/2d264235f6e066611b412f7c2e1603866e0f7f1b/Include/methodobject.h#L40) by the python header, it is a simple `struct` with four entries
 
-  - `char* ml_name`: The name of the method, as called from python.
-  - `PyCFunction ml_func`: A pointer to the C function implementing the method.  The naming convention for python methods is `module_name + '_' + method_name`, which is how we ended up with the awkward function name `primes_primes_less_than`.
+  - `char* ml_name`: The name of the method.
+  - `PyCFunction ml_func`: A pointer to the C function implementing the method.  The naming convention for python methods is `module_name + '_' + method_name`, which is how we ended up with the awkward C function name `primes_primes_less_than`.
   - `int ml_flags`: A python header defined set of flags controlling method calling conventions.  We will be using the simplest possible calling convention (positional arguments only), which corosponds to the `METH_VARARGS` flag.
   - `char* ml_doc`: A documentation string for the method.
 
@@ -83,7 +85,7 @@ The `PyCFunction` type is [defined](https://github.com/python/cpython/blob/2d264
 typedef PyObject *(*PyCFunction)(PyObject *, PyObject *);
 {% endhighlight %}
 
-this is a [type definintion of a poiner to a function](http://stackoverflow.com/questions/1591361/understanding-typedefs-for-function-pointers-in-c) that consumes two pointers to `PyObjects` and returns a pointer to a `PyObject` (that's not a `typedef` I could pull off first try) .  We will say morea about `PyObjects` later on.
+this is a [type definintion of a pointer to a function](http://stackoverflow.com/questions/1591361/understanding-typedefs-for-function-pointers-in-c) that consumes two pointers to `PyObjects` and returns a pointer to a `PyObject` (not a `typedef` I could pull off first try).  We will say morea about `PyObjects` later on.
 
 Now we have to define the module object and tell it about our method table
 
@@ -103,7 +105,7 @@ Here there are some internal python things, which we mostly dont have to worry a
   - `char* m_doc`: A documentation string for the module.
   - `PyMethodDef* m_methods`: The method table of the module being created.
 
-Finally we need to initialize the module, i.e. tell python what to do when we `import` it.  That looks like
+Finally we need to initialize the module, i.e. tell python what to do when we `import` it
 
 {% highlight c %}
 PyMODINIT_FUNC PyInit_primes(void) {
@@ -117,7 +119,7 @@ PyMODINIT_FUNC PyInit_primes(void) {
 }
 {% endhighlight %}
 
-The return type `PyMODINiT_FUNC` is defined in a compiler macro, created in a maze of `#defines` [here](https://github.com/python/cpython/blob/8707d182ea722da19ace7fe994f3785cb77a679d/Include/pyport.h#L734).  The simplest possible definition is used when compiling modules while building the interpreter itself
+The return type `PyMODINiT_FUNC` is a compiler macro, created in a maze of `#defines` [here](https://github.com/python/cpython/blob/8707d182ea722da19ace7fe994f3785cb77a679d/Include/pyport.h#L734).  This allows the declaration to adapt itself situationally.  The simplest possible declaration is used when compiling modules while building the python runtime itself
 
 {% highlight c %}
 # define PyMODINIT_FUNC PyObject*
@@ -131,38 +133,40 @@ In our case we have already have a working install of python, so we need to comp
 
 Luckily, we don't have to manage the compiler flags ourselves to get this to work out correctly, python will do that for us, as we will see when building our module.
 
-It's worth mentioning that we return `NULL` when the module creation fails, this is a general pattern in `cpython` code.  When failures occur, we signal a generic error to the caller by passing `NULL`, otherwise the result of the function is returned.  To signal more granular error information the runtime provides an api that allows us to set and check exceptions in a static global variable.
+It's worth mentioning that we return `NULL` when the module creation fails, this is a general pattern in `cpython` code.  When failures occur, we signal a generic error to the caller by passing `NULL`, otherwise a valid `PyObject` is returned.  To signal more granular error information the runtime provides an api that allows us to set and check exceptions in a static global variable.
 
-This is the end of the neccesarry setup, so we can get on to writing the code to solve our actual problem.  We will leave this setup code at the bottom of the module (as it references the yet to be written method `primes_primes_less_than`, which we will need to define above the module method table, or else the compiler will complain).
+This is the end of the neccesarry setup, so we can get on to writing code to solve our actual problem.  We will leave the setup code we just completed at the bottom of the module (as it references the yet to be written method `primes_primes_less_than`, which we will need to define above the module method table, or else the compiler will complain).
 
 Getting Python Objects Into C
 -----------------------------
 
 There are two fundamental tasks we must complete when writing a C function to be called from pyhon
 
-  - Recieve the arguments passed into the python method, and deconstruct them into C datatypes.
-  - Construct a python object to return to the caller.
+  - Recieve the python objects passed asarguments into the python method, and deconstruct them into thier native C datatypes.
+  - Construct a python object to return.
 
-The function signature of a module level python method in C is always the same
+Here we will focus on the first task.
+
+The function signature of a module level python method in C is, suprisingly, always the same
 
 {% highlight c %}
-static PyObject* primes_primes_less_than(PyObject* self, PyObject *args)
+static PyObject* primes_primes_less_than(PyObject* self, PyObject* args)
 {% endhighlight %}
 
 We won't need the `self` argument (luckily, the documentation is somewhat unclear about its purpose), but we will certainly need `args`.  
 
-Notice that all the arguments to the function are passed from python as a single, generic, python object.  The `PyObject` type is completely generic, at thier most fundamental level a `PyObject` contains a reference count (the number of other objects that care that it still exists) and a pointer to a structure containing more granular type information.  Depending on what type of `PyObject` it is, it can contain an entire host of other functionality (numbers, lists, tuples, and dictionaries are all `PyObject`s at the C level).
+Notice that all the arguments to the function are passed from python as a single python object `args`.  The `PyObject` type is completely generic; at its most fundamental level a `PyObject` contains a reference count (the number of other objects that care that it still exists) and a pointer to a structure containing more granular type information.  Depending on what flavor of `PyObject` it is, it can contain an entire host of other functionality.  Numbers, lists, tuples, and dictionaries are all `PyObject`s at the C level.
 
-In our case, the `self` object will contain a single *python* integer, we need to extract the *C* integer out of this so we can use it in our algorithm (note the distinction, a python integer is a `PyObject`, but a C integer is only a 64-bit binary integer).  Thankfully, the python developers have provided a wonderful way to do this 
+In our case, the `self` object will contain a single *python* integer, we need to extract the *C* integer out of this so we can use it in our algorithm (note the distinction, a python integer is a `PyObject`, but a C integer is a native 64-bit binary integer, to highlight the distinction it is common to call a python integer "wrapped").  
 
-The code
+Thankfully, the python developers have provided a wonderful way to unwrap the native integer data.  The code
 
 {% highlight c %}
 long n;
 PyArg_ParseTuple(args, "l", &n);
 {% endhighlight %}
 
-This will parse the argument object, extract the long integer, and place it in the variable `n`.  The interface to `PyArg_ParseTuple` is very clever, the number and types of arguments to the python method are expressed in a format string passed as the second argument.  If we had two integer arguments we would write
+will parse the argument object, extract the long integer, and place it in the variable `n`.  The interface to `PyArg_ParseTuple` is very clever, the number and types of arguments to the python method are communicated in a format string passed as the second argument.  If we had two integer arguments we would write
 
 {% highlight c %}
 long n, m;
@@ -210,7 +214,7 @@ static PyObject* primes_primes_less_than(PyObject* self, PyObject *args) {
 }
 {% endhighlight %}
 
-An interesting engeneering question now arises, should we implement the algorithm inline or break out the computation into a seperate, private, function?  Consider the consesquences of writing the code inline, what would happen if we wrote another function in this module that would like to *call* `primes_primes_less_than`?  That function would have to *construct* a python argument to pass as `args`, it could not simply pass along the `long`, which seems like a lot of trouble.  If instead, we write a private function `_primes_less_than` which consumes a `long`, then we have the algorithm available to other functions in our C code, a clear win.  So our python method becomes
+An interesting engeneering question now arises, should we implement the algorithm inline or break out the computation into a seperate, private, function?  Consider the consesquences of writing the code inline, what would happen if we wrote another function in this module that would like to *call* `primes_primes_less_than`?  That function could not simply pass along the `long`, it would have to *construct* a python object to pass as `args`, which seems like a lot of trouble.  If instead, we write a private function `_primes_less_than` which consumes a `long`, then we have the algorithm available to other functions in our C code, a clear win.  So our python method becomes
 
 {% highlight c %}
 static PyObject* primes_primes_less_than(PyObject* self, PyObject *args) {
@@ -239,7 +243,7 @@ Reviewing our pure python implementation, we need two data structures
   - A fixed length boolean array (length `n`) to record which intergers we have determened to be composite so far, we called this `could_be_prime` in our python implementation.
   - A varaible length array for accumulating our prime numbers.
 
-We only need the boolean array for the life of the function call, so we can create it on the stack and let C collect it automatically when it falls out of scope (though this decision will have consequences, keep reading).  We only know the size of the array at runtime (as oposed to compile time), but modern C (C99) allows us to get away with that using 
+We only need the boolean array for the life of the function call, so we can create it on the stack (with [storage class automatic](http://www-ee.eng.hawaii.edu/Courses/EE150/Book/chap14/subsection2.1.1.1.html#SECTION0011100000000000000)) and let C collect it automatically when it falls out of scope (though this decision will have consequences, keep reading).  We only know the size of the array at runtime (as oposed to compile time), but modern C (C99) allows us to get away with that using [varaible length arrays](https://gcc.gnu.org/onlinedocs/gcc/Variable-Length.html).
 
 To accumulate our prime numbers, we will use a python list, since we need to return the result anyway, and it saves us from writing our own expandable array type.
 
@@ -264,8 +268,7 @@ maybe_prime[0] = 0;  // Not prime
 maybe_prime[1] = 0;  // Not prime
 {% endhighlight %}
 
-The implementation of the sieve is now quite straighforward.  We only need to know how to create an integer object that python can use, and how to add these to our python list.  These tasks are accomplished with the python api functions `PyLong_FromLong` and `PyList_Append`, which are well documented in the C api references for [python long integers](https://docs.python.org/3.5/c-api/long.html) and [python lists](https://docs.python.org/3.5/c-api/list.html).  Making use of these functions, it's easy to translate our sieving algorithm into C
-
+The implementation of the sieve is now quite straighforward.  We only need to know how to create a python integer object, and how to add these to our (initially empty) python list.  These tasks are accomplished with the python api functions `PyLong_FromLong` and `PyList_Append`, which are well documented in the C api references for [python long integers](https://docs.python.org/3.5/c-api/long.html) and [python lists](https://docs.python.org/3.5/c-api/list.html).  Making use of these functions, it's easy to translate our sieving algorithm into C
 
 {% highlight c %}
 /* Sieve. */
@@ -284,7 +287,7 @@ And with that, we've written a complete extension module.
 Building and Testing the Module
 -------------------
 
-The last step is is to build our extension module, then test to make sure it works.
+The final steps are to build our extension module, and then test to make sure it works.
 
 Building is easy, we only need to create a very simple python script containing metadata needed for the build.  The complete `setup.py` script for our `primes` module is
 
@@ -312,7 +315,7 @@ building 'primes' extension
 ...
 {% endhighlight %}
 
-If we're very lucky, the module will compile without error, otherwise we have some bugs to fix.  In any case, once that's all resolved we have a build directory which contains our sharded library
+If we are very lucky, the module will compile without error, otherwise we have some bugs to fix.  In any case, once all the problems are resolved we have a build directory which contains our extension module
 
 {% highlight bash %}
 $ ls build/
@@ -362,7 +365,9 @@ $ time python c-test.py
 Segmentation fault
 {% endhighlight %}
 
-The dreaded segmentation fault!  What's going on here?  Why did our program crash here when we verified that it worked for a smaller list of primes?  Recall from earlier that we created our working array `could_be_prime` in the local scope of a function, i.e. we created the array on the stack.  The stack is generally a small segment of memory, on a unix system the stack size can be determined with the `ulimit` command
+The dreaded segmentation fault!  What's going on here?  Why did our program crash here when we verified that it worked for a smaller list of primes?  
+
+Recall from earlier that we created our working array `could_be_prime` in the local scope of a function, i.e. we created the array on the stack.  The stack is generally a small segment of memory, on a unix system the stack size can be determined with the `ulimit` command
 
 {% highlight bash %}
 $ ulimit -s -a
@@ -371,7 +376,7 @@ stack size              (kbytes, -s) 8192
 ...
 {% endhighlight %}
 
-Clearly our list of $10^8$ booleans is overflowing this limit.  We could solve this issue by using `ulimit` to allow our program a (much) bigger stack, but this is brittle.  Instead, we can just allocate space for `could_be_prime` on the heap
+Clearly our list of $$10^8$$ booleans is overflowing this limit.  We could solve this issue by using `ulimit` to allow our program a (much) bigger stack, but this is brittle.  Instead, we can just allocate space for `could_be_prime` on the heap
 
 {% highlight c %}
 static PyObject* _primes(long n) {
@@ -395,4 +400,13 @@ user	0m2.021s
 sys	0m0.270s
 {% endhighlight %}
 
-So we got about an order of magnitude of speedup for our effort.  For an algorithm that is used in a tight loop, this coud be a very signifigant boon.
+Nice!
+
+Conclusions
+-----------
+
+We got about an order of magnitude of speedup for our effort.  For an algorithm that is used in a tight loop, this coud be a very signifigant boon.  It is possible to go much further, creating classes and objects at the C level.
+
+The [cython](http://cython.org/) project offers another approach to writing extension modules, using a python like dialect instead of interacting with the C api directly.  Cython also integrates very nicely with numpy, which can be more difficult to do in pure C.  On the other hand, writing cython does not offer the same insights and discovery as interacting with `cython` directly, so both approaches have thier advantages.
+
+Writing an extension module is often held up as one of the great *possibilities* available to the python programmer, but I often get the feeling that few prople actually do it.  Hopefully this example will help more python programmers get over the fear and dive into deeper waters and adventures.
