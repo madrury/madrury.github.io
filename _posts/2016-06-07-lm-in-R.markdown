@@ -1,11 +1,13 @@
 ---
 layout: post
-title:  "How R Fits a Linear Model "
+title:  "A Deep Dive Into How R Fits a Linear Model"
 date:   2016-06-03 08:52:55 -0700
 categories: jekyll update
 ---
 
-[R](https://www.r-project.org/) is a high level language for statistical computations.  Many user's comfortably interact with R without giving much thought to what happens under the covers when simple requests are fufilled by the language.  None the less, it is an interesting topic, especially for anyone with an interest in general computing and programming languages.  In the spirit of the famous thought experiment "[what happens when you google something](https://github.com/alex/what-happens-when)", I'd like to discuss what heppens when you fit a linear model in R.  The answer will pass through three different programming languages, and lead back to some of the earliest open source code in existence.
+[R](https://www.r-project.org/) is a high level language for statistical computations.  One of my most used R functions is the humble `lm`, which fits a linear regression model.  The mathematics behind fitting a linear regression is relatively simple, some standard linear algebra with a touch of calculus.  It theredore may be quite suprising for the reader to learn that behind even the simplest of calls to R's `lm` function lies a journey through three different programming languages, which in the end arrives at some of the oldest open source code in existence.
+
+So, in the spirit of the famous thought experiment "[what happens when you google something](https://github.com/alex/what-happens-when)", I'd like to discuss what heppens when you fit a linear model in R.
 
 This post is inspired by a question of Antoni Parellada's on CrossValidated.  It is essentially a much expanded version of my answer there. 
 
@@ -14,7 +16,15 @@ We will make heavy use of the R source code, which you can find [here](https://g
 The R Layer
 -----------
 
-Our point or orgin is `lm``, the interface exposed to the R programmer.  It offers a friendly way to specify models using the core R formula and dataframe datatypes
+Our point or orgin is `lm``, the interface exposed to the R programmer.  It offers a friendly way to specify models using the core R `formula` and `data.frame` datatypes.  A prototypical call to `lm` looks something like this
+
+{% highlight r %}
+m <- lm(y ~ x1 + x2, data = df)
+{% endhighlight %}
+
+The first argument is the model formula, and the second is a dataframe.  The dataframe must contain columns `x1`, `x2`, and `y`, whcih are used to fit the model.
+
+The source code for and R function (except those implemented in the R source code itself, which are called `.Primitive`s) can be viewed by typing the function name into the R interpreter.  Typing `lm` reveals the full functon signature
 
 {% highlight r %}
 lm <- function (formula, data, subset, weights, na.action,
@@ -23,37 +33,38 @@ lm <- function (formula, data, subset, weights, na.action,
 		offset, ...)
 {% endhighlight %}
 
-You can look at the source for this (or any function) by just typing `lm` at the R console.  The majority of it (like the majority of most production level code) is busy work: checking inputs,
+It is worth a moment to point out, though after this point we will ignore it and focus on the interesting bits, that majority of the source code to `lm` (the same is true for the majority of most quality production level code) is boring but neccessary busy work and defensive programing: checking inputs, throwing errors
 
 {% highlight r %}
-    if (!is.null(w) && !is.numeric(w)) 
-        stop("'weights' must be a numeric vector")
+...
+if (!is.null(w) && !is.numeric(w)) 
+    stop("'weights' must be a numeric vector")
+...
 {% endhighlight %}
 
-and setting of object attributes 
+and setting of object attributes
 
 {% highlight r %}
+...
 z$na.action <- attr(mf, "na.action")
 z$offset <- offset
 z$contrasts <- attr(x, "contrasts")
 z$xlevels <- .getXlevels(mt, mf)
+...
 {% endhighlight %}
 
-and throwing of errors.
-
-If we think at a high level there are two fundamental tasks that `lm` must accomplish
+Now, if we think at a high level, there are two fundamental tasks that `lm` must accomplish
 
   - It must consume the formula and dataframe it recieves and produce a design matrix $X$.
   - It must use this design matrix and some linear algebra to compute the linear regression coefficients.
 
-<br>
-both of these tasks turn out to be interesting.
+both of these tasks turn out to, in fact, be interesting bits.
 
 
 Constructing the Design Matrix
 ------------------------------
 
-The first of these two tasks is completed here
+Obviously we need to construct a design matrix first.  This task starts in this dense and somewhat obscure block of code
 
 {% highlight r %}
 mf <- match.call(expand.dots = FALSE)
@@ -65,7 +76,7 @@ mf[[1L]] <- quote(stats::model.frame)
 mf <- eval(mf, parent.frame())
 {% endhighlight %}
 
-This small block highlights a strange idom of R programming, its direct manipulation of function calls, frozen in time.  The function `match.call`, when called in the local scope of another function, returns an object of type `call` which captures the call to the enclosing function along with the values bound to its formal arguments.
+This small block highlights a strange idiom of R programming, its direct manipulation of function calls, frozen in time.  The function `match.call`, when called upon in the local scope of another function, returns an object of type `call`, which captures the call to the enclosing function along with the values bound to its formal arguments.  That's pretty difficult to take in, so here is an example
 
 {% highlight r %}
 > f <- function(x, y) {
@@ -78,14 +89,23 @@ f(x = 1, y = 2)
 [1] "call"
 {% endhighlight %}
 
-A `call` object is a small wonder, it can be indexed into and manipulated much like other R objects.  The first index always gives the name of the function that was called (not as a string, as a `symbol` object), the others give the arguments passed into the call
+A `call` object is a small wonder, it can be indexed into and manipulated much like other R objects.  The first index always gives the name of the function that was called (not as a string, as a [symbol](https://stat.ethz.ch/R-manual/R-devel/library/base/html/name.html) object) 
 
 {% highlight r %}
 > cl <- f(1, 2)
 > cl[[1]]
 f
+> class(f(1, 2)[[1]])
+[1] "name"
+{% endhighlight %}
+
+The other indicies return the arguments passed into the call
+
+{% highlight r %}
 > cl[[2]]
 [1] 1
+> cl[[3]]
+[1] 2
 {% endhighlight %}
 
 In our current situation the function we called is `lm`, so the line
@@ -94,7 +114,7 @@ In our current situation the function we called is `lm`, so the line
 mf[[1L]] <- quote(stats::model.frame)
 {% endhighlight %}
 
-replaces `lm` in the call object with `model.frame` (the `quote` creates a symbol out of the name).  Similarly, the lines
+replaces  the function name `lm` in the call object with `model.frame` (the `quote` creates a symbol out of a string).  Similarly, the lines
 
 {% highlight r %}
 m <- match(c("formula", "data", "subset", "weights", "na.action", 
@@ -117,19 +137,20 @@ to a call to `model.frame` like
 model.frame(y ~ x1 + x2, weights = w, data = df)
 {% endhighlight %}
 
-Which is pretty neat.
+Which is pretty neat.  We can now unstop time, and evaluate the function call we have so meticulously constructed
 
+{% highlight r %}
+mf <- eval(mf, parent.frame())
+{% endhighlight %}
 
-The final step is quite obvious at this point.  We directly pass the newly constructed call to `model.frame` to `eval', which evaluates it.
-
-We now, courtesy of `model.frame`, have a `data.frame` type object (a `data.frame` with some additional attributes attached) that contains all the terms in our formula fully evaluated.  For example
+We get, courtesy of `model.frame`, a `data.frame` type object (that is, a `data.frame` with some additional attributes attached) that contains all the terms in our formula fully evaluated.  For example
 
 {% highlight r %}
 > df <- data.frame(
 >      y = c(1, 2, 3, 4, 5),
 >      x = c(5, 4, 3, 2, 1)
 > )
->model.frame(y ~ log(x), data = df)
+> model.frame(y ~ log(x), data = df)
    y    log(x)
  1 1 1.6094379
  2 2 1.3862944
@@ -138,24 +159,27 @@ We now, courtesy of `model.frame`, have a `data.frame` type object (a `data.fram
  5 5 0.0000000
 {% endhighlight %}
 
-Attached to this is a [terms](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/terms.object.html) attribute, which contains metadata needed to identify which column represents the response, and which the predictors (the encoding of the information is pretty obscure, so I wont bother to unwind it here).  Using the data frame and the terms data, we can construct the final design matrix
+Attached to `mf` is a [terms](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/terms.object.html) attribute, which contains metadata needed to identify which column represents the response, and which the predictors (the encoding of this information is pretty obscure, so I wont bother to unwind it here).  Using the data frame and the terms data, we can construct the final design matrix
 
 {% highlight r %}
 mt <- attr(mf, "terms")
 x <- model.matrix(mt, mf, contrasts)
 {% endhighlight %}
 
+and response vector
+
+###
 
 Calculating the Regression - R
 ------------------------------
 
-Now that our design matrix is constructed, we can move on to fitting the regression, this happens here
+Now that we have a design matrix, we can move on to fitting the regression.
 
 {% highlight r %}
 lm.fit(x, y, offset = offset, singular.ok = singular.ok, ...)
 {% endhighlight %}
 
-`lm.fit` is another R function, which we could call ourself if we are so inclined
+`lm.fit` is another R function, which we could call ourselives if we are so inclined
 
 {% highlight r %}
 > X = matrix(c(1, 1, 1, 1, 2, 3), nrow = 3)
