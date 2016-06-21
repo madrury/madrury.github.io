@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Writing a C Extension Module for Python"
-date:   2016-06-07 08:52:55 -0700
+date:   2016-06-20 08:52:55 -0700
 categories: jekyll update
 ---
 
