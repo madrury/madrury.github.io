@@ -5,26 +5,26 @@ date:   2016-06-03 08:52:55 -0700
 categories: jekyll update
 ---
 
-[R](https://www.r-project.org/) is a high level language for statistical computations.  One of my most used R functions is the humble `lm`, which fits a linear regression model.  The mathematics behind fitting a linear regression is relatively simple, some standard linear algebra with a touch of calculus.  It theredore may be quite suprising for the reader to learn that behind even the simplest of calls to R's `lm` function lies a journey through three different programming languages, which in the end arrives at some of the oldest open source code in existence.
+[R](https://www.r-project.org/) is a high level language for statistical computations.  One of my most used R functions is the humble `lm`, which fits a linear regression model.  The mathematics behind fitting a linear regression is relatively simple, some standard linear algebra with a touch of calculus.  It therefore may quite suprise the reader to learn that behind even the simplest of calls to R's `lm` function lies a journey through three different programming languages, which in the end arrives at some of the oldest open source code in existence.
 
 So, in the spirit of the famous thought experiment "[what happens when you google something](https://github.com/alex/what-happens-when)", I'd like to discuss what heppens when you fit a linear model in R.
 
-This post is inspired by a question of Antoni Parellada's on CrossValidated.  It is essentially a much expanded version of my answer there. 
+This post is inspired by a [question](http://stats.stackexchange.com/questions/154485/least-squares-regression-step-by-step-linear-algebra-computation) of Antoni Parellada's on CrossValidated.  It is essentially a much expanded version of my answer there. 
 
 We will make heavy use of the R source code, which you can find [here](https://github.com/wch/r-source).
 
 The R Layer
 -----------
 
-Our point or orgin is `lm``, the interface exposed to the R programmer.  It offers a friendly way to specify models using the core R `formula` and `data.frame` datatypes.  A prototypical call to `lm` looks something like this
+Our point or orgin is `lm`, the interface exposed to the R programmer.  It offers a friendly way to specify models using the core R `formula` and `data.frame` datatypes.  A prototypical call to `lm` looks something like this
 
 {% highlight r %}
 m <- lm(y ~ x1 + x2, data = df)
 {% endhighlight %}
 
-The first argument is the model formula, and the second is a dataframe.  The dataframe must contain columns `x1`, `x2`, and `y`, whcih are used to fit the model.
+The first argument is a model formula, and the second is a dataframe.  The dataframe must contain columns `x1`, `x2`, and `y`, which become the design matrix and response vector of the model.
 
-The source code for and R function (except those implemented in the R source code itself, which are called `.Primitive`s) can be viewed by typing the function name into the R interpreter.  Typing `lm` reveals the full functon signature
+The source code for any R function (except those implemented in the R source code itself, which are called `.Primitives`) can be viewed by typing the function name into the R interpreter.  Typing `lm` reveals the full functon signature
 
 {% highlight r %}
 lm <- function (formula, data, subset, weights, na.action,
@@ -33,7 +33,7 @@ lm <- function (formula, data, subset, weights, na.action,
 		offset, ...)
 {% endhighlight %}
 
-It is worth a moment to point out, though after this point we will ignore it and focus on the interesting bits, that majority of the source code to `lm` (the same is true for the majority of most quality production level code) is boring but neccessary busy work and defensive programing: checking inputs, throwing errors
+It is worth a moment to point out, that majority of the source code to `lm` (the same is true for the majority of most quality production level code) is boring but neccessary busy work and defensive programing: checking inputs, throwing errors
 
 {% highlight r %}
 ...
@@ -52,6 +52,8 @@ z$contrasts <- attr(x, "contrasts")
 z$xlevels <- .getXlevels(mt, mf)
 ...
 {% endhighlight %}
+
+The same is true for much of the other code we will investigate, but hereafter we will ignore defensive code and focus only on the interesting bits.
 
 Now, if we think at a high level, there are two fundamental tasks that `lm` must accomplish
 
@@ -76,7 +78,7 @@ mf[[1L]] <- quote(stats::model.frame)
 mf <- eval(mf, parent.frame())
 {% endhighlight %}
 
-This small block highlights a strange idiom of R programming, its direct manipulation of function calls, frozen in time.  The function `match.call`, when called upon in the local scope of another function, returns an object of type `call`, which captures the call to the enclosing function along with the values bound to its formal arguments.  That's pretty difficult to take in, so here is an example
+This small block highlights a strange idiom of R programming, its direct manipulation of function calls, frozen in time.  The function `match.call`, when called upon in the local scope of another function, returns an object of type `call`, which captures the call to the enclosing function along with the values bound to its [formal parameters](http://cs-fundamentals.com/tech-interview/c/difference-between-actual-and-formal-arguments-in-c.php).  That's pretty difficult to take in, so here is an example
 
 {% highlight r %}
 > f <- function(x, y) {
@@ -137,13 +139,15 @@ to a call to `model.frame` like
 model.frame(y ~ x1 + x2, weights = w, data = df)
 {% endhighlight %}
 
-Which is pretty neat.  We can now unstop time, and evaluate the function call we have so meticulously constructed
+Which is pretty neat.
+
+We can now unstop time and evaluate the function call we have so meticulously constructed
 
 {% highlight r %}
 mf <- eval(mf, parent.frame())
 {% endhighlight %}
 
-We get, courtesy of `model.frame`, a `data.frame` type object (that is, a `data.frame` with some additional attributes attached) that contains all the terms in our formula fully evaluated.  For example
+We get, courtesy of `model.frame`, a `data.frame` that contains all the terms in our formula fully evaluated.  For example
 
 {% highlight r %}
 > df <- data.frame(
@@ -159,7 +163,7 @@ We get, courtesy of `model.frame`, a `data.frame` type object (that is, a `data.
  5 5 0.0000000
 {% endhighlight %}
 
-Attached to `mf` is a [terms](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/terms.object.html) attribute, which contains metadata needed to identify which column represents the response, and which the predictors (the encoding of this information is pretty obscure, so I wont bother to unwind it here).  Using the data frame and the terms data, we can construct the final design matrix
+Attached to the model frame `mf` is a [terms](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/terms.object.html) attribute, which contains metadata needed to identify which column represents the response, and which the predictors (the encoding of this information is pretty obscure, so I wont bother to unwind it here).  Using the data frame and the terms data, we can construct the final design matrix
 
 {% highlight r %}
 mt <- attr(mf, "terms")
@@ -168,7 +172,10 @@ x <- model.matrix(mt, mf, contrasts)
 
 and response vector
 
-###
+{% highlight r %}
+y <- model.response(mf, "numeric")
+{% endhighlight %}
+
 
 Calculating the Regression - R
 ------------------------------
@@ -179,7 +186,7 @@ Now that we have a design matrix, we can move on to fitting the regression.
 lm.fit(x, y, offset = offset, singular.ok = singular.ok, ...)
 {% endhighlight %}
 
-`lm.fit` is another R function, which we could call ourselives if we are so inclined
+`lm.fit` is another R function, which we can call ourselives if we are so inclined
 
 {% highlight r %}
 > X = matrix(c(1, 1, 1, 1, 2, 3), nrow = 3)
@@ -191,16 +198,15 @@ lm.fit(x, y, offset = offset, singular.ok = singular.ok, ...)
  ...
 {% endhighlight %}
 
-While `lm` conveniently works with formulas and `data.frame`s, `lm.fit` needs matrices, so moving from `lm` to `lm.fit` removes one layer of abstraction.  
+While `lm` conveniently works with formulas and `data.frames`, `lm.fit` wants matrices, so moving from `lm` to `lm.fit` removes one layer of abstraction.  
 
-Checking the source for `lm.fit`, there is much more busywork, which we will simply ignore.  The really interesting action is in this one line
+The interesting action in `lm.fit` is the one line
 
 {% highlight r %}
 z <- .Call(C_Cdqrls, x, y, tol, FALSE)
 {% endhighlight %}
 
-Now we are getting somewhere.  `.Call` is modern R's way of calling into C code.  The first argument to `.Call` is a sting or symbol identifying a compiled C function that is either part of the R distribution, or linked as a shared library.  In some cases where the called function is part of the R source code, the function name is prepended with a `C_`. In our case, we are calling a C function named `Cdqrls`.  The remaining arguemnts to `.Call` are passed as R objects into the C function, as we will see shortly.
-
+Now we are getting somewhere.  `.Call` is modern R's way of calling into C code.  The first argument to `.Call` is a sting or symbol identifying a compiled C function that is either part of the R distribution, or linked as a shared libraryihe remaining arguemnts to `.Call` are passed as R objects into the C function, as we will see shortly. In some cases where the called function is part of the R source code, the function name is prepended with a `C_`. In our case, we are calling a C function named `Cdqrls`.  
 
 Calculating the Regression - C
 ------------------------------
@@ -211,13 +217,13 @@ The `Cdqrls` is found in the R source [here][1].  Note its peculiar signature
 SEXP Cdqrls(SEXP x, SEXP y, SEXP tol, SEXP chk)
 {% endhighlight %}
 
-A `SEXP` is the datatpye that R's source assigns to a general R object.  Essentailly everything that an R programmer manipulates when working day to day is internally an `SEXP`.  There are various subypes of `SEXP`s used for more specific types of objects, for example
+`SEXP` is the datatpye that R's source assigns to a generic R object.  Essentailly everything that an R programmer manipulates when working day to day is internally an `SEXP`.  There are various subypes of `SEXP`s used for more specific types of objects, for example
 
   - A `INTSXP` is an integer vector.
   - A `REALSXP` is a vector of floating point numbers.
   - A `VECSXP` is an R list.
 
-More advanced types are also `SEXP`s, a `CLOSXP` is an R function.
+More advanced types, that you may not think of as data, are also `SEXP`s, a `CLOSXP` is an R function.
 
 Knowing these types, we can make some sense of the code in `Cdqrls`.  Here, a list is created to hold the output object
 
@@ -227,7 +233,7 @@ const char *ansNms[] = {"qr", "coefficients", "residuals", "effects",
 PROTECT(ans = mkNamed(VECSXP, ansNms));
 {% endhighlight %}
 
-Here, a vector of floating point numbers is created to hold the fit coefficints, which is then inserted in the appropriate slot in the ouput object
+Here, a vector of floating point numbers is created to hold the fit coefficients, which is then inserted in the appropriate slot in the ouput object
 
 {% highlight c %}
 coefficients = (ny > 1) ? allocMatrix(REALSXP, p, ny) : allocVector(REALSXP, p);
@@ -237,7 +243,7 @@ SET_VECTOR_ELT(ans, 1, coefficients);
 
 notice that, depending on the shape of `y`, `coefficients` can be either a matrix or a regular vector.
 
-The `PROTECT` macro issues instruction to Rs garbage collector, new objects must be `PROTECTE`D, lest they be collected.
+The `PROTECT` macro issues instruction to Rs garbage collector, new objects must be `PROTECTED`, lest they be collected.
 
 Yet again, the majority of the work in `Cdqrls` is concerned with checking invariants of inputs, and constructing and initilizing new objects.  And, once more, the real work of fitting the model is passed to another function, further, we once again pass to another language 
 
