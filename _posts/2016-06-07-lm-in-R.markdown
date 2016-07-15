@@ -5,11 +5,11 @@ date:   2016-06-03 08:52:55 -0700
 categories: jekyll update
 ---
 
-[R](https://www.r-project.org/) is a high level language for statistical computations.  One of my most used R functions is the humble `lm`, which fits a linear regression model.  The mathematics behind fitting a linear regression is relatively simple, some standard linear algebra with a touch of calculus.  It therefore may quite suprise the reader to learn that behind even the simplest of calls to R's `lm` function lies a journey through three different programming languages, which in the end arrives at some of the oldest open source code in existence.
+[R](https://www.r-project.org/) is a high level language for statistical computations.  One of my most used R functions is the humble `lm`, which fits a linear regression model.  The mathematics behind fitting a linear regression is relatively simple, some standard linear algebra with a touch of calculus.  It therefore may quite suprise the reader to learn that behind even the simplest of calls to R's `lm` function lies a journey through three different programming languages, which in the end arrives at some of the oldest open source software still in common use.
 
-So, in the spirit of the famous thought experiment "[what happens when you google something](https://github.com/alex/what-happens-when)", I'd like to discuss what heppens when you fit a linear model in R.
+So, in the spirit of the famous thought experiment "[what happens when you type www.google.com into your address bar and pres enter](https://github.com/alex/what-happens-when)", I'd like to discuss what happens when you call `lm` in R.
 
-This post is inspired by a [question](http://stats.stackexchange.com/questions/154485/least-squares-regression-step-by-step-linear-algebra-computation) of Antoni Parellada's on CrossValidated.  It is essentially a much expanded version of my answer there. 
+This essay is inspired by a [question](http://stats.stackexchange.com/questions/154485/least-squares-regression-step-by-step-linear-algebra-computation) of Antoni Parellada's on CrossValidated.  It is essentially a much expanded version of my answer there. 
 
 We will make heavy use of the R source code, which you can find [here](https://github.com/wch/r-source).
 
@@ -22,9 +22,9 @@ Our point or orgin is `lm`, the interface exposed to the R programmer.  It offer
 m <- lm(y ~ x1 + x2, data = df)
 {% endhighlight %}
 
-The first argument is a model formula, and the second is a dataframe.  The dataframe must contain columns `x1`, `x2`, and `y`, which become the design matrix and response vector of the model.
+The first argument is a model formula, and the second is a dataframe.  The dataframe must contain columns `x1`, `x2`, and `y`, which are transformed into the design matrix and response vector of the model.
 
-The source code for any R function (except those implemented in the R source code itself, which are called `.Primitives`) can be viewed by typing the function name into the R interpreter.  Typing `lm` reveals the full functon signature
+The source code for any R function (except those implemented in the R source code itself, which are called `.Primitives`) can be viewed by typing the function name into the R interpreter.  Typing `lm` reveals the both full functon signature
 
 {% highlight r %}
 lm <- function (formula, data, subset, weights, na.action,
@@ -32,6 +32,8 @@ lm <- function (formula, data, subset, weights, na.action,
 		qr = TRUE, singular.ok = TRUE, contrasts = NULL,
 		offset, ...)
 {% endhighlight %}
+
+and the source code.  
 
 It is worth a moment to point out, that majority of the source code to `lm` (the same is true for the majority of most quality production level code) is boring but neccessary busy work and defensive programing: checking inputs, throwing errors
 
@@ -57,8 +59,8 @@ The same is true for much of the other code we will investigate, but hereafter w
 
 Now, if we think at a high level, there are two fundamental tasks that `lm` must accomplish
 
-  - It must consume the formula and dataframe it recieves and produce a design matrix $X$.
-  - It must use this design matrix and some linear algebra to compute the linear regression coefficients.
+  - It must consume the formula and dataframe it recieves and produce a design matrix and response vector.
+  - It must use this design matrix and response, along with some linear algebra, to compute the linear regression coefficients.
 
 both of these tasks turn out to, in fact, be interesting bits.
 
@@ -116,7 +118,7 @@ In our current situation the function we called is `lm`, so the line
 mf[[1L]] <- quote(stats::model.frame)
 {% endhighlight %}
 
-replaces  the function name `lm` in the call object with `model.frame` (the `quote` creates a symbol out of a string).  Similarly, the lines
+replaces  the function name `lm` in the call object with `model.frame` (the `quote` creates a symbol out of a string or expression).  Similarly, the lines
 
 {% highlight r %}
 m <- match(c("formula", "data", "subset", "weights", "na.action", 
@@ -206,7 +208,9 @@ The interesting action in `lm.fit` is the one line
 z <- .Call(C_Cdqrls, x, y, tol, FALSE)
 {% endhighlight %}
 
-Now we are getting somewhere.  `.Call` is modern R's way of calling into C code.  The first argument to `.Call` is a sting or symbol identifying a compiled C function that is either part of the R distribution, or linked as a shared libraryihe remaining arguemnts to `.Call` are passed as R objects into the C function, as we will see shortly. In some cases where the called function is part of the R source code, the function name is prepended with a `C_`. In our case, we are calling a C function named `Cdqrls`.  
+Now we are getting somewhere intriuging.  `.Call` is modern R's way of calling into C code.  The first argument to `.Call` is a sting or symbol identifying a compiled C function that is either part of the R distribution, or linked as a shared library.  The remaining arguemnts to `.Call` are passed as R objects into the C function, as we will see shortly. In some cases where the called function is part of the R source code, the function name is prepended with a `C_`. In our case, we are calling a C function named `Cdqrls`.  
+
+What happens to z??
 
 Calculating the Regression - C
 ------------------------------
@@ -217,15 +221,15 @@ The `Cdqrls` is found in the R source [here][1].  Note its peculiar signature
 SEXP Cdqrls(SEXP x, SEXP y, SEXP tol, SEXP chk)
 {% endhighlight %}
 
-`SEXP` is the datatpye that R's source assigns to a generic R object.  Essentailly everything that an R programmer manipulates when working day to day is internally an `SEXP`.  There are various subypes of `SEXP`s used for more specific types of objects, for example
+`SEXP` is the datatype that R's source uses for a generic R object.  Essentailly everything that an R programmer manipulates when working day to day is internally an `SEXP`.  There are various subtypes of `SEXPs` used for more specific types of objects, for example
 
   - A `INTSXP` is an integer vector.
   - A `REALSXP` is a vector of floating point numbers.
   - A `VECSXP` is an R list.
 
-More advanced types, that you may not think of as data, are also `SEXP`s, a `CLOSXP` is an R function.
+More advanced types, that you may not think of as data, are also `SEXPs`, for example, a `CLOSXP` is an R function.
 
-Knowing these types, we can make some sense of the code in `Cdqrls`.  Here, a list is created to hold the output object
+Knowing these types, we can make some sense of the code in `Cdqrls`.  Here, a list object is created to hold output
 
 {% highlight c %}
 const char *ansNms[] = {"qr", "coefficients", "residuals", "effects",
@@ -243,21 +247,34 @@ SET_VECTOR_ELT(ans, 1, coefficients);
 
 notice that, depending on the shape of `y`, `coefficients` can be either a matrix or a regular vector.
 
-The `PROTECT` macro issues instruction to Rs garbage collector, new objects must be `PROTECTED`, lest they be collected.
+The `PROTECT` macro issues instruction to R's garbage collector, new objects must be `PROTECTED`, lest they be collected.
 
-Yet again, the majority of the work in `Cdqrls` is concerned with checking invariants of inputs, and constructing and initilizing new objects.  And, once more, the real work of fitting the model is passed to another function, further, we once again pass to another language 
+Yet again, the majority of the work in `Cdqrls` is concerned with checking invariants of inputs, and constructing and initilizing new objects.  And, once more, the real work of fitting the model is passed to another function, implemented in another language 
 
 {% highlight c %}
-    F77_CALL(dqrls)(REAL(qr), &n, &p, REAL(y), &ny, &rtol,
-		    REAL(coefficients), REAL(residuals), REAL(effects),
-		    &rank, INTEGER(pivot), REAL(qraux), work);
+F77_CALL(dqrls)(REAL(qr), &n, &p, REAL(y), &ny, &rtol,
+                REAL(coefficients), REAL(residuals), REAL(effects),
+		&rank, INTEGER(pivot), REAL(qraux), work);
 {% endhighlight %}
+
+`F77_CALL` is a macro that wraps calls to fortran functions.  It doesn't amount to much
+
+{% highlight c %}
+#ifdef HAVE_F77_UNDERSCORE
+# define F77_CALL(x)	x ## _
+#else
+# define F77_CALL(x)	x
+#endif
+{% endhighlight %}
+
+The `##` operator in a C macro is simple string concatination, so `F77_CALL` either leaves its argument alone, or prepends an underscore.  It seems that certain platforms append an underscore to function names when fortran code is compiled, and C code calling into the compiled fortran must be aware of this.  For our purposes, the `F77_CALL` clues us in that we are now calling into a function `dqrls` implemented in fortran.
+
 
 
 Calculating the Regression - FORTRAN
 ------------------------------------
 
-So now we are on our third language, R has called C which is calling into fortran.  [Here's the fortran code][2].
+So now we are on our third language, R has called C which has called fortran.  [Here's the fortran code][2] for `dqrls`.
 
 The first comment tells it all
 
@@ -268,40 +285,76 @@ The first comment tells it all
     c     (1)               x * b = y
 {% endhighlight %}
 
-(interestingly, looks like the name of this routine was changed at some point, but someone forgot to update the comment).  So we're finally at the point where we can do some linear algebra, and actually solve the system of equations.  This is the sort of thing that fortran is really good at, which explains why we passed through so many layers to get here. 
+(interestingly, it looks like the name of this routine was changed at some point, from `dqrfit` to `dqrls`, but someone forgot to update the comment).  We're finally at the point where we can do some linear algebra, and actually solve the system of equations.  This is the sort of thing that fortran was designed to do, and is really good at, which explains why we eventually ended up here. 
 
-The comment also explains what the code is going to do
-
-{% highlight fortran %}
-    c     on return
-    c
-    c        x      contains the output array from dqrdc2.
-    c               namely the qr decomposition of x stored in
-    c               compact form.
-{% endhighlight %}
-
-So fortran is going to solve the system by finding the $QR$ decomposition.
-
-The first thing that happens, and by far the most important, is
+Fortran can be a bit jarring to modern programmer sensibilities.  Starting with the function signature:
 
 {% highlight fortran %}
-    call dqrdc2(x,n,n,p,tol,k,qraux,jpvt,work)
+subroutine dqrls(x,n,p,y,ny,tol,b,rsd,qty,k,jpvt,qraux,work)
 {% endhighlight %}
 
-This calls the fortran function `dqrdc2` on our input matrix `x`.  Whats this?  
+that is a *lot* of positional arguments.  Note taking is almost required to keep the order straight, and getting is wrong is likely to result in a program that simply gives nonsense results (as opposed to crashing).
+
+Worth noting is the lack of a return value.  Instead, we have some documentation containing the phrases "on entry"
 
 {% highlight fortran %}
-     c     dqrfit uses the linpack routines dqrdc and dqrsl.
+c     on entry
+c
+c        x      double precision(n,p).
+c               x contains n-by-p coefficient matrix of
+c               the system (1), x is destroyed by dqrfit.
+c
+c        n      the number of rows of the matrix x.
+c
+c        p      the number of columns of the matrix x.
+c
+c        y      double precision(n,ny)
+c               y contains the right hand side(s) of the system (1).
 {% endhighlight %}
 
-So we've finally made it to [linpack][3].  Linpack is a fortran linear algebra library that has been around since the 70s.  Most serious linear algebra eventualy finds its way to linpack.  In our case, we are using the function [dqrdc2][4]
+and "on return"
 
 {% highlight fortran %}
-    c     dqrdc2 uses householder transformations to compute the qr
-    c     factorization of an n by p matrix x.
+c     on return
+c
+c        x      contains the output array from dqrdc2.
+c               namely the qr decomposition of x stored in
+c               compact form.
+c
+c        b      double precision(p,ny)
+c               b contains the solution vectors with rows permuted
+c               in the same way as the columns of x.  components
+c               corresponding to columns not used are set to zero.
 {% endhighlight %}
 
-This is where the actual work is done.  It would take a good full day for me to figure out what this code is doing, it is as low level as they come.  But generically, we have a matrix $X$ and we want to factor it into a product $X = QR$ where $Q$ is an orthogonal matrix and $R$ is an upper triangular matrix.  This is a smart thing to do, because once you have $Q$ and $R$ you can solve the linear equations for regression
+Instead of explicitly returning a value to the caller, the common modern paradigm, instead fortran "returns" data from a function call by overwriting some of the data passed in.  This kind of thing can also be done in C by passing in a pointer to some data, but it is not the default way to return.
+
+It looks like fortran is going to solve our system by finding the QR decomposition of the coefficient matrix `x`.  The first thing that happens, and by far the most important, is
+
+{% highlight fortran %}
+call dqrdc2(x,n,n,p,tol,k,qraux,jpvt,work)
+{% endhighlight %}
+
+which calls the fortran function `dqrdc2` on our input matrix `x`
+
+{% highlight fortran %}
+c     dqrfit uses the linpack routines dqrdc and dqrsl.
+{% endhighlight %}
+
+We've finally made it to [linpack][3].  Linpack is a fortran linear algebra library that was [created between 1977 and 1979](http://history.siam.org/pdfs2/Dongarra_%20returned_SIAM_copy.pdf) by a distributed team of four programmers.  The development was funded by the NSF, and was eventally released to the general public.  Of course, in 1979 the public could not simply download linpack from the internet, an intrested party had to send $75 ($250 in 2016 dollars) to a distributor to recieve a copy on tape.  Sometimes its worth reflecting on how good a modern developer really has it.
+
+Most serious linear algebra eventualy finds its way to linpack or one of its more modern succesors (lapack).  In our case, we are using the function [dqrdc2][4]
+
+{% highlight fortran %}
+c     dqrdc2 uses householder transformations to compute the qr
+c     factorization of an n by p matrix x.
+{% endhighlight %}
+
+This is where the actual work is done.  We are going to decompose $$X$$ into its `QR` factorization.  
+
+$$ X = QR, \ Q \ \text{orthogonal}, \ R \ \text{upper trangular} $$ 
+
+This is a smart thing to do, because once you have $$Q$$ and $$R$$ you can solve the linear equations for regression
 
 $$ X^t X \beta = X^t Y $$
 
@@ -313,11 +366,14 @@ so the whole system becomes
 
 $$ R^t R \beta = R^t Q^t y $$
 
-but $R$ is upper triangular and has the same rank as $X^t X$, so as long as our problem is well posed, it is full rank, and we may as well just solve the reduced system
+$$R$$ is upper triangular, so it has the same rank as $$X^t X$$,  and if our problem is well posed then $$X^t X$$  has full rank.  So, as $$R$$ is a full rank matrix, we can ignote the $$R^t$$ factor in the quations above, and simply seek solutions to the equation
 
 $$ R \beta = Q^t y $$
 
-But here's the awesome thing.  $R$ is upper triangular, so the last linear equation here is just `constant * beta_n = constant`, so solving for $\beta_n$ is trivial.  You can then go up the rows, one by one, and substitute in the $\beta$s you already know, each time getting a simple one variable linear equation to solve.  So, once you have $Q$ and $R$, the whole thing collapses to what is called *backwards substitution*, which is easy.  You can read about this in more detail [here][5], where an explicit small example is fully worked out.
+But here's the awesome thing.  Again, $$R$$ is upper triangular, so the last linear equation here is just `constant * beta_n = constant`, so solving for $\beta_n$ is trivial.  We can then go up the rows, one by one, and substitute in the $\beta$s we already know, each time getting a simple one variable linear equation to solve.  So, once we have $$Q$$ and $$R$$, the whole thing collapses to what is called *backwards substitution*, which is easy.
+
+We can see the backwards substitution in the fortran code after the call to `dqrdc2` is made
+
 
 
   [1]: https://github.com/wch/r-source/blob/trunk/src/library/stats/src/lm.c
