@@ -372,8 +372,7 @@ $$ R \beta = Q^t y $$
 
 But here's the awesome thing.  Again, $$R$$ is upper triangular, so the last linear equation here is just `constant * beta_n = constant`, so solving for $\beta_n$ is trivial.  We can then go up the rows, one by one, and substitute in the $\beta$s we already know, each time getting a simple one variable linear equation to solve.  So, once we have $$Q$$ and $$R$$, the whole thing collapses to what is called *backwards substitution*, which is easy.
 
-We can see the backwards substitution in the fortran code after the call to `dqrdc2` is made
-
+The simplest and most intuitive way to compute the $$QR$$ factorization of a matrix is with the ghram-schmidt procedure, which unfortunately is not suitable for serious numeric work due to it's inherit instability.  Linpack instead uses Householder reflections, which have better properties.
 
 
   [1]: https://github.com/wch/r-source/blob/trunk/src/library/stats/src/lm.c
