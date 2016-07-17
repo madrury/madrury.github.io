@@ -374,20 +374,116 @@ But here's the awesome thing.  Again, $$R$$ is upper triangular, so the last lin
 
 The simplest and most intuitive way to compute the $$QR$$ factorization of a matrix is with the ghram-schmidt procedure, which unfortunately is not suitable for serious numeric work due to it's inherit instability.  Linpack instead uses Householder reflections, which have better properties.
 
+Householder Reflections
+-----------------------
+
+A Householder reflection is a linear transformation that preforms a reflection about a hyperplane (a hyperplane is a subspace of dimension one less than the space).  A hyperplane can be uniquely described by its unit normal vector $$v$$, in which case the corresponding Householder reflection is the mapping
+
+$$ x \mapsto x - 2 \langle x, v \rangle v $$
+
+which is easily understood with a picture and the mental note that $$\langle x , v \rangle$$ describes the projection of the vector $$x$$ onto $$v$$.  Written as a matrix, a Householder transformation is
+
+$$ T = I - 2 v v^t $$
+
+Given any vector $x$ there is a hyperplane in which we can reflect $x$ with the resulting image landing in the first coordinate axis<sup>1</sup>.  For a vector $$x$$, call this tranformation
+
+$$ Q_{x, 1}: \ \text{Reflection in a hyperplane sending x into the first coordinate axis.} $$
+
+So what does this have to do with the $$QR$$ decomposition of a matrix $$X$$.  Well, if we deonte by $$x_1$$ the first column of $$X$$, then $$Q_{x_1, 1}X$$ is a matrix whose first column lies in the first coordinate direction.  That is, it has the following shape
+
+$$ \left( \begin{array}{cccc}
+    \alpha_1 & * & \cdots & * \\
+    0      &   &        &   \\
+    0      &   &   X_2  &   \\
+    0      &   &        &   \\
+    \end{array} \right)$$
+
+Now we can continue inductively on with the same procedure applied to matrix $$X_2$$, just construct a Householder transformation $$Q_{x_2, 1}$$ that maps the first column of $$X_2$$ into the first coordinate axies and let
+
+$$ Q_2 =  \left( \begin{array}{cc}
+   1 & 0 \\
+   0 & Q_{x_2, 1} \\
+   \end{array} \right)$$
+
+Then
+
+$$ Q_2 Q_1 X =  \left( \begin{array}{ccccc}
+    \alpha_1 & \alpha_{12} & * & \cdots & * \\
+    0        & \alpha_2    & * & \cdots & * \\
+    0        &             &   &        &   \\    
+    0        &             &   &  X_3   &   \\
+    0        &             &   &        &   \\
+    \end{array} \right)$$
+
+If we continue on like this, we will createa  sequence of reflections $$Q_1, Q_2, \ldots, Q_n$$ which reduces $$X$$ into an upper triangular matrix
+
+$$ Q_n Q_{n-1} \cdots Q_1 X = R $$
+
+Each of the reflection matricies is orthogonal, so we can move everything to the other side
+
+$$ X = Q_1^t Q_2^t \cdots Q_n^t R $$
+
+Setting $$ Q = Q_1^t Q_2^t \cdots Q_n^t $$, we have the $$QR$$ decomposition.
+
+Unfortunately, it's hard to untangle the fortran code to see these concepts, as fortran uses an efficient encoding of the matricies involved at the expense of clarity
+
+{% highlight fortran %}
+c     on return
+c
+c        x       x contains in its upper triangle the upper
+c                triangular matrix r of the qr factorization.
+c                below its diagonal x contains information from
+c                which the orthogonal part of the decomposition
+c                can be recovered.  note that if pivoting has
+c                been requested, the decomposition is not that
+c                of the original matrix x but that of x
+c                with its columns permuted as described by jpvt.
+{% endhighlight %}
+
+Hopefully we have given enough details here that the concepts are clear to the reader.
+
+<sup>[1]</sup> In the plane containing $$x$$ and $$e_1$$, let $$y$$ be their angle bisector.  Take $$v$$ the vector orthogonal to $$y$$ in the plane of $$x$$ and $$e_1$$.  It's not too hard to find a formula for this vector.
+
+Solving the Least Squares Problem
+---------------------------------
+
+After calling `dqrsl` we have in hand the $$QR$$ decomposition of the matrix $$X$$, and so are well on our way to getting our hands on the linear regression solution.  The least squares problem is solved here
+
+{% highlight fortran %}
+     do 20 jj=1,ny
+20       call dqrsl(x,n,n,k,qraux,y(1,jj),rsd(1,jj),qty(1,jj),
+                    b(1,jj),rsd(1,jj),rsd(1,jj),1110,info)
+{% endhighlight %}
+
+That `20` hanging onut on the left is a *line number*, a concept that thankfully died with the first few generations of programming languages.  The line number acts as a directive to teh `do` loop, the reader would be wise to pause and reflect on how much more expressive `{brackets}` are.
+
+The `dqrsl` is another `linpack` function whose only purpose is to consume the output of `dqrsl`
+
+{% highlight fortran %}
+c     dqrsl applies the output of dqrdc to compute coordinate
+c     transformations, projections, and least squares solutions.
+{% endhighlight %}
+
+We are obviously interested in the solutions to the least squares problem, so this seems we are in the right place
+
+{% highlight fortran %}
+c     on return
+...
+c        b      double precision(k)
+c               b contains the solution of the least squares problem
+c
+c                    minimize norm2(y - xk*b),
+c
+c               if its computation has been requested.  
+...
+{% endhighlight %}
+
 
   [1]: https://github.com/wch/r-source/blob/trunk/src/library/stats/src/lm.c
   [2]: https://github.com/wch/r-source/blob/trunk/src/appl/dqrls.f
   [3]: http://en.wikipedia.org/wiki/LINPACK
   [4]: https://github.com/wch/r-source/blob/trunk/src/appl/dqrdc2.f
   [5]: http://www.seas.ucla.edu/~vandenbe/103/lectures/qr.pdf
-
-{% highlight ruby %}
-def print_hi(name)
-  puts "Hi, #{name}"
-end
-print_hi('Tom')
-#=> prints 'Hi, Tom' to STDOUT.
-{% endhighlight %}
 
 [jekyll-docs]: http://jekyllrb.com/docs/home
 [jekyll-gh]:   https://github.com/jekyll/jekyll
