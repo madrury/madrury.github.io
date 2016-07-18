@@ -377,7 +377,7 @@ The simplest and most intuitive way to compute the $$QR$$ factorization of a mat
 Householder Reflections
 -----------------------
 
-A Householder reflection is a linear transformation that preforms a reflection about a hyperplane (a hyperplane is a subspace of dimension one less than the space).  A hyperplane can be uniquely described by its unit normal vector $$v$$, in which case the corresponding Householder reflection is the mapping
+A Householder reflection is a linear transformation that preforms a reflection about a hyperplane (a hyperplane is a subspace of dimension one less than the enclosing space).  A hyperplane can be uniquely described by its unit normal vector $$v$$, in which case the corresponding Householder reflection is the mapping
 
 $$ x \mapsto x - 2 \langle x, v \rangle v $$
 
@@ -385,7 +385,7 @@ which is easily understood with a picture and the mental note that $$\langle x ,
 
 $$ T = I - 2 v v^t $$
 
-Given any vector $x$ there is a hyperplane in which we can reflect $x$ with the resulting image landing in the first coordinate axis<sup>1</sup>.  For a vector $$x$$, call this tranformation
+Given any vector $$x$$ there is a hyperplane in which we can reflect $x$ with the resulting image landing in the first coordinate axis<sup>1</sup>.  For a vector $$x$$, call this tranformation
 
 $$ Q_{x, 1}: \ \text{Reflection in a hyperplane sending x into the first coordinate axis.} $$
 
@@ -419,11 +419,11 @@ If we continue on like this, we will createa  sequence of reflections $$Q_1, Q_2
 
 $$ Q_n Q_{n-1} \cdots Q_1 X = R $$
 
-Each of the reflection matricies is orthogonal, so we can move everything to the other side
+Each of the reflection matricies is orthogonal, so we can invert the $$Q$$ part and move everything to the other side
 
 $$ X = Q_1^t Q_2^t \cdots Q_n^t R $$
 
-Setting $$ Q = Q_1^t Q_2^t \cdots Q_n^t $$, we have the $$QR$$ decomposition.
+Setting $$ Q = Q_1^t Q_2^t \cdots Q_n^t $$, we have the $$QR$$ decomposition of $$X$$.
 
 Unfortunately, it's hard to untangle the fortran code to see these concepts, as fortran uses an efficient encoding of the matricies involved at the expense of clarity
 
@@ -477,6 +477,17 @@ c
 c               if its computation has been requested.  
 ...
 {% endhighlight %}
+
+Again, the fortran code is convoluted enough that it's not worth it to untangle its knots, but let's take a stock of where we are.  We've passed down through many layers R, then C, and finally fortran code from the early days of computing.  At the very bottom, we finally recieve the solution to the linear regression problem we constructed in R at the very top of the stack.
+
+Wrap Up
+-------
+
+If you've read this far, I hope that you've found this journey through one of the most basic and fundamental R functions enjoyable.  Many expositions of linear regression focus on the mathematics, and stop after deriving the equation
+
+$$ X^t X \beta = X^t Y $$
+
+I think it can be very useful to see what technologies, both computational and mathematical, go into a practical and assecable solution to the problem.
 
 
   [1]: https://github.com/wch/r-source/blob/trunk/src/library/stats/src/lm.c
