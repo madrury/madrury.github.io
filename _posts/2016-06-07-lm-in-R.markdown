@@ -80,7 +80,9 @@ mf[[1L]] <- quote(stats::model.frame)
 mf <- eval(mf, parent.frame())
 {% endhighlight %}
 
-This small block highlights a strange idiom of R programming, its direct manipulation of function calls, frozen in time.  The function `match.call`, when called upon in the local scope of another function, returns an object of type `call`, which captures the call to the enclosing function along with the values bound to its [formal parameters](http://cs-fundamentals.com/tech-interview/c/difference-between-actual-and-formal-arguments-in-c.php).  That's pretty difficult to take in, so here is an example
+This small block highlights a strange idiom of R programming, its direct manipulation of function calls, frozen in time.  The function `match.call`, when called upon in the local scope of another function, returns an object of type `call`, which captures the call to the enclosing function along with the values bound to its [formal parameters](http://cs-fundamentals.com/tech-interview/c/difference-between-actual-and-formal-arguments-in-c.php).  
+
+That's pretty difficult to take in, so here is an example
 
 {% highlight r %}
 > f <- function(x, y) {
@@ -156,27 +158,85 @@ We get, courtesy of `model.frame`, a `data.frame` that contains all the terms in
 >      y = c(1, 2, 3, 4, 5),
 >      x = c(5, 4, 3, 2, 1)
 > )
-> model.frame(y ~ log(x), data = df)
-   y    log(x)
- 1 1 1.6094379
- 2 2 1.3862944
- 3 3 1.0986123
- 4 4 0.6931472
- 5 5 0.0000000
+> model.frame(y ~ x + log(x), data = df)
+   y  x     log(x)
+ 1 1  5  1.6094379
+ 2 2  4  1.3862944
+ 3 3  3  1.0986123
+ 4 4  2  0.6931472
+ 5 5  1  0.0000000
 {% endhighlight %}
 
-Attached to the model frame `mf` is a [terms](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/terms.object.html) attribute, which contains metadata needed to identify which column represents the response, and which the predictors (the encoding of this information is pretty obscure, so I wont bother to unwind it here).  Using the data frame and the terms data, we can construct the final design matrix
+The way R gets to this new data frame is quite interesting.  First, the model formula is turned into a [terms](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/terms.object.html) object, which contains metadata needed to identify which column represents the response, and which the predictors (the encoding of this information is pretty obscure, so I wont bother to unwind it here).  
+
+{% highlight r %}
+> form <- as.formula(y ~ x + log(x))
+> form
+y ~ x + log(x)
+> terms(form, data = df)
+y ~ x + log(x)
+attr(,"variables")
+list(y, x, log(x))
+{% endhighlight %}
+
+The `varaibles` attribute of the terms object is our old friend, a `call`
+
+{% highlight r %}
+> attr(term, "variables")
+list(y, x, log(x))
+> class(attr(term, "variables"))
+[1] "call"
+{% endhighlight %}
+
+So we should be able to evaluate the call
+
+{% highlight r %}
+> eval(attr(term, "variables"))
+Error in eval(expr, envir, enclos) : object 'y' not found
+{% endhighlight %}
+
+The problem here is one of scoping, we want the function call to get it's arguments from the data frame `df` instead of the calling environment.  The solution is to use the data frame itself as the `envir` argument to `eval`
+
+{% highlight r %}
+> eval(attr(term, "variables"), envir = df)
+[[1]]
+[1] 1 2 3 4 5
+
+[[2]]
+[1] 5 4 3 2 1
+
+[[3]]
+[1] 1.6094379 1.3862944 1.0986123 0.6931472 0.0000000
+{% endhighlight %}
+
+We've lost the varaible names in this demonstration but those can be easily reattached to the result.
+
+Our model frame has one deficiency, though this example does not show it.  If our model specification includes and factor varaibles, they are simply passed through to the model frame untouched
+
+{% highlight r %}
+> df <- data.frame(
++   x = factor(c(0, 0, 1, 1, 1)),
++   y = c(1, 2, 3, 4, 5)
++ )
+> form <- as.formula(y ~ x)
+> term <- terms(form, data = df)
+> eval(attr(term, "variables"), envir = df)
+[[1]]
+[1] 1 2 3 4 5
+
+[[2]]
+[1] 0 0 1 1 1
+Levels: 0 1
+{% endhighlight %}
+
+The work of deconstructing a factor varaible into multiple binary predictors is done in a call to `model.matrix`.
 
 {% highlight r %}
 mt <- attr(mf, "terms")
 x <- model.matrix(mt, mf, contrasts)
 {% endhighlight %}
 
-and response vector
-
-{% highlight r %}
-y <- model.response(mf, "numeric")
-{% endhighlight %}
+This deconstruction can be a complex task, so we will no go into details lest it take us too far afield.  It would be a nice topic for another essay one day.
 
 
 Calculating the Regression - R
@@ -210,7 +270,6 @@ z <- .Call(C_Cdqrls, x, y, tol, FALSE)
 
 Now we are getting somewhere intriuging.  `.Call` is modern R's way of calling into C code.  The first argument to `.Call` is a sting or symbol identifying a compiled C function that is either part of the R distribution, or linked as a shared library.  The remaining arguemnts to `.Call` are passed as R objects into the C function, as we will see shortly. In some cases where the called function is part of the R source code, the function name is prepended with a `C_`. In our case, we are calling a C function named `Cdqrls`.  
 
-What happens to z??
 
 Calculating the Regression - C
 ------------------------------
@@ -240,7 +299,8 @@ PROTECT(ans = mkNamed(VECSXP, ansNms));
 Here, a vector of floating point numbers is created to hold the fit coefficients, which is then inserted in the appropriate slot in the ouput object
 
 {% highlight c %}
-coefficients = (ny > 1) ? allocMatrix(REALSXP, p, ny) : allocVector(REALSXP, p);
+coefficients = (ny > 1) ? allocMatrix(REALSXP, p, ny)
+                        : allocVector(REALSXP, p);
 PROTECT(coefficients);
 SET_VECTOR_ELT(ans, 1, coefficients);
 {% endhighlight %} 
@@ -279,10 +339,10 @@ So now we are on our third language, R has called C which has called fortran.  [
 The first comment tells it all
 
 {% highlight fortran %}
-    c     dqrfit is a subroutine to compute least squares solutions
-    c     to the system
-    c
-    c     (1)               x * b = y
+c     dqrfit is a subroutine to compute least squares solutions
+c     to the system
+c
+c     (1)               x * b = y
 {% endhighlight %}
 
 (interestingly, it looks like the name of this routine was changed at some point, from `dqrfit` to `dqrls`, but someone forgot to update the comment).  We're finally at the point where we can do some linear algebra, and actually solve the system of equations.  This is the sort of thing that fortran was designed to do, and is really good at, which explains why we eventually ended up here. 
@@ -293,7 +353,7 @@ Fortran can be a bit jarring to modern programmer sensibilities.  Starting with 
 subroutine dqrls(x,n,p,y,ny,tol,b,rsd,qty,k,jpvt,qraux,work)
 {% endhighlight %}
 
-that is a *lot* of positional arguments.  Note taking is almost required to keep the order straight, and getting is wrong is likely to result in a program that simply gives nonsense results (as opposed to crashing).
+that is a *lot* of positional arguments.  Notetaking is almost required to keep the order straight, and getting it wrong is likely to result in a program that simply gives nonsense results (as opposed to crashing).
 
 Worth noting is the lack of a return value.  Instead, we have some documentation containing the phrases "on entry"
 
@@ -356,7 +416,7 @@ $$ X = QR, \ Q \ \text{orthogonal}, \ R \ \text{upper trangular} $$
 
 This is a smart thing to do, because once you have $$Q$$ and $$R$$ you can solve the linear equations for regression
 
-$$ X^t X \beta = X^t Y $$
+$$ X^t X \beta = X^t y $$
 
 very easily.  Indeed
 
@@ -366,18 +426,19 @@ so the whole system becomes
 
 $$ R^t R \beta = R^t Q^t y $$
 
-$$R$$ is upper triangular, so it has the same rank as $$X^t X$$,  and if our problem is well posed then $$X^t X$$  has full rank.  So, as $$R$$ is a full rank matrix, we can ignote the $$R^t$$ factor in the quations above, and simply seek solutions to the equation
+$$R$$ is upper triangular, so it has the same rank as $$X^t X$$,  and if our problem is well posed then $$X^t X$$  has full rank.  So, as $$R$$ is a full rank matrix, we can ignore the $$R^t$$ factor in the quations above, and simply seek solutions to the equation
 
 $$ R \beta = Q^t y $$
 
-But here's the awesome thing.  Again, $$R$$ is upper triangular, so the last linear equation here is just `constant * beta_n = constant`, so solving for $\beta_n$ is trivial.  We can then go up the rows, one by one, and substitute in the $\beta$s we already know, each time getting a simple one variable linear equation to solve.  So, once we have $$Q$$ and $$R$$, the whole thing collapses to what is called *backwards substitution*, which is easy.
+But here's the awesome thing.  Again, $$R$$ is upper triangular, so the last linear equation here is just `constant * beta_n = constant`, so solving for $$\beta_n$$ is trivial.  We can then go up the rows, one by one, and substitute in the 
+$$\beta$$s we already know, each time getting a simple one variable linear equation to solve.  So, once we have $$Q$$ and $$R$$, the whole thing collapses to what is called *backwards substitution*, which is easy.
 
-The simplest and most intuitive way to compute the $$QR$$ factorization of a matrix is with the ghram-schmidt procedure, which unfortunately is not suitable for serious numeric work due to it's inherit instability.  Linpack instead uses Householder reflections, which have better properties.
+The simplest and most intuitive way to compute the $$QR$$ factorization of a matrix is with the [Ghram-Schmidt procedure](https://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process), which unfortunately is not suitable for serious numeric work due to it's instability.  Linpack instead uses [Householder reflections](https://en.wikipedia.org/wiki/Householder_transformation), which have better computational properties.
 
 Householder Reflections
 -----------------------
 
-A Householder reflection is a linear transformation that preforms a reflection about a hyperplane (a hyperplane is a subspace of dimension one less than the enclosing space).  A hyperplane can be uniquely described by its unit normal vector $$v$$, in which case the corresponding Householder reflection is the mapping
+A Householder reflection is a linear transformation that preforms a reflection about a hyperplane (a hyperplane is a linear subspace of dimension one less than the enclosing space).  A hyperplane can be (up to sign) uniquely described by its unit normal vector $$v$$, in which case the corresponding Householder reflection is the mapping
 
 $$ x \mapsto x - 2 \langle x, v \rangle v $$
 
@@ -385,11 +446,11 @@ which is easily understood with a picture and the mental note that $$\langle x ,
 
 $$ T = I - 2 v v^t $$
 
-Given any vector $$x$$ there is a hyperplane in which we can reflect $x$ with the resulting image landing in the first coordinate axis<sup>1</sup>.  For a vector $$x$$, call this tranformation
+Given any vector $$x$$ there is a hyperplane in which we can reflect $$x$$ with the resulting image landing along the first coordinate axis<sup>1</sup>.  For a vector $$x$$, call this tranformation
 
-$$ Q_{x, 1}: \ \text{Reflection in a hyperplane sending x into the first coordinate axis.} $$
+$$ Q_{x}: \ \text{Reflection in a hyperplane sending x into the first coordinate axis.} $$
 
-So what does this have to do with the $$QR$$ decomposition of a matrix $$X$$.  Well, if we deonte by $$x_1$$ the first column of $$X$$, then $$Q_{x_1, 1}X$$ is a matrix whose first column lies in the first coordinate direction.  That is, it has the following shape
+So what does this have to do with the $$QR$$ decomposition of a matrix $$X$$?  Well, if we deonte by $$x_1$$ the first column of $$X$$, then $$Q_{x_1}X$$ is a matrix whose first column lies in the first coordinate direction.  That is, it has the following shape
 
 $$ \left( \begin{array}{cccc}
     \alpha_1 & * & \cdots & * \\
@@ -402,7 +463,7 @@ Now we can continue inductively on with the same procedure applied to matrix $$X
 
 $$ Q_2 =  \left( \begin{array}{cc}
    1 & 0 \\
-   0 & Q_{x_2, 1} \\
+   0 & Q_{x_2} \\
    \end{array} \right)$$
 
 Then
@@ -455,16 +516,16 @@ After calling `dqrsl` we have in hand the $$QR$$ decomposition of the matrix $$X
                     b(1,jj),rsd(1,jj),rsd(1,jj),1110,info)
 {% endhighlight %}
 
-That `20` hanging onut on the left is a *line number*, a concept that thankfully died with the first few generations of programming languages.  The line number acts as a directive to teh `do` loop, the reader would be wise to pause and reflect on how much more expressive `{brackets}` are.
+That `20` hanging out on the left is a *line number*, a concept that thankfully died with the first few generations of programming languages.  The line number acts as a directive to the `do` loop (the reader may wish to pause and reflect on how much more clean and expressive `{brackets}` are).
 
-The `dqrsl` is another `linpack` function whose only purpose is to consume the output of `dqrsl`
+`dqrsl` is another `linpack` function whose purpose is to consume the output of `dqrsl`
 
 {% highlight fortran %}
 c     dqrsl applies the output of dqrdc to compute coordinate
 c     transformations, projections, and least squares solutions.
 {% endhighlight %}
 
-We are obviously interested in the solutions to the least squares problem, so this seems we are in the right place
+We are interested in solutions to the least squares problem, so this seems we are in the right place
 
 {% highlight fortran %}
 c     on return
@@ -478,17 +539,28 @@ c               if its computation has been requested.
 ...
 {% endhighlight %}
 
-Again, the fortran code is convoluted enough that it's not worth it to untangle its knots, but let's take a stock of where we are.  We've passed down through many layers R, then C, and finally fortran code from the early days of computing.  At the very bottom, we finally recieve the solution to the linear regression problem we constructed in R at the very top of the stack.
+Again, the fortran code is convoluted enough that it's not worth it to untangle its knots.
+
+Let's take a stock of where we are.  We've passed down through many layers R, then C, and finally fortran code from the early days of computing.  At the very bottom, we finally recieve the solution to the linear regression problem we constructed in R at the very top of the stack.  All thats left is to propogate this information back to the user.
+
 
 Wrap Up
 -------
 
-If you've read this far, I hope that you've found this journey through one of the most basic and fundamental R functions enjoyable.  Many expositions of linear regression focus on the mathematics, and stop after deriving the equation
+If you've read this far, I hope that you've found this journey through one of the most basic and fundamental R functions enjoyable.  Many expositions of linear regression focus on the mathematics, statistics, or at worst the mechanical application of canned routines in this or that programming language.  There is a lot more to a full implementation of these concepts than the solution equation
 
 $$ X^t X \beta = X^t Y $$
 
 I think it can be very useful to see what technologies, both computational and mathematical, go into a practical and assecable solution to the problem.
 
+There are some things we did not even touch, or swept under the rug
+
+  - How is the model matrix defined / contrasts applied to the factors?
+  - What happens when $$X$$ is not full rank, how is that detected?
+  - What is the mysterious encoding `linpack` uses for the $$QR$$ decomposition.
+  - How are standard errors computed?
+
+I don't know the answer to all of these questions, the reader may find it fun to investigate them.
 
   [1]: https://github.com/wch/r-source/blob/trunk/src/library/stats/src/lm.c
   [2]: https://github.com/wch/r-source/blob/trunk/src/appl/dqrls.f
