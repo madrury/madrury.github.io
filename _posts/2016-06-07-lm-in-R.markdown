@@ -1,0 +1,573 @@
+---
+layout: post
+title:  "A Deep Dive Into How R Fits a Linear Model"
+date:   2016-06-03 08:52:55 -0700
+categories: jekyll update
+---
+
+[R](https://www.r-project.org/) is a high level language for statistical computations.  One of my most used R functions is the humble `lm`, which fits a linear regression model.  The mathematics behind fitting a linear regression is relatively simple, some standard linear algebra with a touch of calculus.  It therefore may quite suprise the reader to learn that behind even the simplest of calls to R's `lm` function lies a journey through three different programming languages, which in the end arrives at some of the oldest open source software still in common use.
+
+So, in the spirit of the famous thought experiment "[what happens when you type www.google.com into your address bar and pres enter](https://github.com/alex/what-happens-when)", I'd like to discuss what happens when you call `lm` in R.
+
+This essay is inspired by a [question](http://stats.stackexchange.com/questions/154485/least-squares-regression-step-by-step-linear-algebra-computation) of Antoni Parellada's on CrossValidated.  It is essentially a much expanded version of my answer there. 
+
+We will make heavy use of the R source code, which you can find [here](https://github.com/wch/r-source).
+
+The R Layer
+-----------
+
+Our point or orgin is `lm`, the interface exposed to the R programmer.  It offers a friendly way to specify models using the core R `formula` and `data.frame` datatypes.  A prototypical call to `lm` looks something like this
+
+{% highlight r %}
+m <- lm(y ~ x1 + x2, data = df)
+{% endhighlight %}
+
+The first argument is a model formula, and the second is a dataframe.  The dataframe must contain columns `x1`, `x2`, and `y`, which are transformed into the design matrix and response vector of the model.
+
+The source code for any R function (except those implemented in the R source code itself, which are called `.Primitives`) can be viewed by typing the function name into the R interpreter.  Typing `lm` reveals the both full functon signature
+
+{% highlight r %}
+lm <- function (formula, data, subset, weights, na.action,
+		method = "qr", model = TRUE, x = FALSE, y = FALSE,
+		qr = TRUE, singular.ok = TRUE, contrasts = NULL,
+		offset, ...)
+{% endhighlight %}
+
+and the source code.  
+
+It is worth a moment to point out, that majority of the source code to `lm` (the same is true for the majority of most quality production level code) is boring but neccessary busy work and defensive programing: checking inputs, throwing errors
+
+{% highlight r %}
+...
+if (!is.null(w) && !is.numeric(w)) 
+    stop("'weights' must be a numeric vector")
+...
+{% endhighlight %}
+
+and setting of object attributes
+
+{% highlight r %}
+...
+z$na.action <- attr(mf, "na.action")
+z$offset <- offset
+z$contrasts <- attr(x, "contrasts")
+z$xlevels <- .getXlevels(mt, mf)
+...
+{% endhighlight %}
+
+The same is true for much of the other code we will investigate, but hereafter we will ignore defensive code and focus only on the interesting bits.
+
+Now, if we think at a high level, there are two fundamental tasks that `lm` must accomplish
+
+  - It must consume the formula and dataframe it recieves and produce a design matrix and response vector.
+  - It must use this design matrix and response, along with some linear algebra, to compute the linear regression coefficients.
+
+both of these tasks turn out to, in fact, be interesting bits.
+
+
+Constructing the Design Matrix
+------------------------------
+
+Obviously we need to construct a design matrix first.  This task starts in this dense and somewhat obscure block of code
+
+{% highlight r %}
+mf <- match.call(expand.dots = FALSE)
+m <- match(c("formula", "data", "subset", "weights", "na.action", 
+             "offset"), names(mf), 0L)
+mf <- mf[c(1L, m)]
+mf$drop.unused.levels <- TRUE
+mf[[1L]] <- quote(stats::model.frame)
+mf <- eval(mf, parent.frame())
+{% endhighlight %}
+
+This small block highlights a strange idiom of R programming, its direct manipulation of function calls, frozen in time.  The function `match.call`, when called upon in the local scope of another function, returns an object of type `call`, which captures the call to the enclosing function along with the values bound to its [formal parameters](http://cs-fundamentals.com/tech-interview/c/difference-between-actual-and-formal-arguments-in-c.php).  
+
+That's pretty difficult to take in, so here is an example
+
+{% highlight r %}
+> f <- function(x, y) {
+>   cl <- match.call()
+>   cl
+> }
+> f(1, 2)
+f(x = 1, y = 2)
+> class(f(1, 2))
+[1] "call"
+{% endhighlight %}
+
+A `call` object is a small wonder, it can be indexed into and manipulated much like other R objects.  The first index always gives the name of the function that was called (not as a string, as a [symbol](https://stat.ethz.ch/R-manual/R-devel/library/base/html/name.html) object) 
+
+{% highlight r %}
+> cl <- f(1, 2)
+> cl[[1]]
+f
+> class(f(1, 2)[[1]])
+[1] "name"
+{% endhighlight %}
+
+The other indicies return the arguments passed into the call
+
+{% highlight r %}
+> cl[[2]]
+[1] 1
+> cl[[3]]
+[1] 2
+{% endhighlight %}
+
+In our current situation the function we called is `lm`, so the line
+
+{% highlight r %}
+mf[[1L]] <- quote(stats::model.frame)
+{% endhighlight %}
+
+replaces  the function name `lm` in the call object with `model.frame` (the `quote` creates a symbol out of a string or expression).  Similarly, the lines
+
+{% highlight r %}
+m <- match(c("formula", "data", "subset", "weights", "na.action", 
+             "offset"), names(mf), 0L)
+mf <- mf[c(1L, m)]
+mf$drop.unused.levels <- TRUE
+{% endhighlight %}
+
+discard any of the various arguments to `lm` that are not needed to construct the design matrix.  
+
+Alltogether, we have gone from a call to `lm` like
+
+{% highlight r %}
+lm(y ~ x1 + x2, weights = w, data = df)
+{% endhighlight %}
+
+to a call to `model.frame` like
+
+{% highlight r %}
+model.frame(y ~ x1 + x2, weights = w, data = df)
+{% endhighlight %}
+
+Which is pretty neat.
+
+We can now unstop time and evaluate the function call we have so meticulously constructed
+
+{% highlight r %}
+mf <- eval(mf, parent.frame())
+{% endhighlight %}
+
+We get, courtesy of `model.frame`, a `data.frame` that contains all the terms in our formula fully evaluated.  For example
+
+{% highlight r %}
+> df <- data.frame(
+>      y = c(1, 2, 3, 4, 5),
+>      x = c(5, 4, 3, 2, 1)
+> )
+> model.frame(y ~ x + log(x), data = df)
+   y  x     log(x)
+ 1 1  5  1.6094379
+ 2 2  4  1.3862944
+ 3 3  3  1.0986123
+ 4 4  2  0.6931472
+ 5 5  1  0.0000000
+{% endhighlight %}
+
+The way R gets to this new data frame is quite interesting.  First, the model formula is turned into a [terms](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/terms.object.html) object, which contains metadata needed to identify which column represents the response, and which the predictors (the encoding of this information is pretty obscure, so I wont bother to unwind it here).  
+
+{% highlight r %}
+> form <- as.formula(y ~ x + log(x))
+> form
+y ~ x + log(x)
+> terms(form, data = df)
+y ~ x + log(x)
+attr(,"variables")
+list(y, x, log(x))
+{% endhighlight %}
+
+The `varaibles` attribute of the terms object is our old friend, a `call`
+
+{% highlight r %}
+> attr(term, "variables")
+list(y, x, log(x))
+> class(attr(term, "variables"))
+[1] "call"
+{% endhighlight %}
+
+So we should be able to evaluate the call
+
+{% highlight r %}
+> eval(attr(term, "variables"))
+Error in eval(expr, envir, enclos) : object 'y' not found
+{% endhighlight %}
+
+The problem here is one of scoping, we want the function call to get it's arguments from the data frame `df` instead of the calling environment.  The solution is to use the data frame itself as the `envir` argument to `eval`
+
+{% highlight r %}
+> eval(attr(term, "variables"), envir = df)
+[[1]]
+[1] 1 2 3 4 5
+
+[[2]]
+[1] 5 4 3 2 1
+
+[[3]]
+[1] 1.6094379 1.3862944 1.0986123 0.6931472 0.0000000
+{% endhighlight %}
+
+We've lost the varaible names in this demonstration but those can be easily reattached to the result.
+
+Our model frame has one deficiency, though this example does not show it.  If our model specification includes and factor varaibles, they are simply passed through to the model frame untouched
+
+{% highlight r %}
+> df <- data.frame(
++   x = factor(c(0, 0, 1, 1, 1)),
++   y = c(1, 2, 3, 4, 5)
++ )
+> form <- as.formula(y ~ x)
+> term <- terms(form, data = df)
+> eval(attr(term, "variables"), envir = df)
+[[1]]
+[1] 1 2 3 4 5
+
+[[2]]
+[1] 0 0 1 1 1
+Levels: 0 1
+{% endhighlight %}
+
+The work of deconstructing a factor varaible into multiple binary predictors is done in a call to `model.matrix`.
+
+{% highlight r %}
+mt <- attr(mf, "terms")
+x <- model.matrix(mt, mf, contrasts)
+{% endhighlight %}
+
+This deconstruction can be a complex task, so we will no go into details lest it take us too far afield.  It would be a nice topic for another essay one day.
+
+
+Calculating the Regression - R
+------------------------------
+
+Now that we have a design matrix, we can move on to fitting the regression.
+
+{% highlight r %}
+lm.fit(x, y, offset = offset, singular.ok = singular.ok, ...)
+{% endhighlight %}
+
+`lm.fit` is another R function, which we can call ourselives if we are so inclined
+
+{% highlight r %}
+> X = matrix(c(1, 1, 1, 1, 2, 3), nrow = 3)
+> y = c(2, 3, 4)
+> lm.fit(X, y)
+ $coefficients
+ x1 x2 
+  1  1 
+ ...
+{% endhighlight %}
+
+While `lm` conveniently works with formulas and `data.frames`, `lm.fit` wants matrices, so moving from `lm` to `lm.fit` removes one layer of abstraction.  
+
+The interesting action in `lm.fit` is the one line
+
+{% highlight r %}
+z <- .Call(C_Cdqrls, x, y, tol, FALSE)
+{% endhighlight %}
+
+Now we are getting somewhere intriuging.  `.Call` is modern R's way of calling into C code.  The first argument to `.Call` is a sting or symbol identifying a compiled C function that is either part of the R distribution, or linked as a shared library.  The remaining arguemnts to `.Call` are passed as R objects into the C function, as we will see shortly. In some cases where the called function is part of the R source code, the function name is prepended with a `C_`. In our case, we are calling a C function named `Cdqrls`.  
+
+
+Calculating the Regression - C
+------------------------------
+
+The `Cdqrls` is found in the R source [here][1].  Note its peculiar signature
+
+{% highlight c %}
+SEXP Cdqrls(SEXP x, SEXP y, SEXP tol, SEXP chk)
+{% endhighlight %}
+
+`SEXP` is the datatype that R's source uses for a generic R object.  Essentailly everything that an R programmer manipulates when working day to day is internally an `SEXP`.  There are various subtypes of `SEXPs` used for more specific types of objects, for example
+
+  - A `INTSXP` is an integer vector.
+  - A `REALSXP` is a vector of floating point numbers.
+  - A `VECSXP` is an R list.
+
+More advanced types, that you may not think of as data, are also `SEXPs`, for example, a `CLOSXP` is an R function.
+
+Knowing these types, we can make some sense of the code in `Cdqrls`.  Here, a list object is created to hold output
+
+{% highlight c %}
+const char *ansNms[] = {"qr", "coefficients", "residuals", "effects",
+			    "rank", "pivot", "qraux", "tol", "pivoted", ""};
+PROTECT(ans = mkNamed(VECSXP, ansNms));
+{% endhighlight %}
+
+Here, a vector of floating point numbers is created to hold the fit coefficients, which is then inserted in the appropriate slot in the ouput object
+
+{% highlight c %}
+coefficients = (ny > 1) ? allocMatrix(REALSXP, p, ny)
+                        : allocVector(REALSXP, p);
+PROTECT(coefficients);
+SET_VECTOR_ELT(ans, 1, coefficients);
+{% endhighlight %} 
+
+notice that, depending on the shape of `y`, `coefficients` can be either a matrix or a regular vector.
+
+The `PROTECT` macro issues instruction to R's garbage collector, new objects must be `PROTECTED`, lest they be collected.
+
+Yet again, the majority of the work in `Cdqrls` is concerned with checking invariants of inputs, and constructing and initilizing new objects.  And, once more, the real work of fitting the model is passed to another function, implemented in another language 
+
+{% highlight c %}
+F77_CALL(dqrls)(REAL(qr), &n, &p, REAL(y), &ny, &rtol,
+                REAL(coefficients), REAL(residuals), REAL(effects),
+		&rank, INTEGER(pivot), REAL(qraux), work);
+{% endhighlight %}
+
+`F77_CALL` is a macro that wraps calls to fortran functions.  It doesn't amount to much
+
+{% highlight c %}
+#ifdef HAVE_F77_UNDERSCORE
+# define F77_CALL(x)	x ## _
+#else
+# define F77_CALL(x)	x
+#endif
+{% endhighlight %}
+
+The `##` operator in a C macro is simple string concatination, so `F77_CALL` either leaves its argument alone, or prepends an underscore.  It seems that certain platforms append an underscore to function names when fortran code is compiled, and C code calling into the compiled fortran must be aware of this.  For our purposes, the `F77_CALL` clues us in that we are now calling into a function `dqrls` implemented in fortran.
+
+
+
+Calculating the Regression - FORTRAN
+------------------------------------
+
+So now we are on our third language, R has called C which has called fortran.  [Here's the fortran code][2] for `dqrls`.
+
+The first comment tells it all
+
+{% highlight fortran %}
+c     dqrfit is a subroutine to compute least squares solutions
+c     to the system
+c
+c     (1)               x * b = y
+{% endhighlight %}
+
+(interestingly, it looks like the name of this routine was changed at some point, from `dqrfit` to `dqrls`, but someone forgot to update the comment).  We're finally at the point where we can do some linear algebra, and actually solve the system of equations.  This is the sort of thing that fortran was designed to do, and is really good at, which explains why we eventually ended up here. 
+
+Fortran can be a bit jarring to modern programmer sensibilities.  Starting with the function signature:
+
+{% highlight fortran %}
+subroutine dqrls(x,n,p,y,ny,tol,b,rsd,qty,k,jpvt,qraux,work)
+{% endhighlight %}
+
+that is a *lot* of positional arguments.  Notetaking is almost required to keep the order straight, and getting it wrong is likely to result in a program that simply gives nonsense results (as opposed to crashing).
+
+Worth noting is the lack of a return value.  Instead, we have some documentation containing the phrases "on entry"
+
+{% highlight fortran %}
+c     on entry
+c
+c        x      double precision(n,p).
+c               x contains n-by-p coefficient matrix of
+c               the system (1), x is destroyed by dqrfit.
+c
+c        n      the number of rows of the matrix x.
+c
+c        p      the number of columns of the matrix x.
+c
+c        y      double precision(n,ny)
+c               y contains the right hand side(s) of the system (1).
+{% endhighlight %}
+
+and "on return"
+
+{% highlight fortran %}
+c     on return
+c
+c        x      contains the output array from dqrdc2.
+c               namely the qr decomposition of x stored in
+c               compact form.
+c
+c        b      double precision(p,ny)
+c               b contains the solution vectors with rows permuted
+c               in the same way as the columns of x.  components
+c               corresponding to columns not used are set to zero.
+{% endhighlight %}
+
+Instead of explicitly returning a value to the caller, the common modern paradigm, instead fortran "returns" data from a function call by overwriting some of the data passed in.  This kind of thing can also be done in C by passing in a pointer to some data, but it is not the default way to return.
+
+It looks like fortran is going to solve our system by finding the QR decomposition of the coefficient matrix `x`.  The first thing that happens, and by far the most important, is
+
+{% highlight fortran %}
+call dqrdc2(x,n,n,p,tol,k,qraux,jpvt,work)
+{% endhighlight %}
+
+which calls the fortran function `dqrdc2` on our input matrix `x`
+
+{% highlight fortran %}
+c     dqrfit uses the linpack routines dqrdc and dqrsl.
+{% endhighlight %}
+
+We've finally made it to [linpack][3].  Linpack is a fortran linear algebra library that was [created between 1977 and 1979](http://history.siam.org/pdfs2/Dongarra_%20returned_SIAM_copy.pdf) by a distributed team of four programmers.  The development was funded by the NSF, and was eventally released to the general public.  Of course, in 1979 the public could not simply download linpack from the internet, an intrested party had to send $75 ($250 in 2016 dollars) to a distributor to recieve a copy on tape.  Sometimes its worth reflecting on how good a modern developer really has it.
+
+Most serious linear algebra eventualy finds its way to linpack or one of its more modern succesors (lapack).  In our case, we are using the function [dqrdc2][4]
+
+{% highlight fortran %}
+c     dqrdc2 uses householder transformations to compute the qr
+c     factorization of an n by p matrix x.
+{% endhighlight %}
+
+This is where the actual work is done.  We are going to decompose $$X$$ into its `QR` factorization.  
+
+$$ X = QR, \ Q \ \text{orthogonal}, \ R \ \text{upper trangular} $$ 
+
+This is a smart thing to do, because once you have $$Q$$ and $$R$$ you can solve the linear equations for regression
+
+$$ X^t X \beta = X^t y $$
+
+very easily.  Indeed
+
+$$ X^t X = R^t Q^t Q R = R^t R $$
+
+so the whole system becomes
+
+$$ R^t R \beta = R^t Q^t y $$
+
+$$R$$ is upper triangular, so it has the same rank as $$X^t X$$,  and if our problem is well posed then $$X^t X$$  has full rank.  So, as $$R$$ is a full rank matrix, we can ignore the $$R^t$$ factor in the quations above, and simply seek solutions to the equation
+
+$$ R \beta = Q^t y $$
+
+But here's the awesome thing.  Again, $$R$$ is upper triangular, so the last linear equation here is just `constant * beta_n = constant`, so solving for $$\beta_n$$ is trivial.  We can then go up the rows, one by one, and substitute in the 
+$$\beta$$s we already know, each time getting a simple one variable linear equation to solve.  So, once we have $$Q$$ and $$R$$, the whole thing collapses to what is called *backwards substitution*, which is easy.
+
+The simplest and most intuitive way to compute the $$QR$$ factorization of a matrix is with the [Ghram-Schmidt procedure](https://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process), which unfortunately is not suitable for serious numeric work due to it's instability.  Linpack instead uses [Householder reflections](https://en.wikipedia.org/wiki/Householder_transformation), which have better computational properties.
+
+Householder Reflections
+-----------------------
+
+A Householder reflection is a linear transformation that preforms a reflection about a hyperplane (a hyperplane is a linear subspace of dimension one less than the enclosing space).  A hyperplane can be (up to sign) uniquely described by its unit normal vector $$v$$, in which case the corresponding Householder reflection is the mapping
+
+$$ x \mapsto x - 2 \langle x, v \rangle v $$
+
+which is easily understood with a picture and the mental note that $$\langle x , v \rangle$$ describes the projection of the vector $$x$$ onto $$v$$.  Written as a matrix, a Householder transformation is
+
+$$ T = I - 2 v v^t $$
+
+Given any vector $$x$$ there is a hyperplane in which we can reflect $$x$$ with the resulting image landing along the first coordinate axis<sup>1</sup>.  For a vector $$x$$, call this tranformation
+
+$$ Q_{x}: \ \text{Reflection in a hyperplane sending x into the first coordinate axis.} $$
+
+So what does this have to do with the $$QR$$ decomposition of a matrix $$X$$?  Well, if we deonte by $$x_1$$ the first column of $$X$$, then $$Q_{x_1}X$$ is a matrix whose first column lies in the first coordinate direction.  That is, it has the following shape
+
+$$ \left( \begin{array}{cccc}
+    \alpha_1 & * & \cdots & * \\
+    0      &   &        &   \\
+    0      &   &   X_2  &   \\
+    0      &   &        &   \\
+    \end{array} \right)$$
+
+Now we can continue inductively on with the same procedure applied to matrix $$X_2$$, just construct a Householder transformation $$Q_{x_2, 1}$$ that maps the first column of $$X_2$$ into the first coordinate axies and let
+
+$$ Q_2 =  \left( \begin{array}{cc}
+   1 & 0 \\
+   0 & Q_{x_2} \\
+   \end{array} \right)$$
+
+Then
+
+$$ Q_2 Q_1 X =  \left( \begin{array}{ccccc}
+    \alpha_1 & \alpha_{12} & * & \cdots & * \\
+    0        & \alpha_2    & * & \cdots & * \\
+    0        &             &   &        &   \\    
+    0        &             &   &  X_3   &   \\
+    0        &             &   &        &   \\
+    \end{array} \right)$$
+
+If we continue on like this, we will createa  sequence of reflections $$Q_1, Q_2, \ldots, Q_n$$ which reduces $$X$$ into an upper triangular matrix
+
+$$ Q_n Q_{n-1} \cdots Q_1 X = R $$
+
+Each of the reflection matricies is orthogonal, so we can invert the $$Q$$ part and move everything to the other side
+
+$$ X = Q_1^t Q_2^t \cdots Q_n^t R $$
+
+Setting $$ Q = Q_1^t Q_2^t \cdots Q_n^t $$, we have the $$QR$$ decomposition of $$X$$.
+
+Unfortunately, it's hard to untangle the fortran code to see these concepts, as fortran uses an efficient encoding of the matricies involved at the expense of clarity
+
+{% highlight fortran %}
+c     on return
+c
+c        x       x contains in its upper triangle the upper
+c                triangular matrix r of the qr factorization.
+c                below its diagonal x contains information from
+c                which the orthogonal part of the decomposition
+c                can be recovered.  note that if pivoting has
+c                been requested, the decomposition is not that
+c                of the original matrix x but that of x
+c                with its columns permuted as described by jpvt.
+{% endhighlight %}
+
+Hopefully we have given enough details here that the concepts are clear to the reader.
+
+<sup>[1]</sup> In the plane containing $$x$$ and $$e_1$$, let $$y$$ be their angle bisector.  Take $$v$$ the vector orthogonal to $$y$$ in the plane of $$x$$ and $$e_1$$.  It's not too hard to find a formula for this vector.
+
+Solving the Least Squares Problem
+---------------------------------
+
+After calling `dqrsl` we have in hand the $$QR$$ decomposition of the matrix $$X$$, and so are well on our way to getting our hands on the linear regression solution.  The least squares problem is solved here
+
+{% highlight fortran %}
+     do 20 jj=1,ny
+20       call dqrsl(x,n,n,k,qraux,y(1,jj),rsd(1,jj),qty(1,jj),
+                    b(1,jj),rsd(1,jj),rsd(1,jj),1110,info)
+{% endhighlight %}
+
+That `20` hanging out on the left is a *line number*, a concept that thankfully died with the first few generations of programming languages.  The line number acts as a directive to the `do` loop (the reader may wish to pause and reflect on how much more clean and expressive `{brackets}` are).
+
+`dqrsl` is another `linpack` function whose purpose is to consume the output of `dqrsl`
+
+{% highlight fortran %}
+c     dqrsl applies the output of dqrdc to compute coordinate
+c     transformations, projections, and least squares solutions.
+{% endhighlight %}
+
+We are interested in solutions to the least squares problem, so this seems we are in the right place
+
+{% highlight fortran %}
+c     on return
+...
+c        b      double precision(k)
+c               b contains the solution of the least squares problem
+c
+c                    minimize norm2(y - xk*b),
+c
+c               if its computation has been requested.  
+...
+{% endhighlight %}
+
+Again, the fortran code is convoluted enough that it's not worth it to untangle its knots.
+
+Let's take a stock of where we are.  We've passed down through many layers R, then C, and finally fortran code from the early days of computing.  At the very bottom, we finally recieve the solution to the linear regression problem we constructed in R at the very top of the stack.  All thats left is to propogate this information back to the user.
+
+
+Wrap Up
+-------
+
+If you've read this far, I hope that you've found this journey through one of the most basic and fundamental R functions enjoyable.  Many expositions of linear regression focus on the mathematics, statistics, or at worst the mechanical application of canned routines in this or that programming language.  There is a lot more to a full implementation of these concepts than the solution equation
+
+$$ X^t X \beta = X^t Y $$
+
+I think it can be very useful to see what technologies, both computational and mathematical, go into a practical and assecable solution to the problem.
+
+There are some things we did not even touch, or swept under the rug
+
+  - How is the model matrix defined / contrasts applied to the factors?
+  - What happens when $$X$$ is not full rank, how is that detected?
+  - What is the mysterious encoding `linpack` uses for the $$QR$$ decomposition.
+  - How are standard errors computed?
+
+I don't know the answer to all of these questions, the reader may find it fun to investigate them.
+
+  [1]: https://github.com/wch/r-source/blob/trunk/src/library/stats/src/lm.c
+  [2]: https://github.com/wch/r-source/blob/trunk/src/appl/dqrls.f
+  [3]: http://en.wikipedia.org/wiki/LINPACK
+  [4]: https://github.com/wch/r-source/blob/trunk/src/appl/dqrdc2.f
+  [5]: http://www.seas.ucla.edu/~vandenbe/103/lectures/qr.pdf
+
+[jekyll-docs]: http://jekyllrb.com/docs/home
+[jekyll-gh]:   https://github.com/jekyll/jekyll
+[jekyll-talk]: https://talk.jekyllrb.com/
