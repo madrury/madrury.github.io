@@ -1,0 +1,64 @@
+---
+layout: post
+title:  "Interactive Scatter Plot Smoothers"
+date:   2016-06-24 08:52:55 -0700
+categories: jekyll update
+---
+
+  <link href="css/smoothers.css" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="d3/d3.js"></script>
+  <script type="text/javascript" src="numeric-js/numeric.js"></script>
+  <script type="text/javascript" src="js/smoothers.js"></script>
+  <script type="text/javascript" src="js/smoother-ui.js"></script>
+  <script type="text/javascript" src="js/parameter-ui.js"></script>
+  <script type="text/javascript" src="js/canvas.js"></script>
+  <script type="text/javascript" src="js/controller.js"></script>
+
+  <div id=instructions class=instructions>
+    <p class=p-instructions>
+      This app demos various one dimensional scatterplot smoothers interactively.  
+    </p>
+    <p class=instructions>
+      Click on the canvas to add points to the scatterplot. Use the interface below to select a smoothing algorithm and, if needed, hyperparameters for the smoothing. 
+    <p class=instructions>
+      Once you've added three points, the smoother will kick in 
+      automatically.
+    </p>
+  </div>
+
+  <div id=graph class=graph></div>
+
+  <br>
+
+  <div id=interface-smoother class=interface>
+    <label for=smooth-type>Smoothing Type:</label>
+    <select name=smooth-type id=smooth-type>
+    </select>
+    <button id=clear type=button>Clear</button>
+  </div>
+
+  <div id=interface-hyperparamters class=interface>
+    <label for=hyperparameter-interface>Smoothing Parameters:</label>
+    <div id=interface-hyperparamter-sliders></div>
+  </div>
+
+
+<script type="text/javascript">
+
+  /* Initialize the interface */
+  let c = canvas("div#graph",
+                  {height: 400, width: 600},
+                  {top: 25, bottom: 25, left:25, right: 25});
+  c.bind_click_listener();
+
+
+  let sui = smoother_ui(smoothers); 
+  sui.bind(document.getElementById("smooth-type"),
+            document.getElementById("clear"))
+  let pui = parameter_ui();
+  pui.bind(document.getElementById("interface-hyperparamter-sliders"))
+
+  let ct = controller(c, sui, pui);
+  ct.run();
+
+</script>
