@@ -20,7 +20,7 @@ let controller = function(canvas, smoother_ui, parameter_ui) {
                     msg = parameter_ui.msg_queue.pop();
                     that.field_parameter_ui_msg(msg);
                 }
-            });
+            }, 100);
         },
 
         field_canvas_msg: function(msg) {
