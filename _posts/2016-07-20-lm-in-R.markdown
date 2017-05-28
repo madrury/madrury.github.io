@@ -2,7 +2,7 @@
 layout: post
 title:  "A Deep Dive Into How R Fits a Linear Model"
 date:   2016-07-20 08:52:55 -0700
-categories: jekyll update
+categories: jekyll update statistics
 ---
 
 [R](https://www.r-project.org/) is a high level language for statistical computations.  One of my most used R functions is the humble `lm`, which fits a linear regression model.  The mathematics behind fitting a linear regression is relatively simple, some standard linear algebra with a touch of calculus.  It therefore may quite surprise the reader to learn that behind even the simplest of calls to R's `lm` function lies a journey through three different programming languages, which in the end arrives at some of the oldest open source software still in common use.
