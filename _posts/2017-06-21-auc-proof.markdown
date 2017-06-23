@@ -23,11 +23,12 @@ $$ (\text{true positive rate}, \text{false positive rate}) $$
 
 Plotting all of these pairs as the threshold is varied across its range traces out the ROC curve.
 
-![An AUC Curve]({{ site.url }}/img/roc-curve.png)
+![An AUC Curve]({{ site.url }}/img/roc-curve.png){: .center-img }
 
 The ROC curve always passes through (0, 0) and (1, 1), and decreasing the threshold moves up along the curve towards (1, 1).
 
-![Auc Curve with Direction of Increasing Threshold]({{ site.url }}/img/roc-curve-with-direction.png)
+![Auc Curve with Direction of Increasing Threshold]({{ site.url }}/img/roc-curve-with-direction.png){: .center-img }
+
 
 The AUC is the area under the ROC curve.  It is a number between zero and one, because the ROC curve fits inside a unit square.  Any model worth much of anything has an AUC larger than 0.5, as the line segment running between (0, 0) and (1, 1) represents a model that randomly guesses class membership.
 
@@ -43,7 +44,8 @@ We will give a geometric proof by setting up a lattice in which the lattice poin
 
 Consider the following diagram:
 
-![Roc Curve with Lattice]({{ site.url }}/img/roc-curve-with-lattice.png)
+![Roc Curve with Lattice]({{ site.url }}/img/roc-curve-with-lattice.png){: .center-img }
+
 
 We have layed the positive classes in our dataset equally spaced along the y-axis.  The positive data point ranked highest by the model is placed closest to (0, 0), and the model score of the data points decrease as we move in the positive y-direction.  We've neglected to lay a point at (0, 0), which is a technical detail that helps the counting work out.
 
@@ -51,11 +53,13 @@ The same was down with the negative classes, this time along the x-axis.  If the
 
 Now consider picking a random positive class, coloring it orange, and drawing the horizontal line through the square that leaves from that point.  Say that this is the $k$'th positive class.
 
-![Roc Curve With Horizontal Line]({{ site.url }}/img/roc-curve-with-horisontal-line.png)
+![Roc Curve With Horizontal Line]({{ site.url }}/img/roc-curve-with-horisontal-line.png){: .center-img }
+
 
 This horizontal line first meets the ROC curve at one of the lattice points, the green point below: 
 
-![Roc Curve with Horizontal Line and Intersection]({{ site.url }}/img/roc-curve-with-intersection.png)
+![Roc Curve with Horizontal Line and Intersection]({{ site.url }}/img/roc-curve-with-intersection.png){: .center-img }
+
 
 Since the y-coordinate of a point on the ROC curve is the true positive rate at the threshold producing the point on the curve, the true positive rate at the green point is its y-coordinate
 
@@ -71,7 +75,8 @@ Now consider choosing *two* points
   
 and drawing the corresponding horizontal and vertical lines.
 
-![Roc Curve with Intersection Point Under Curve]({{ site.url }}/img/roc-curve-point-below.png)
+![Roc Curve with Intersection Point Under Curve]({{ site.url }}/img/roc-curve-point-below.png){: .center-img }
+
 
 Recall that the associated thresholds decrease as we move along the ROC curve towards the top-right corner.  So, if the horizontal line meets the ROC curve to the *left* of the meeting with the vertical line, than the chosen positive class is scored *higher* than the chosen negative class.  Under this setup the horizontal and vertical lines meet at a lattice point *under* the ROC curve.  If the roles had been reversed, then the positive class would be scored *lower* than the negative class, and our intersection point would lie *above* the ROC curve.
 
