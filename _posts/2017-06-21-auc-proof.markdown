@@ -5,8 +5,6 @@ date:   2017-06-21
 categories: jekyll update statistics
 ---
 
-# The Probabilistic Interpretation of AUC
-
 In this note I'd like to give proof to a well known probabilistic interpretation of the [AUC](https://en.wikipedia.org/wiki/Receiver_operating_characteristic#Area_under_the_curve) model fit statistic. I've had trouble locating an intuitive proof of this result online and in the literature.  
 
 This argument is entirely due to my co-worker [Jack Bennetto](https://www.linkedin.com/in/jackbennetto/), I've just made some figures and typed it up.
