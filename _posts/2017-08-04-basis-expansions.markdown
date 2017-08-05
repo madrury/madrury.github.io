@@ -71,7 +71,7 @@ Unfortunately, polynomial regression has a fair number of issues.  The most ofte
 
 Above we have a fixed data set, and we have fit and plotted polynomial regressions of various degrees.  The most striking feature is how badly the higher degree polynomials fit the data near the edges.  The variance explodes!  This is especially problematic in high dimensional situations where, due to the curse of dimensionality, almost *all* of the data is near the boundaries.
 
-Another way to look at this is to plot residuals for each data point \(x\) over many samples from the same population, as we fit polynomials of various degrees to the sampled data:
+Another way to look at this is to plot residuals for each data point $$x$$ over many samples from the same population, as we fit polynomials of various degrees to the sampled data:
 
 ![Residuals from Polynomial Regression]({{ site.url }}/img/polynomial-residuals-various-degrees.png){: .center-{{ site.url }}/img }
 
@@ -83,7 +83,7 @@ Another final way to observe this effect is to estimate the average testing erro
 
 The polynomial regression eventually drastically overfits, even to this simple one dimensional data set.
 
-There are other issues with polynomial regression; for example, it is inherently non-local, changing the value of \(y\) at one point in the training set can affect the fit of the polynomial at data points very far away, resulting in tight coupling across the space of our data (often referred to as **rigidity**).  You can get a feel for this by playing around with the interactive [scatterplot somoothers](http://madrury.github.io/smoothers/) app hosted on this site.
+There are other issues with polynomial regression; for example, it is inherently non-local, changing the value of $$y$$ at one point in the training set can affect the fit of the polynomial at data points very far away, resulting in tight coupling across the space of our data (often referred to as **rigidity**).  You can get a feel for this by playing around with the interactive [scatterplot somoothers](http://madrury.github.io/smoothers/) app hosted on this site.
 
 The methods we will lay out in the rest of this post will go some way to alleviate these issues with polynomial regression, and serve as superior solutions to the same underlying problems.
 
@@ -93,7 +93,7 @@ Probably the first thing that occurs to most modelers when reflecting on other w
 
 ![Regression with Bins, Various Number of Cuts]({{ site.url }}/img/bins-various-n-cuts.png){: .center-{{ site.url }}/img }
 
-In binned regression we simply cut the range of the predictor variable into equally sized intervals (though we could use a more sophisticated rule, like cutting into intervals at percentiles of the marginal distribution of the predictor).  Membership in any interval is used to create a set of indicator variables, which are then regressed upon.  In the one predictor case, this results in our regression predicting the mean value of \(y\) in each bin.
+In binned regression we simply cut the range of the predictor variable into equally sized intervals (though we could use a more sophisticated rule, like cutting into intervals at percentiles of the marginal distribution of the predictor).  Membership in any interval is used to create a set of indicator variables, which are then regressed upon.  In the one predictor case, this results in our regression predicting the mean value of $$y$$ in each bin.
 
 Binning has its obvious [conceptual issues](https://stats.stackexchange.com/questions/68834/what-is-the-benefit-of-breaking-up-a-continuous-predictor-variable).  Most prominently, we expect most phenomena we study to vary continuously with inputs.  Binned regression does not create continuous functions of the predictor, so in most cases we would expect there to be some unavoidable bias within each bin.  In the simple case where the true relationship is monotonic in an interval, we expect to be under predicting the truth on the left hand side of each bin, and overpredicting on the right hand side.
 
@@ -103,7 +103,7 @@ Even so, binning is popular.  It is easy to discover, implement, and explain, an
 
 ### Piecewise Linear Splines
 
-As a first step towards a general non-parametric *continuous* basis expansion, we would like to fit a **piecewise linear funtion** to our data.  This turns out the be rather easy to do using translations of the template function \(f(x) = max(0, x)\).
+As a first step towards a general non-parametric *continuous* basis expansion, we would like to fit a **piecewise linear funtion** to our data.  This turns out the be rather easy to do using translations of the template function $$f(x) = max(0, x)$$.
 
 ![PL Basis Elements]({{ site.url }}/img/pl-basis-functions.png){: .center-{{ site.url }}/img }
 
@@ -125,9 +125,9 @@ The result will be to fit a continuous piecewise linear function to our data:
 
 ![PL Various n-knots]({{ site.url }}/img/pl-various-n-knots.png){: .center-{{ site.url }}/img }
 
-The values \(\{k_1, k_2, \ldots, k_r\}\), which are the \(x\) coordinates at which the slope of the segments may change, are called **knots**.
+The values $$\{k_1, k_2, \ldots, k_r\}$$, which are the $$x$$ coordinates at which the slope of the segments may change, are called **knots**.
 
-Note that we include the basis function \(f_0(x) = x\) which allows the spline to assume some non-zero slope *before* the first knot.  If we had not included this basis function, we would have been forced to use a zero slope in the interval \((\infty, k_1)\).
+Note that we include the basis function $$f_0(x) = x$$ which allows the spline to assume some non-zero slope *before* the first knot.  If we had not included this basis function, we would have been forced to use a zero slope in the interval $$(\infty, k_1)$$.
 
 The estimated parameters for the basis function elements have a simple interpretation, they represent the *change in slope* when crossing from the left hand to the right hand side of a knot.
 
@@ -153,7 +153,7 @@ We will skip writing down the exact form of the basis functions for natural cubi
 
 ![Natural Cubic Splines fit to Data]({{ site.url }}/img/natural-cubic-splines-various-knots.png){: .center-{{ site.url }}/img }
 
-All thought they seem more complex, it is important to realize that the continuity constraints on the shape of the spline are strong.  While estimating a piecewise linear spline with $r$ knots uses \(r+1\) parameters (ignoring the intercept), estimating a cubic spline takes only \(r\) parameters.  Indeed, in the above picture, the spline with only one knot is a *line*; this is because the slopes of the left hand and right hand line must match.
+All thought they seem more complex, it is important to realize that the continuity constraints on the shape of the spline are strong.  While estimating a piecewise linear spline with $r$ knots uses $$r+1$$ parameters (ignoring the intercept), estimating a cubic spline takes only $$r$$ parameters.  Indeed, in the above picture, the spline with only one knot is a *line*; this is because the slopes of the left hand and right hand line must match.
 
 The linear constraints near the edge of the data are intended to prevent the spline for overfitting near the boundaries of the data, as polynomial regression tends to do:
 
