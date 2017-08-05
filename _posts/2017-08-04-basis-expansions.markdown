@@ -9,9 +9,9 @@ Beginners in machine learning often write off regression methods after learning 
 
 It's easy to point out that the *linear* in linear regression is not meant to convey that the resulting model predictions are linear in the raw *feaures*, just the estimated parameters!  The modeler can capture non-linearities in their regression, they only need to transform the raw predictors!
 
-A common response is that the process of feature engeneering is error prone, has no definate goal, and that it can be annoying work to explore data by hand and somehow divine correct transformations of predictors: why bother when other methods do it automatically.
+A common response is that the process of feature engineering is error prone, has no definite goal, and that it can be annoying work to explore data by hand and somehow divine correct transformations of predictors: why bother when other methods do it automatically.
 
-Yet regression offers advantages that more high-tech methods do not.  It is simple, and hardly a black box.  Simple and common assumptions allow the modeler to perform statistical inference.  It has many generalizations that advance both goals of predictive and inferential power simultaneously.  An, possibly most mundanely, it has a long history and solid foothold in many industries and sciences.  Because of all this, we should all seek to use this tool more skillfully.
+Yet regression offers advantages that more high-tech methods do not.  It is simple, and hardly a black box.  Simple and common assumptions allow the modeler to perform statistical inference.  It has many generalizations that advance both goals of predictive and inferential power simultaneously.  And, more mundanely, it has a long history and solid foothold in many industries and sciences.  Because of all this, we should all seek to use this tool more skillfully.
 
 It would be wise for us to seek a more non-parametric way to capture non-linear effects in regression models.  Usually the only truly flexible method beginners learn is polynomial regression.  This is a real shame, because as we will demonstrate below, it is about the worst performing method available.
 
@@ -301,7 +301,7 @@ Comparing the testing errors of the various methods, this time the binned expans
 
 ![]({{ site.url }}/img/broken-signal-variance.png){: .center-{{ site.url }}/img }
 
-Finally, the variance of the binned model is also significantly worse in terms of varaince than the other methods, while the two spline methodologies are equivalent.
+Finally, the variance of the binned model is also significantly worse in terms of variance than the other methods, while the two spline methodologies are equivalent.
 
 ## Conclusions
 
