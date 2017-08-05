@@ -215,11 +215,11 @@ The most noticeable difference in this situation is that at a low number of esti
 
 The rates of overfitting tell the same story as before.  The polynomial regression eventually overfits drastically, while the others overfit slowly.
 
-Plotting the hold out error curves all on the same plot highlights another interesting feature to the story:
+Plotting the hold out error curves all on the same plot highlights another interesting feature:
 
 ![]({{ site.url }}/img/sin-signal-all.png){: .center-{{ site.url }}/img }
 
-The binned regression fits to the data much more slowly than polynomial and the two splines.  While the splines achieve their lowest average testing error at around five estimated parameters, it takes around eighteen bins to minimize the average testing error.  Furthermore, the minimum testing error for the polynomial and spline regressions is *lower* than for the bins (and again, this minimum is achieved with *less* estimated parameters).
+The binned regression fits to the data much more slowly than polynomial and the two splines.  While the splines achieve their lowest average testing error at around five estimated parameters, it takes around eighteen bins for the binned regression to achieve its minumum.  Furthermore, the minimum testing error for the polynomial and spline regressions is *lower* than for the bins, so we have done *worse* overall, but payed a higher price.
 
 ![]({{ site.url }}/img/sin-signal-variance.png){: .center-{{ site.url }}/img }
 
@@ -241,7 +241,7 @@ The graph of this function has exponential, quadratic, and linear qualities in d
 
 ![weird Signal Plus Gaussian Noise]({{ site.url }}/img/weird-signal.png){: .center-{{ site.url }}/img }
 
-We follow the usual experiment at this point, here are the training and testing curves for the various basis expansion methods we are investigating.
+We follow the usual experiment at this point. Here are the training and testing curves for the various basis expansion methods we are investigating:
 
 ![]({{ site.url }}/img/weird-signal-binning.png){: .center-{{ site.url }}/img }
 ![]({{ site.url }}/img/weird-signal-polynomial.png){: .center-{{ site.url }}/img }
@@ -250,7 +250,7 @@ We follow the usual experiment at this point, here are the training and testing 
 
 The story here captures the same general themes as in the previous example:
 
-  - The quadratic basis expansion eventually drastically overfits.
+  - The quadratic basis expansion eventually drastically overfits rapidly.
   - The other basis expansions overfit slowly.
   - For very a very small number of estimated parameters, each of the basis expansions is biased.
   - The variance in test error is generally stable as more parameters are added to the model, *except* for the polynomial regression, which explodes.
@@ -282,14 +282,16 @@ To create this function, we have taken the sin curve from before, and created di
 
 ![broken Signal Plus Gaussian Noise]({{ site.url }}/img/broken-signal.png){: .center-{{ site.url }}/img }
 
-Let's repeat our experiments and see if the discontinuities change the patterns we have been observing among the different basis expansions
+In this situation, all of our models are biased, the bins cannot capture the continuous parts correctly, while the others can not capture the discontinuities.
+
+Let's repeat our experiments and see if the discontinuities change the patterns we have been observing among the different basis expansions:
 
 ![]({{ site.url }}/img/broken-signal-binning.png){: .center-{{ site.url }}/img }
 ![]({{ site.url }}/img/broken-signal-polynomial.png){: .center-{{ site.url }}/img }
 ![]({{ site.url }}/img/broken-signal-pl.png){: .center-{{ site.url }}/img }
 ![]({{ site.url }}/img/broken-signal-splines.png){: .center-{{ site.url }}/img }
 
-The major difference in this example is the difficulty in decreasing the bias of the fit.  Since the models we are fitting are all continuous, it is *impossible* for any of them to be unbiased.  The best we can do is trap the discontinuities between two ever closer knots (in the case of splines), or inside a small bin.  Indeed, even at 29 estimated parameters, the test error is still decreasing (slowly), indicating the our models can still do a better job decreasing the bias of their fits before becoming overwhelmed with variance.
+The major difference in this example is the difficulty all methods have in decreasing the bias of the fit.  Since the models we are fitting are all continuous, it is *impossible* for any of them to be unbiased.  The best we can do is trap the discontinuities between two ever closer knots (in the case of splines), or inside a small bin.  Indeed, even at 29 estimated parameters, the test error is still decreasing (slowly), indicating the our models can still do a better job decreasing the bias of their fits before becoming overwhelmed with variance.
 
 Otherwise, there are no striking differences to the patterns we observe when comparing the various basis expansions.
 
@@ -299,11 +301,17 @@ Comparing the testing errors of the various methods, this time the binned expans
 
 ![]({{ site.url }}/img/broken-signal-variance.png){: .center-{{ site.url }}/img }
 
-Finally, the variance of the binned model is also significantly worse than the other methods, while the two spline methodologies are equivalent.
+Finally, the variance of the binned model is also significantly worse in terms of varaince than the other methods, while the two spline methodologies are equivalent.
 
 ## Conclusions
 
 In this post we have compared four different approaches to capturing general non-linear behaviour in regression.
+
+### Polynomial Regression
+
+The major problem with polynomial regression is its instability once a moderate number of estimated parameters is reached.  Polynomial regressions as *highly* sensitive to the noise in our data, and in every example were seen to eventually overfit violently; this feature was not seen in any of the other methods we surveyed.
+
+The polynomial regression also does not accumulate variance uniformly throughout the support of the data.  We saw that polynomial fits become highly unstable near the boundaries of the available data.  This can be a serious issue in higher dimensional situations (though we did not explore this), where the curse of dimensionality tells us that the *majority* of our data will lie close to the boundary.
 
 ### Binning
 
@@ -314,12 +322,6 @@ Binning, which conceptually simple, was seen to suffer from a few issues in comp
   
 Additionally, the binned regression method has the disadvantage of producing *discontinuous* functions, while we expect most processes we encounter in nature or business to vary continuously in their inputs.  This is philosophically unappealing, and also accounts for some of the bias seen when comparing the binning regressions to the other basis expansions.
 
-### Polynomial Regression
-
-The major problem with polynomial regression is its instability once a moderate number of estimated parameters is reached.  Polynomial regressions as *highly* sensitive to the noise in our data, and in every example were seen to eventually overfit violently; this feature was not seen in any of the other methods we surveyed.
-
-The polynomial regression also does not accumulate variance uniformly throughout the support of the data.  We saw that polynomial fits become highly unstable near the boundaries of the available data.  This can be a serious issue in higher dimensional situations (though we did not explore this), where the curse of dimensionality tells us that the *majority* of our data will lie close to the boundary.
-
 ### Linear and Cubic Splines
 
 These methods performed well across the range of our experiments.
@@ -328,9 +330,7 @@ These methods performed well across the range of our experiments.
   - They generally achieve a lower hold out error than the binned regressions, and achieve their minimum hold out error at a lower number of estimated parameters.
   - Their hold out error is generally the lowest out of the methods we surveyed, making each *individual* regression more trustworthy.
   
-The two spline models are a clear winner over the binned and polynomial regressions.  This is a real shame, because they are often not taught in introductory courses in predictive modeling, even though they (at least the piecewise linear spline) are just as easy to implement as polynomial or binned regression.
-
-We hope we have convinced you to use these methods in your own modeling work. The author sees no real reason to fit polynomial or binned expansions in any predictive or inferential model.
+The two spline models are clear winners over the binned and polynomial regressions.  It is a shame that they are often not taught in introductory courses in predictive modeling.  The author sees no real reason to fit polynomial or binned expansions in any predictive or inferential model, and hopes that these methods will enter the standard curriculum taught to new users of regression methods.  At the very least, we hope you will use these methods in your own modeling work.
 
 [^poly-standardization]: Of course, to avoid numerical issues we follow the usual advice of standardizing a predictor before applying a polynomial expansion.
 
