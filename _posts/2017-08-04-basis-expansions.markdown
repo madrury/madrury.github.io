@@ -332,11 +332,8 @@ The two spline models are a clear winner over the binned and polynomial regressi
 
 We hope we have convinced you to use these methods in your own modeling work. The author sees no real reason to fit polynomial or binned expansions in any predictive or inferential model.
 
-[^poly-standardization]:
-Of course, to avoid numerical issues we follow the usual advice of standardizing a predictor before applying a polynomial expansion.
+[^poly-standardization]: Of course, to avoid numerical issues we follow the usual advice of standardizing a predictor before applying a polynomial expansion.
 
-[^size-of-hold-out]:
-The training and testing data were both sampled from the same population.  Each model was trained on 250 data points, and tested on 250 data points.
+[^size-of-hold-out]: The training and testing data were both sampled from the same population.  Each model was trained on 250 data points, and tested on 250 data points.
 
-[^number-of-simulatons]:
-Each experiment (sampling train and test data, fitting the model to train, evaluating performance on the hold out) was performed 500 times.
+[^number-of-simulatons]: Each experiment (sampling train and test data, fitting the model to train, evaluating performance on the hold out) was performed 500 times.
