@@ -11,7 +11,7 @@ It's easy to point out that the *linear* in linear regression is not meant to co
 
 A common response is that the process of feature engineering is error prone, has no definite goal, and that it can be annoying work to explore data by hand and somehow divine correct transformations of predictors: why bother when other methods do it automatically.
 
-Yet regression offers advantages that more high-tech methods do not.  It is simple, and hardly a black box.  Simple and common assumptions allow the modeler to perform statistical inference.  It has many generalizations that advance both goals of predictive and inferential power simultaneously.  And, more mundanely, it has a long history and solid foothold in many industries and sciences.  Because of all this, we should all seek to use this tool more skillfully.
+Yet regression offers advantages that more high-tech methods do not.  It is simple, and hardly a black box.  Simple and common assumptions allow the modeler to perform statistical inference.  It has many generalizations that advance both goals of predictive and inferential power simultaneously.  And, more mundanely, it has a long history and solid foothold in many industries and sciences.  Because of all this, we should seek to use this tool more skillfully.
 
 It would be wise for us to seek a more non-parametric way to capture non-linear effects in regression models.  Usually the only truly flexible method beginners learn is polynomial regression.  This is a real shame, because as we will demonstrate below, it is about the worst performing method available.
 
@@ -19,7 +19,7 @@ The purpose of this post is to spread awareness of better options for capturing 
 
 ### Software
 
-I've taken the opportunity to write a small [python module](https://github.com/madrury/basis-expansions) that is useful for using the basis expansions in this post here.  It conforms to the sklearn transformation interface, so can be used in pipelines and other high level processes in sklearn.
+I've taken the opportunity to write a small [python module](https://github.com/madrury/basis-expansions) that is useful for using the basis expansions in this post.  It conforms to the sklearn transformation interface, so can be used in pipelines and other high level processes in sklearn.
 
 For example, to create a simple regression model using a piecewise linear spline on a single feature, we can use the following pipelining code:
 
