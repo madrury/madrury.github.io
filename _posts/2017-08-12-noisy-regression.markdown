@@ -90,7 +90,7 @@ We call this average line taken over many random dispersions of the same data se
 
 The main conclusion of this post is that
 
-> The dispersed regression line with noise $$\sigma$$ is equal to the ridge regression line with penalty parameter $$\lambda = N \sigma^2$$; here $N$ is the number of observations in the data set.
+> The dispersed regression line with noise $$\sigma$$ is equal to the ridge regression line with penalty parameter $$\lambda = N \sigma^2$$; here $$N$$ is the number of observations in the data set.
 
 This gives yet another characterization of ridge regression, it is a dispersed regression line with a properly chosen amount of multiplicative noise $$\sigma$$.
 
@@ -105,7 +105,7 @@ In this section we give the mathematical details showing that the two regression
 
 ### Statement of the Problem
 
-In our setup, we scale each entry of $X$ by a small amount of Gaussian noise before regressing:
+In our setup, we scale each entry of $$X$$ by a small amount of Gaussian noise before regressing:
 
 $$ x_{ij} \rightarrow \epsilon_{ij} x_{ij} $$
 
@@ -138,7 +138,7 @@ which in expectation is:
 
 $$ E \left[ m_{ij} \right] = \sum_{k} E \left[ \epsilon_{ki} \epsilon_{kj} \right] x_{ki} x_{kj} $$
 
-There are two cases here.  If $i \neq j$, then $\epsilon_{ki}$ and $\epsilon_{kj}$ are independent random variables both drawn from a $N(1, \sigma)$, so:
+There are two cases here.  If $$i \neq j$$, then $$\epsilon_{ki}$$ and $$\epsilon_{kj}$$ are independent random variables both drawn from a $$N(1, \sigma)$$, so:
 
 $$ E \left[ \epsilon_{ki} \epsilon_{kj} \right] = 1 \text{ for } i \neq j $$
 
