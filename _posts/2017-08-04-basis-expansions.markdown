@@ -63,23 +63,23 @@ $$ f_1(x) = x, \ f_2(x) = x^2, \ \ldots, \ f_r(x) = x^r $$
 
 This allows us to fit *polynomial* curves to features:
 
-![Polynomials of Various Degrees]({{ site.url }}/img/polynomial-various-degrees.png){: .center-{{ site.url }}/img }
+![Polynomials of Various Degrees]({{ site.url }}/img/polynomial-various-degrees.png){: .center-img }
 
 Unfortunately, polynomial regression has a fair number of issues.  The most often observed is a very high variance, especially near the boundaries of the data:
 
-![Polynomial Regressions on One Plot]({{ site.url }}/img/polynomial-regressions-one-plot.png){: .center-{{ site.url }}/img }
+![Polynomial Regressions on One Plot]({{ site.url }}/img/polynomial-regressions-one-plot.png){: .center-img }
 
 Above we have a fixed data set, and we have fit and plotted polynomial regressions of various degrees.  The most striking feature is how badly the higher degree polynomials fit the data near the edges.  The variance explodes!  This is especially problematic in high dimensional situations where, due to the curse of dimensionality, almost *all* of the data is near the boundaries.
 
 Another way to look at this is to plot residuals for each data point $$x$$ over many samples from the same population, as we fit polynomials of various degrees to the sampled data:
 
-![Residuals from Polynomial Regression]({{ site.url }}/img/polynomial-residuals-various-degrees.png){: .center-{{ site.url }}/img }
+![Residuals from Polynomial Regression]({{ site.url }}/img/polynomial-residuals-various-degrees.png){: .center-img }
 
 Here we see the same pattern from earlier: the instability in our fits starts at the edges of the data, and moves inward as we increase the degree.
 
 Another final way to observe this effect is to estimate the average testing error of polynomial regressions fit repeatedly to the same population as the degree is changed:
 
-![Polynomial Regression Average Error by Degree]({{ site.url }}/img/polynomial-train-test-weird-signal.png){: .center-{{ site.url }}/img }
+![Polynomial Regression Average Error by Degree]({{ site.url }}/img/polynomial-train-test-weird-signal.png){: .center-img }
 
 The polynomial regression eventually drastically overfits, even to this simple one dimensional data set.
 
@@ -91,13 +91,13 @@ The methods we will lay out in the rest of this post will go some way to allevia
 
 Probably the first thing that occurs to most modelers when reflecting on other ways to capture non-linear effects in regression is to **bin** the predictor variable:
 
-![Regression with Bins, Various Number of Cuts]({{ site.url }}/img/bins-various-n-cuts.png){: .center-{{ site.url }}/img }
+![Regression with Bins, Various Number of Cuts]({{ site.url }}/img/bins-various-n-cuts.png){: .center-img }
 
 In binned regression we simply cut the range of the predictor variable into equally sized intervals (though we could use a more sophisticated rule, like cutting into intervals at percentiles of the marginal distribution of the predictor).  Membership in any interval is used to create a set of indicator variables, which are then regressed upon.  In the one predictor case, this results in our regression predicting the mean value of $$y$$ in each bin.
 
 Binning has its obvious [conceptual issues](https://stats.stackexchange.com/questions/68834/what-is-the-benefit-of-breaking-up-a-continuous-predictor-variable).  Most prominently, we expect most phenomena we study to vary continuously with inputs.  Binned regression does not create continuous functions of the predictor, so in most cases we would expect there to be some unavoidable bias within each bin.  In the simple case where the true relationship is monotonic in an interval, we expect to be under predicting the truth on the left hand side of each bin, and overpredicting on the right hand side.
 
-![Binned Regression vs. True Signal]({{ site.url }}/img/binned-regression-vs-truth.png){: .center-{{ site.url }}/img }
+![Binned Regression vs. True Signal]({{ site.url }}/img/binned-regression-vs-truth.png){: .center-img }
 
 Even so, binning is popular.  It is easy to discover, implement, and explain, and often does a good enough job of capturing the non-linear behaviour of the predictor response relationship.  There are better options though, we will see later that other methods do a better job of capturing the predictive power in the data with less estimated parameters.
 
@@ -105,11 +105,11 @@ Even so, binning is popular.  It is easy to discover, implement, and explain, an
 
 As a first step towards a general non-parametric *continuous* basis expansion, we would like to fit a **piecewise linear funtion** to our data.  This turns out the be rather easy to do using translations of the template function $$f(x) = max(0, x)$$.
 
-![PL Basis Elements]({{ site.url }}/img/pl-basis-functions.png){: .center-{{ site.url }}/img }
+![PL Basis Elements]({{ site.url }}/img/pl-basis-functions.png){: .center-img }
 
 Taking linear combinations of these functions, we can create many piecewise linear shapes:
 
-![Example PL Linear Combination]({{ site.url }}/img/pl-linear-combination.png){: .center-{{ site.url }}/img }
+![Example PL Linear Combination]({{ site.url }}/img/pl-linear-combination.png){: .center-img }
 
 If we set down a fixed set of points where we allow the slope of the linear segment to change, then we can use these as basis functions in our regression:
 
@@ -123,7 +123,7 @@ $$ \begin{align*}
 
 The result will be to fit a continuous piecewise linear function to our data:
 
-![PL Various n-knots]({{ site.url }}/img/pl-various-n-knots.png){: .center-{{ site.url }}/img }
+![PL Various n-knots]({{ site.url }}/img/pl-various-n-knots.png){: .center-img }
 
 The values $$\{k_1, k_2, \ldots, k_r\}$$, which are the $$x$$ coordinates at which the slope of the segments may change, are called **knots**.
 
@@ -133,13 +133,13 @@ The estimated parameters for the basis function elements have a simple interpret
 
 Fitting piecewise linear curves instead of polynomials prevents the explosion of variance when estimating a large number of parameters:
 
-![PL Training and Testing Errors]({{ site.url }}/img/pl-train-test-weird-signal.png){: .center-{{ site.url }}/img }
+![PL Training and Testing Errors]({{ site.url }}/img/pl-train-test-weird-signal.png){: .center-img }
 
 We see that as the number of knots increases, the linear spline *does* begin to overfit, but much more slowly than the polynomial regression with the same number of parameters.
 
 The variance does not tend to accumulate in any one area (as it did near the boundaries of the data in polynomial regression).  Instead the pockets of high variance are dependent on the specific data we happen to be fitting to:
 
-![PL Residuals for Various n-knots]({{ site.url }}/img/pl-residuals-various-degrees.png){: .center-{{ site.url }}/img }
+![PL Residuals for Various n-knots]({{ site.url }}/img/pl-residuals-various-degrees.png){: .center-img }
 
 ### Natural Cubic Splines
 
@@ -147,17 +147,17 @@ Our final example of a basis expansion will be **natural cubic splines**.  Cubic
 
 A **natural cubic spline** is a curve that is continuous, has continuous first derivatives (the tangent line makes no abrupt changes), continuous second derivatives (the tangent lines rate of rotation makes no abrupt changes); and it equal to a cubic polynomial except a points where it is allowed to high higher order discontinuities, these points are the **knots**.  Additionally, we require that the curve be *linear* beyond the knots, i.e. to the left of the first knot, and right of the final knot.
 
-![Natural Cubic Spline Example]({{ site.url }}/img/natural-cubic-spline.png){: .center-{{ site.url }}/img }
+![Natural Cubic Spline Example]({{ site.url }}/img/natural-cubic-spline.png){: .center-img }
 
 We will skip writing down the exact form of the basis functions for natural cubic spline, the interested reader can consult [The Elements of Statistical Learning](http://web.stanford.edu/~hastie/ElemStatLearn/) or the [source code](https://github.com/madrury/basis-expansions/blob/master/basis_expansions.py#L205) used in this post.
 
-![Natural Cubic Splines fit to Data]({{ site.url }}/img/natural-cubic-splines-various-knots.png){: .center-{{ site.url }}/img }
+![Natural Cubic Splines fit to Data]({{ site.url }}/img/natural-cubic-splines-various-knots.png){: .center-img }
 
 All thought they seem more complex, it is important to realize that the continuity constraints on the shape of the spline are strong.  While estimating a piecewise linear spline with $r$ knots uses $$r+1$$ parameters (ignoring the intercept), estimating a cubic spline takes only $$r$$ parameters.  Indeed, in the above picture, the spline with only one knot is a *line*; this is because the slopes of the left hand and right hand line must match.
 
 The linear constraints near the edge of the data are intended to prevent the spline for overfitting near the boundaries of the data, as polynomial regression tends to do:
 
-![Natrual Cubic Splines Residuals]({{ site.url }}/img/natural-cubic-splines-various-degrees.png){: .center-{{ site.url }}/img }
+![Natrual Cubic Splines Residuals]({{ site.url }}/img/natural-cubic-splines-various-degrees.png){: .center-img }
 
 ## Experiments
 
@@ -173,14 +173,14 @@ Our four experiments each fit to datasets sampled from a different population:
 
 As a first experiment, let's fit to a linear truth.  This is the simplest possible case for our regression methods, and serves to test how badly they will overfit.
 
-![Linear Signal Plus Gaussian Noise]({{ site.url }}/img/linear-signal.png){: .center-{{ site.url }}/img }
+![Linear Signal Plus Gaussian Noise]({{ site.url }}/img/linear-signal.png){: .center-img }
 
 Let's look at how the training and testing error varies as we increase the number of fit parameters for each of our basis expansions
 
-![]({{ site.url }}/img/linear-signal-binning.png){: .center-{{ site.url }}/img }
-![]({{ site.url }}/img/linear-signal-polynomial.png){: .center-{{ site.url }}/img }
-![]({{ site.url }}/img/linear-signal-pl.png){: .center-{{ site.url }}/img }
-![]({{ site.url }}/img/linear-signal-splines.png){: .center-{{ site.url }}/img }
+![]({{ site.url }}/img/linear-signal-binning.png){: .center-img }
+![]({{ site.url }}/img/linear-signal-polynomial.png){: .center-img }
+![]({{ site.url }}/img/linear-signal-pl.png){: .center-img }
+![]({{ site.url }}/img/linear-signal-splines.png){: .center-img }
 
 The polynomial expansion eventually overfits **drastically**, while the other tree transformations only overfit gradually.  None of the models have any bias, so the minimum expected testing error occurs for the minimum number of fit parameters.
 
@@ -188,13 +188,13 @@ The binning, piecewise linear, and piecewise cubic transformations do about equa
 
 We can get a clearer comparison by plotting only the testing errors all on the same axis:
 
-![]({{ site.url }}/img/linear-signal-all.png){: .center-{{ site.url }}/img }
+![]({{ site.url }}/img/linear-signal-all.png){: .center-img }
 
 Between two and fifteen fit parameters, all the methods but polynomial regression perform about equally well, and overfit the training data at the same rate.  So in this simple case, if we are only going for test performance, it doesn't so much matter what we choose.
 
 To examine the variance of the methods, we can plot the width of the variance bands all on the same axis:
 
-![]({{ site.url }}/img/linear-signal-variance.png){: .center-{{ site.url }}/img }
+![]({{ site.url }}/img/linear-signal-variance.png){: .center-img }
 
 In this example the variance of the testing error stays the same for all basis expansions throughout the entire range of complexity, with the obvious exception of polynomial regression, where the variance explodes along with the expectation.
 
@@ -202,14 +202,14 @@ In this example the variance of the testing error stays the same for all basis e
 
 Our next experiment will fit the various basis expansions to a sinusoidal signal:
 
-![sin Signal Plus Gaussian Noise]({{ site.url }}/img/sin-signal.png){: .center-{{ site.url }}/img }
+![sin Signal Plus Gaussian Noise]({{ site.url }}/img/sin-signal.png){: .center-img }
 
 The training / testing error plots are created in the same way as for the linear signal:
 
-![]({{ site.url }}/img/sin-signal-binning.png){: .center-{{ site.url }}/img }
-![]({{ site.url }}/img/sin-signal-polynomial.png){: .center-{{ site.url }}/img }
-![]({{ site.url }}/img/sin-signal-pl.png){: .center-{{ site.url }}/img }
-![]({{ site.url }}/img/sin-signal-splines.png){: .center-{{ site.url }}/img }
+![]({{ site.url }}/img/sin-signal-binning.png){: .center-img }
+![]({{ site.url }}/img/sin-signal-polynomial.png){: .center-img }
+![]({{ site.url }}/img/sin-signal-pl.png){: .center-img }
+![]({{ site.url }}/img/sin-signal-splines.png){: .center-img }
 
 The most noticeable difference in this situation is that at a low number of estimated parameters, all the models are badly biased: while the fits to the linear function started at their lowest testing and training errors, for the sinusoid each basis expansion regression starts with high error, and decreases quickly as more parameters enter the model and the bias decreases.
 
@@ -217,11 +217,11 @@ The rates of overfitting tell the same story as before.  The polynomial regressi
 
 Plotting the hold out error curves all on the same plot highlights another interesting feature:
 
-![]({{ site.url }}/img/sin-signal-all.png){: .center-{{ site.url }}/img }
+![]({{ site.url }}/img/sin-signal-all.png){: .center-img }
 
 The binned regression fits to the data much more slowly than polynomial and the two splines.  While the splines achieve their lowest average testing error at around five estimated parameters, it takes around eighteen bins for the binned regression to achieve its minumum.  Furthermore, the minimum testing error for the polynomial and spline regressions is *lower* than for the bins, so we have done *worse* overall, but payed a higher price.
 
-![]({{ site.url }}/img/sin-signal-variance.png){: .center-{{ site.url }}/img }
+![]({{ site.url }}/img/sin-signal-variance.png){: .center-img }
 
 A similar story holds for the testing error variances: the binning transformation has slightly higher variance than the two spline methods.
 
@@ -239,14 +239,14 @@ def weird_signal(x):
 
 The graph of this function has exponential, quadratic, and linear qualities in different segments of its domain.
 
-![weird Signal Plus Gaussian Noise]({{ site.url }}/img/weird-signal.png){: .center-{{ site.url }}/img }
+![weird Signal Plus Gaussian Noise]({{ site.url }}/img/weird-signal.png){: .center-img }
 
 We follow the usual experiment at this point. Here are the training and testing curves for the various basis expansion methods we are investigating:
 
-![]({{ site.url }}/img/weird-signal-binning.png){: .center-{{ site.url }}/img }
-![]({{ site.url }}/img/weird-signal-polynomial.png){: .center-{{ site.url }}/img }
-![]({{ site.url }}/img/weird-signal-pl.png){: .center-{{ site.url }}/img }
-![]({{ site.url }}/img/weird-signal-splines.png){: .center-{{ site.url }}/img }
+![]({{ site.url }}/img/weird-signal-binning.png){: .center-img }
+![]({{ site.url }}/img/weird-signal-polynomial.png){: .center-img }
+![]({{ site.url }}/img/weird-signal-pl.png){: .center-img }
+![]({{ site.url }}/img/weird-signal-splines.png){: .center-img }
 
 The story here captures the same general themes as in the previous example:
 
@@ -257,11 +257,11 @@ The story here captures the same general themes as in the previous example:
   
 Comparing all the test errors on the same plot again highlights similar points to the sin curve
 
-![]({{ site.url }}/img/weird-signal-all.png){: .center-{{ site.url }}/img }
+![]({{ site.url }}/img/weird-signal-all.png){: .center-img }
 
 The bias of the binned regression decreases more slowly than the spline methods, and its minimum hold out error is both larger than the splines, and achieved at more estimated parameters.  The linear and cubic spline generally achieve a similar testing error for the same number of estimated parameters.
 
-![]({{ site.url }}/img/weird-signal-variance.png){: .center-{{ site.url }}/img }
+![]({{ site.url }}/img/weird-signal-variance.png){: .center-img }
 
 The variances for the non-polynomial models are stable, with a hint that the binned regression has a larger overall variance across a range of model complexities.
 
@@ -280,26 +280,26 @@ def broken_sin_signal(x):
 
 To create this function, we have taken the sin curve from before, and created discontinuities by shifting intervals of the graph up or down.  The result is a broken sin curve
 
-![broken Signal Plus Gaussian Noise]({{ site.url }}/img/broken-signal.png){: .center-{{ site.url }}/img }
+![broken Signal Plus Gaussian Noise]({{ site.url }}/img/broken-signal.png){: .center-img }
 
 In this situation, all of our models are biased, the bins cannot capture the continuous parts correctly, while the others can not capture the discontinuities.
 
 Let's repeat our experiments and see if the discontinuities change the patterns we have been observing among the different basis expansions:
 
-![]({{ site.url }}/img/broken-signal-binning.png){: .center-{{ site.url }}/img }
-![]({{ site.url }}/img/broken-signal-polynomial.png){: .center-{{ site.url }}/img }
-![]({{ site.url }}/img/broken-signal-pl.png){: .center-{{ site.url }}/img }
-![]({{ site.url }}/img/broken-signal-splines.png){: .center-{{ site.url }}/img }
+![]({{ site.url }}/img/broken-signal-binning.png){: .center-img }
+![]({{ site.url }}/img/broken-signal-polynomial.png){: .center-img }
+![]({{ site.url }}/img/broken-signal-pl.png){: .center-img }
+![]({{ site.url }}/img/broken-signal-splines.png){: .center-img }
 
 The major difference in this example is the difficulty all methods have in decreasing the bias of the fit.  Since the models we are fitting are all continuous, it is *impossible* for any of them to be unbiased.  The best we can do is trap the discontinuities between two ever closer knots (in the case of splines), or inside a small bin.  Indeed, even at 29 estimated parameters, the test error is still decreasing (slowly), indicating the our models can still do a better job decreasing the bias of their fits before becoming overwhelmed with variance.
 
 Otherwise, there are no striking differences to the patterns we observe when comparing the various basis expansions.
 
-![]({{ site.url }}/img/broken-signal-all.png){: .center-{{ site.url }}/img }
+![]({{ site.url }}/img/broken-signal-all.png){: .center-img }
 
 Comparing the testing errors of the various methods, this time the binned expansions does noticeably worse than the other methods throughout the entire range of complexities.  Otherwise, the two spline models are mostly equivalent in performance.
 
-![]({{ site.url }}/img/broken-signal-variance.png){: .center-{{ site.url }}/img }
+![]({{ site.url }}/img/broken-signal-variance.png){: .center-img }
 
 Finally, the variance of the binned model is also significantly worse in terms of variance than the other methods, while the two spline methodologies are equivalent.
 
