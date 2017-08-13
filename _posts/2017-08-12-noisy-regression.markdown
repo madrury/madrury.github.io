@@ -41,7 +41,7 @@ $$ \hat y = X \hat \beta $$
 
 **Ridge Regression** is an alternate way to estimate the regression line that is useful when linear regression produces predicted values with a high variance (for example, when there is not enough data available to accurately estimate effects for all of the available predictors).  Ridge often has the desirable effect of improving the predictive power of a regression.
 
-In the standard description, ridge regression is described as a constrained optimization problem:
+In the standard description, ridge regression is described as a penalized optimization problem:
 
 $$ \hat \beta = argmin_\beta \left| y - X \beta \right|^2 + \lambda \left| \beta \right|^2 $$
 
