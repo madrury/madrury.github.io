@@ -59,7 +59,7 @@ $$ \epsilon_1, \epsilon_2, \ldots \sim Normal(1, \sigma) $$
 
 If $$X$$ is a matrix containing the values of features in a regression problem, we say we have **added multiplicitive random noise to X** when we replace $$X$$ with a new dataset:
 
-$$ e_{ij} \rightarrow \epsilon_{ij} x_{ij} $$
+$$ x_{ij} \rightarrow \epsilon_{ij} x_{ij} $$
 
 In words, we draw a random $$Normal(1, \sigma)$$ for every data element in $$X$$, and then multiply each data element by its corresponding random number.
 
