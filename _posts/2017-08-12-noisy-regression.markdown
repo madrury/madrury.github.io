@@ -81,7 +81,7 @@ In the plot below, the original data set is plotted in black, and the dispersed 
 
 ![Dispersed Regression Lines]({{ site.url }}/img/amrnirr-dispersed-regression-lines.png){: .center-img }
 
-Of course, when adding random noise to data, one expects to get a different result each time.  In our case, each time we fit a regression line to a different version of our noisy data, we expect to get a slightly different line.  To get a stable result out of this process, we need to *average together* all of out estimated regression lines.  This process is called **marginalization**, i.e., integrating out the randomness in the process.
+Of course, when adding random noise to data, one expects to get a different result each time.  In our case, each time we fit a regression line to a different version of our noisy data, we expect to get a slightly different line.  To get a stable result out of this process, we need to *average together* all of our estimated regression lines.  This process is called **marginalization**, i.e., integrating out the randomness in the process.
 
 Below we repeat the process of adding noise and fitting a regression many times, and plot each resulting regression line.  The result in a bundle of regression lines, which we can see fan out around an *average line*, which is the stable result of the process.
 
