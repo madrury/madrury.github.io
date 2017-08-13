@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Adding Noise to Regression Predictors is Ridge Regression"
-date:   2017-08-04
+date:   2017-08-12
 categories: jekyll update statistics
 ---
 
@@ -27,11 +27,11 @@ Consider the usual linear regression setup.
 
 ![Regression Data]({{ site.url }}/img/amrnirr-regression-data.png){: .center-img }
 
-In **linear regression**, we seek a vector \(\hat \beta\) which solves the following optimization problem:
+In **linear regression**, we seek a vector $$\hat \beta$$ which solves the following optimization problem:
 
 $$ \hat \beta = argmin_\beta \left| y - X \beta \right|^2 $$
 
-The goal of the problem is to produce a linear function that can be used to predict new values of \(y\) when only provided with values of \(X\).  After solving the problem and obtaining $\hat \beta$, these predicted values are given by
+The goal of the problem is to produce a linear function that can be used to predict new values of $$y$$ when only provided with values of $$X$$.  After solving the problem and obtaining $\hat \beta$, these predicted values are given by
 
 $$ \hat y = X \hat \beta $$
 
@@ -43,7 +43,7 @@ In the standard description, ridge regression is described as a constrained opti
 
 $$ \hat \beta = argmin_\beta \left| y - X \beta \right|^2 + \lambda \left| \beta \right|^2 $$
 
-The parameter \(\lambda\) controls the severity of the variance reduction: larger values result in more biased but lower variance estimates.
+The parameter $$\lambda$$ controls the severity of the variance reduction: larger values result in more biased but lower variance estimates.
 
 ![Regression Data With Ridge Lines]({{ site.url }}/img/amrnirr-regression-data-w-ridge-lines.png){: .center-img }
 
@@ -55,11 +55,11 @@ Suppose we have available an unlimited number of independent and equally distrib
 
 $$ \epsilon_1, \epsilon_2, \ldots \sim Normal(1, \sigma) $$
 
-If \(X\) is a matrix containing the values of features in a regression problem, we say we have **added multiplicitive random noise to X** when we replace \(X\) with a new dataset:
+If $$X$$ is a matrix containing the values of features in a regression problem, we say we have **added multiplicitive random noise to X** when we replace $$X$$ with a new dataset:
 
 $$ e_{ij} \rightarrow \epsilon_{ij} x_{ij} $$
 
-In words, we draw a random \(Normal(1, \sigma)\) for every data element in \(X\), and then multiply each data element by its corresponding random number.
+In words, we draw a random $$Normal(1, \sigma)$$ for every data element in $$X$$, and then multiply each data element by its corresponding random number.
 
 ![Dispersed Regression Data]({{ site.url }}/img/amrnirr-dispersed-data.png){: .center-img }
 
@@ -90,9 +90,9 @@ We call this average line taken over many random dispersions of the same data se
 
 The main conclusion of this post is that
 
-> The dispersed regression line with noise \(\sigma\) is equal to the ridge regression line with penalty parameter \(\lambda = N \sigma^2\); here $N$ is the number of observations in the data set.
+> The dispersed regression line with noise $$\sigma$$ is equal to the ridge regression line with penalty parameter $$\lambda = N \sigma^2$$; here $N$ is the number of observations in the data set.
 
-This gives yet another characterization of ridge regression, it is a dispersed regression line with a properly chosen amount of multiplicative noise $\sigma$.
+This gives yet another characterization of ridge regression, it is a dispersed regression line with a properly chosen amount of multiplicative noise $$\sigma$$.
 
 Below we superimpose the result of a ridge regression upon our bundle of regression lines plot from above.  The ridge penalty is chosen using the formula quoted above, and is shown in dark green.
 
@@ -109,13 +109,13 @@ In our setup, we scale each entry of $X$ by a small amount of Gaussian noise bef
 
 $$ x_{ij} \rightarrow \epsilon_{ij} x_{ij} $$
 
-where $\epsilon \sim N(1, \sigma)$.
+where $$\epsilon \sim N(1, \sigma)$$.
 
-Because we get a different line for each choice of random \(\epsilon\); we are interested in what happens *on average*.  That is, we are interested in the solution vector \(\beta\) that is the *expectation* under this process
+Because we get a different line for each choice of random $$\epsilon$$; we are interested in what happens *on average*.  That is, we are interested in the solution vector $$\beta$$ that is the *expectation* under this process
 
 $$ \hat \beta \sim argmin_\beta E_G \left[ \left| y - (G * X) \beta  \right|^2 \right] $$
 
-In this equation, $G$ represents a matrix of random Gaussian noise, the \(\ast\) operator is elementwise multiplication of matrices, and $E_G$ marginalizes out the contributions of the noise.
+In this equation, $$G$$ represents a matrix of random Gaussian noise, the $$\ast$$ operator is elementwise multiplication of matrices, and $$E_G$$ marginalizes out the contributions of the noise.
 
 Let's begin the demonstration by expanding out the quantity inside the expectation:
 
@@ -136,13 +136,13 @@ $$ m_{ij} = \sum_{k} \epsilon_{ki} \epsilon_{kj} x_{ki} x_{kj} $$
 
 which in expectation is:
 
-$$ E_G \left[ m_{ij} \right] = \sum_{k} E \left[ \epsilon_{ki} \epsilon_{kj} \right] x_{ki} x_{kj} $$
+$$ E \left[ m_{ij} \right] = \sum_{k} E \left[ \epsilon_{ki} \epsilon_{kj} \right] x_{ki} x_{kj} $$
 
 There are two cases here.  If $i \neq j$, then $\epsilon_{ki}$ and $\epsilon_{kj}$ are independent random variables both drawn from a $N(1, \sigma)$, so:
 
 $$ E \left[ \epsilon_{ki} \epsilon_{kj} \right] = 1 \text{ for } i \neq j $$
 
-When $i = j$, the $\epsilon$s are *not* independent, but we can compute:
+When $$i = j$$, the $$\epsilon$$s are *not* independent, but we can compute:
 
 $$ E \left[ \epsilon_{ki}^2 \right] = E \left[ (\epsilon_{ki} - 1)^2 + 2 \epsilon_{ki} - 1 \right] = \sigma^2 + 2 - 1 = \sigma^2 + 1 $$
 
@@ -154,7 +154,7 @@ This means that
 
 $$ E[M] = \left( \mathbb{1} + diag(\sigma^2) \right) * X^t X  = X^t X + diag(\sigma^2) X^t X $$
 
-Where $\mathbb{1}$ is a square matrix with a $1$ in every entry.
+Where $$\mathbb{1}$$ is a square matrix with a $$1$$ in every entry.
 
 ### Putting it All Together
 
@@ -168,7 +168,7 @@ E \left[ \left| y - (G * X) \beta  \right|^2 \right] &= E \left[ y^t y - 2 y^t (
 &= \left| y - X \beta \right|^2 + \sigma^2 \left| \Gamma \beta \right|^2
 \end{align*}$$
 
-Where \(\Gamma = \sqrt{ diag \left( X^t X \right) }\).
+Where $$\Gamma = \sqrt{ diag \left( X^t X \right) }$$.
 
 Overall, our original problem can be restated as
 
@@ -178,10 +178,10 @@ Which we recognise as linear regression with a [tikhonov regularization](https:/
 
 ### Ridge Regression
 
-To make the connection to ridge regression, we recall that in ridge regression, we always ensure that our predictors are standardized before regressing.  That is, we ensure that \(\frac{1}{N}diag(X^t X) = I\).
+To make the connection to ridge regression, we recall that in ridge regression, we always ensure that our predictors are standardized before regressing.  That is, we ensure that $$\frac{1}{N}diag(X^t X) = I$$.
 
-If we impose this assumption to our resulting regularization problem above , we get $\Gamma = NI$, and consequently:
+If we impose this assumption to our resulting regularization problem above , we get $$\Gamma = NI$$, and consequently:
 
 $$ \hat \beta \sim argmin_\beta \left( \left| y - X \beta \right|^2 + N \sigma^2 \left|\beta \right|^2 \right) $$
 
-So, under the usual assumptions of unit variance, our add-noise procedure is *in expectation* equivalent to ridge regression with a regularization strength *equal* to \(N \sigma^2\).
+So, under the usual assumptions of unit variance, our add-noise procedure is *in expectation* equivalent to ridge regression with a regularization strength *equal* to $$N \sigma^2$$.
