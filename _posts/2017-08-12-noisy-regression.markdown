@@ -23,6 +23,8 @@ The code used to produce the simulations and plots in this post is available in 
 The idea for this post was inspired by a small section in the paper: [Dropout: A Simple Way to Prevent Neural Networks from
 Overfitting](https://www.cs.toronto.edu/~hinton/absps/JMLRdropout.pdf).
 
+## Ridge Regression
+
 Consider the usual linear regression setup.
 
 ![Regression Data]({{ site.url }}/img/amrnirr-regression-data.png){: .center-img }
