@@ -67,14 +67,13 @@ In words, we draw a random $$Normal(1, \sigma)$$ for every data element in $$X$$
 
 To see the effect more clearly, let's color the upper and lower 10'th percentiles of the example regression data set:
 
-![Regression Data with Shaded Tails]({{ site.url }}/img/amrnirr-dispersed-data-shaded-tails.png){: .center-img }
+![Regression Data With Tails Highlighted]({{ site.url }}/img/amrnirr-regression-data-shaded-tails.png){: .center-img }
 
 And then disperse the data with multiplicative random noise:
 
-
-![Dispersed Regression Data With Tails Highlighted]({{ site.url }}/img/amrnirr-regression-data-shaded-tails.png){: .center-img }
-
+![Dispersed Regression Data with Shaded Tails]({{ site.url }}/img/amrnirr-dispersed-data-shaded-tails.png){: .center-img }
 We see that the data has spread out, and its range has expanded; around half of the shaded points moved further away from the center of the point cloud.
+
 
 Our idea is to fit a linear regression, but to the manipulated data.  Since the addition of the multiplicative noise tends to spread the point cloud out, this depresses the slope of the regression line, exactly as in ridge regression.
 
