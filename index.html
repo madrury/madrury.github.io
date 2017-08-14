@@ -6,30 +6,14 @@ layout: default
   <div class="home">
 
     <ul class="post-list">
-      <h3>Statistics / Mathematics / Machine Learning</h3>
+      <h3>Posts</h3>
       {% for post in site.posts %}
-        {% if post.categories contains 'statistics' %}
-          <li>
-            <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
-            <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">
-              {{ post.title }}
-            </a>
-          </li>
-        {% endif %}
-      {% endfor %}
-    </ul>
-
-    <ul class="post-list">
-      <h3>Programming</h3>
-      {% for post in site.posts %}
-        {% if post.categories contains 'programming' %}
-          <li>
-            <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
-            <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">
-              {{ post.title }}
-            </a>
-          </li>
-        {% endif %}
+        <li>
+          <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
+          <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">
+            {{ post.title }}
+          </a>
+        </li>
       {% endfor %}
     </ul>
 
