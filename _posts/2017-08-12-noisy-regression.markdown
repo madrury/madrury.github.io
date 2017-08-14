@@ -33,7 +33,7 @@ In **linear regression**, we seek a vector $$\hat \beta$$ which solves the follo
 
 $$ \hat \beta = argmin_\beta \left| y - X \beta \right|^2 $$
 
-The goal of the problem is to produce a linear function that can be used to predict new values of $$y$$ when only provided with values of $$X$$.  After solving the problem and obtaining $\hat \beta$, these predicted values are given by
+The goal of the problem is to produce a linear function that can be used to predict new values of $$y$$ when only provided with values of $$X$$.  After solving the problem and obtaining $$\hat \beta$$, these predicted values are given by
 
 $$ \hat y = X \hat \beta $$
 
@@ -72,6 +72,7 @@ To see the effect more clearly, let's color the upper and lower 10'th percentile
 And then disperse the data with multiplicative random noise:
 
 ![Dispersed Regression Data with Shaded Tails]({{ site.url }}/img/amrnirr-dispersed-data-shaded-tails.png){: .center-img }
+
 We see that the data has spread out, and its range has expanded; around half of the shaded points moved further away from the center of the point cloud.
 
 
@@ -87,7 +88,7 @@ Below we repeat the process of adding noise and fitting a regression many times,
 
 ![Bundles of Dispersed Regression Lines]({{ site.url }}/img/amrnirr-dispersed-regression-lines-bundle.png){: .center-img }
 
-We call this average line taken over many random dispersions of the same data set the **dispersed regression line with noise $\sigma$**.
+We call this average line taken over many random dispersions of the same data set the **dispersed regression line with noise $$\sigma$$**.
 
 The main conclusion of this post is that
 
@@ -127,7 +128,7 @@ $$\begin{align*}
 
 ### Computing the Quadratic Term
 
-We focus on the last term for the moment. Let's name the random coefficient matrix $M$:
+We focus on the last term for the moment. Let's name the random coefficient matrix $$M$$:
 
 $$ M = (G * X)^t (G * X) $$
 
