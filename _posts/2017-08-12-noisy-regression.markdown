@@ -31,7 +31,7 @@ Consider the usual linear regression setup.
 
 In **linear regression**, we seek a vector $$\hat \beta$$ which solves the following optimization problem:
 
-$$ \hat \beta = argmin_\beta \left| y - X \beta \right|^2 $$
+$$ \hat \beta = \operatorname{argmin}_\beta \left| y - X \beta \right|^2 $$
 
 The goal of the problem is to produce a linear function that can be used to predict new values of $$y$$ when only provided with values of $$X$$.  After solving the problem and obtaining $$\hat \beta$$, these predicted values are given by
 
@@ -43,7 +43,7 @@ $$ \hat y = X \hat \beta $$
 
 In the standard description, ridge regression is described as a penalized optimization problem:
 
-$$ \hat \beta = argmin_\beta \left| y - X \beta \right|^2 + \lambda \left| \beta \right|^2 $$
+$$ \hat \beta = \operatorname{argmin}_\beta \left| y - X \beta \right|^2 + \lambda \left| \beta \right|^2 $$
 
 The parameter $$\lambda$$ controls the severity of the variance reduction: larger values result in more biased but lower variance estimates.
 
@@ -115,7 +115,7 @@ where $$\epsilon \sim N(1, \sigma)$$.
 
 Because we get a different line for each choice of random $$\epsilon$$; we are interested in what happens *on average*.  That is, we are interested in the solution vector $$\beta$$ that is the *expectation* under this process
 
-$$ \hat \beta \sim argmin_\beta E_G \left[ \left| y - (G * X) \beta  \right|^2 \right] $$
+$$ \hat \beta \sim \operatorname{argmin}_\beta E_G \left[ \left| y - (G * X) \beta  \right|^2 \right] $$
 
 In this equation, $$G$$ represents a matrix of random Gaussian noise, the $$\ast$$ operator is elementwise multiplication of matrices, and $$E_G$$ marginalizes out the contributions of the noise.
 
@@ -174,7 +174,7 @@ Where $$\Gamma = \sqrt{ diag \left( X^t X \right) }$$.
 
 Overall, our original problem can be restated as
 
-$$ \hat \beta \sim argmin_\beta \left( \left| y - X \beta \right|^2 + \sigma^2 \left| \Gamma \beta \right|^2 \right) $$
+$$ \hat \beta \sim \operatorname{argmin}_\beta \left( \left| y - X \beta \right|^2 + \sigma^2 \left| \Gamma \beta \right|^2 \right) $$
 
 Which we recognise as linear regression with a [tikhonov regularization](https://en.wikipedia.org/wiki/Tikhonov_regularization) term, with the overall regularization strength depending on the amount of noise we add to each predictor: more noise results in stronger regularization.
 
@@ -184,6 +184,6 @@ To make the connection to ridge regression, we recall that in ridge regression, 
 
 If we impose this assumption to our resulting regularization problem above , we get $$\Gamma = NI$$, and consequently:
 
-$$ \hat \beta \sim argmin_\beta \left( \left| y - X \beta \right|^2 + N \sigma^2 \left|\beta \right|^2 \right) $$
+$$ \hat \beta \sim \operatorname{argmin}_\beta \left( \left| y - X \beta \right|^2 + N \sigma^2 \left|\beta \right|^2 \right) $$
 
 So, under the usual assumptions of unit variance, our add-noise procedure is *in expectation* equivalent to ridge regression with a regularization strength *equal* to $$N \sigma^2$$.
