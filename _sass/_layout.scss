@@ -189,11 +189,13 @@
 .post-meta {
     font-size: $small-font-size;
     color: $grey-color;
+    width: 90px;
+    display: inline-block;
 }
 
 .post-link {
     font-size: 18px;
-    padding-left: 30px;
+    padding-left: 15px;
 }
 
 
