@@ -22,7 +22,9 @@ This is quite a bizarre thing to do.  There is no immediate geometric or intuiti
 The algorithm then iterates this factor-and-reverse process
 
 $$ A_1 = Q_1 R_1 $$
+
 $$ A_2 = R_1 Q_1 $$
+
 $$ A_2 = Q_2 R_2 $$
 
 ...and so on.  This process eventually leads us (in the limit) to an upper triangular matrix (though it is not at all obvious why this would be the case), and the diagonal entries on this limit are the eigenvalues of $A$.
@@ -160,7 +162,9 @@ Recall that the process of orthogonalizing a basis is encoded in the $QR$-factor
 Start with $Q_0 = I$.  Then proceed as follows
 
 $$ A Q_0 = Q_1 R_1 $$
+
 $$ A Q_1 = Q_2 R_2 $$
+
 $$ A Q_2 = Q_3 R_3 $$
 
 ...and so on.  The sequence of orthogonal matrices $Q_0, Q_1, Q_2, \ldots$ thus generated converge, and the limit is a matrix of eigenvectors of $A$.
@@ -183,10 +187,15 @@ def simultaneous_orthogonalization(A, tol=0.001):
 If we apply this algorithm to our example matrix $A$, the sequence of matricies generated is
 
 $$ Q_1 = \left( \begin{array}{ccc} -0.16 & -0.15 & -0.98 \\ -0.76 & -0.61 & 0.22 \\ -0.63 & 0.78 & -0.02 \\ \end{array} \right) $$
+
 $$ Q_2 = \left( \begin{array}{ccc} -0.04 & 0.63 & 0.77 \\ -0.81 & 0.43 & -0.40 \\ -0.59 & -0.64 & 0.49 \\ \end{array} \right) $$
+
 $$ Q_3 = \left( \begin{array}{ccc} -0.02 & 0.76 & 0.65 \\ -0.81 & 0.37 & -0.46 \\ -0.59 & -0.53 & 0.61 \\ \end{array} \right) $$
+
 $$ Q_4 = \left( \begin{array}{ccc} -0.01 & 0.79 & 0.61 \\ -0.80 & 0.36 & -0.47 \\ -0.60 & -0.49 & 0.63 \\ \end{array} \right) $$
+
 $$ Q_5 = \left( \begin{array}{ccc} -0.00 & 0.80 & 0.60 \\ -0.80 & 0.36 & -0.48 \\ -0.60 & -0.48 & 0.64 \\ \end{array} \right) $$
+
 $$ Q_6 = \left( \begin{array}{ccc} -0.00 & 0.80 & 0.60 \\ -0.80 & 0.36 & -0.48 \\ -0.60 & -0.48 & 0.64 \\ \end{array} \right) $$
 
 We see that, at least up to sign, the simultaneous orthogonalization algorithm reproduces the matrix of eigenvectors of $A$, as intended.
@@ -198,8 +207,11 @@ We will need an interesting property of the iterates of the simultaneous orthogo
 The steps of the simultaneous orthogonalization algorithm can be rearranged to isolate the upper triangular matricies
 
 $$ A = Q_1 R_1 \Rightarrow Q_1^t A = R_1 $$
+
 $$ A Q_1 = Q_2 R_2 \Rightarrow Q_2^t A Q_1 = R_2 $$
+
 $$ A Q_2 = Q_3 R_3 \Rightarrow Q_3^t A Q_2 = R_3 $$
+
 $$ \vdots $$
 
 If we multiply the resulting sequences together, we get, for example
@@ -230,7 +242,9 @@ While the simultaneous orthogonalization technically solves our problem, it does
 As a reminder, the $QR$-algorithm proceeded with a strange reverse-then-multiply-then-factor procedure
 
 $$ A = Q_1 R_1 $$
+
 $$ A_1 = R_1 Q_1 = Q_2 R_2 $$
+
 $$ A_2 = R_2 Q_2 = Q_3 R_3 $$
 
 This procedure converges to a diagonal matrix [footnote], and the diagonal entries are the eigenvalues of $A$.
@@ -238,7 +252,9 @@ This procedure converges to a diagonal matrix [footnote], and the diagonal entri
 We're in a confusing notational situation, as we now have two different algorithms involving a sequence of orthogonal and upper-triangular matrices.  To distinguish, we will decorate the sequence arising from the $QR$-algorithm with tildes
 
 $$ A = \tilde Q_1 \tilde R_1 $$
+
 $$ A_1 = \tilde R_1 \tilde Q_1 = \tilde Q_2 \tilde R_2 $$
+
 $$ A_2 = \tilde R_2 \tilde Q_2 = \tilde Q_3 \tilde R_3 $$
 
 In code
@@ -263,8 +279,11 @@ Visualizing the iterates of the $QR$-algorithm reveals an interesting pattern.
 While the iterates of the simultaneous orthogonalization algorithm converged to a basis of eigenvectors of $Q$, the iterates of the $QR$-algorithm seem to converge to the identity matrix [footnote].
 
 $$ \tilde Q_1 = \left( \begin{array}{ccc} -0.90 & 0.05 & 0.44 \\ -0.27 & -0.85 & -0.45 \\ 0.35 & -0.52 & 0.77 \\ \end{array} \right) $$
+
 $$ \tilde Q_2 = \left( \begin{array}{ccc} -0.99 & 0.00 & -0.14 \\ -0.01 & -1.00 & 0.09 \\ -0.14 & 0.09 & 0.99 \\ \end{array} \right) $$
+
 $$ \tilde Q_3 = \left( \begin{array}{ccc} -1.00 & 0.00 & 0.04 \\ -0.00 & -1.00 & -0.01 \\ 0.04 & -0.01 & 1.00 \\ \end{array} \right) $$
+
 $$ \tilde Q_4 = \left( \begin{array}{ccc} -1.00 & 0.00 & -0.01 \\ -0.00 & -1.00 & 0.00 \\ -0.01 & 0.00 & 1.00 \\ \end{array} \right) $$
 
 This suggests that the iterations may be communicating *adjustments* to something, and that the product
@@ -276,8 +295,11 @@ may be important.
 Let's see if we can get a hint of what is going on by computing these products
 
 $$ \tilde Q_1 = \left( \begin{array}{ccc} -0.90 & 0.05 & 0.44 \\ -0.27 & -0.85 & -0.45 \\ 0.35 & -0.52 & 0.77 \\ \end{array} \right) $$
+
 $$ \tilde Q_1\tilde Q_2 = \left( \begin{array}{ccc} 0.83 & -0.01 & 0.56 \\ 0.34 & 0.81 & -0.49 \\ -0.45 & 0.59 & 0.67 \\ \end{array} \right) $$
+
 $$ \tilde Q_1\tilde Q_2\tilde Q_3 = \left( \begin{array}{ccc} -0.81 & 0.00 & 0.59 \\ -0.35 & -0.80 & -0.48 \\ 0.47 & -0.60 & 0.65 \\ \end{array} \right) $$
+
 $$ \tilde Q_1\tilde Q_2\tilde Q_3\tilde Q_4 = \left( \begin{array}{ccc} 0.80 & -0.00 & 0.60 \\ 0.36 & 0.80 & -0.48 \\ -0.48 & 0.60 & 0.64 \\ \end{array} \right) $$
 
 This is the best possible situation!  The products of the $\tilde Q$ matricies converge to the basis of eigenvectors.
@@ -312,6 +334,7 @@ $$ A^3 = \tilde Q_1 \tilde Q_2 \tilde Q_3 \tilde R_3 \tilde R_2 \tilde R_1 $$
 So, we have two competeing factorizations of $A^3$ into an orthogonal matrix and an upper triangular matrix
 
 $$ A^3 = \underbrace{Q_3}_{\text{Orthogonal}} \ \underbrace{R_3 R_2 R_1}_{\text{Upper Triangular}} $$
+
 $$ A^3 = \underbrace{\tilde Q_1 \tilde Q_2 \tilde Q_3}_{\text{Orthogonal}} \underbrace{\tilde R_3 \tilde R_2 \tilde R_1}_{\text{Upper Triangular}} $$
 
 Given that $QR$-factorizations are unique [footnote], we conclude the relations
@@ -332,8 +355,11 @@ We have one final point to wrap up: we earlier stated that the products $R_i Q_i
 Let's first demonstrate that this is the case in our running example.
 
 $$ \tilde R_1 \tilde Q_1 = \left( \begin{array}{ccc} 3.90 & 0.06 & 0.54 \\ 0.06 & 8.92 & -0.80 \\ 0.54 & -0.80 & 1.18 \\ \end{array} \right) $$
+
 $$ \tilde R_2 \tilde Q_2 = \left( \begin{array}{ccc} 3.99 & 0.00 & -0.14 \\ 0.00 & 9.00 & 0.09 \\ -0.14 & 0.09 & 1.01 \\ \end{array} \right) $$
+
 $$ \tilde R_3 \tilde Q_3 = \left( \begin{array}{ccc} 4.00 & 0.00 & 0.04 \\ 0.00 & 9.00 & -0.01 \\ 0.04 & -0.01 & 1.00 \\ \end{array} \right) $$
+
 $$ \tilde R_4 \tilde Q_4 = \left( \begin{array}{ccc} 4.00 & 0.00 & -0.01 \\ 0.00 & 9.00 & 0.00 \\ -0.01 & 0.00 & 1.00 \\ \end{array} \right) $$
 
 To begin to understand why this is the case, let's start from the fact that, for sufficiently large $n$, the product matrix $\tilde Q_1 \tilde Q_2 \cdots \tilde Q_n$ is a matrix of eigenvectors.  Letting $D$ denote the diagonal matrix of associated eigenvalues, this means that [footnote - these are really approximate equals]
