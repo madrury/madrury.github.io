@@ -46,7 +46,7 @@ The impetus to write this material down was a question from my student [Michael 
 
 ## Setup
 
-We will restrict ourselves to finding eigenvalues (and eigenvectors) of symmetric matrices $$A$$, and we will assume that $$A$$ has no repeated eigenvalues, and no zero eigenvalues [footnote].  This is the most useful case in practice (for example, in finding the principal components of a data set $$X$$).  There are few couple important consequences of this assumption that we will make note of:
+We will restrict ourselves to finding eigenvalues (and eigenvectors) of symmetric matrices $$A$$, and we will assume that $$A$$ has no repeated eigenvalues, and no zero eigenvalues [^zero-and-repeated-eigenvalues].  This is the most useful case in practice (for example, in finding the principal components of a data set $$X$$).  There are few couple important consequences of this assumption that we will make note of:
 
   1. All symmetric matrices (with real number entries) have a full set of eigenvalues and eigenvectors.  
   2. The eigenvalues are all real numbers.
@@ -64,7 +64,7 @@ is an orthogonal matrix, and
 
 $$ D = \left( \begin{array}{ccc} 9.00 & 0.00 & 0.00 \\ 0.00 & 4.00 & 0.00 \\ 0.00 & 0.00 & 1.00 \\ \end{array} \right)$$
 
-This immediately implies that $$A$$ is symmetric (which could also be verified by inspection), and that it has eigenvalues $$\lambda_1 = 9.0, \lambda_2 = 4.0$$, and $$\lambda_3 = 1.0$$.  The associated eigenvectors are the columns of $$Q$$ [footnote].
+This immediately implies that $$A$$ is symmetric (which could also be verified by inspection), and that it has eigenvalues $$\lambda_1 = 9.0, \lambda_2 = 4.0$$, and $$\lambda_3 = 1.0$$.  The associated eigenvectors are the columns of $$Q$$ [^eigenvectors-are-columns].
 
 We will often have need to visualize a matrix, especially orthogonal matrices.  To do so we will draw the columns of the matrix as vectors in $$\mathbb{R}^3$$.  For example, in this way we can visualize the matrix $$Q$$ as
 
@@ -75,11 +75,11 @@ We will often have need to visualize a matrix, especially orthogonal matrices.  
 
 The basic idea underlying eigenvalue finding algorithms is called **power iteration**, and it is a simple one.
 
-Start with any vector $$v$$, and continually multiply by $$A$
+Start with any vector $$v$$, and continually multiply by $$A$$
 
 $$ v \rightarrow Av \rightarrow A^2 v \rightarrow A^3 v \rightarrow \cdots $$
 
-Suppose, for the moment, that this process converges to some vector (it almost certainly does not, but we will fix that in soon).  Call the limit vector $$A^{\infty} v$$.  Then $$A^{\infty} v$$ must satisfy [footnote]
+Suppose, for the moment, that this process converges to some vector (it almost certainly does not, but we will fix that in soon).  Call the limit vector $$A^{\infty} v$$.  Then $$A^{\infty} v$$ must satisfy [^limit-must-satisfy]
 
 $$ A A^{\infty} v = A^{\infty} v $$
 
@@ -117,7 +117,7 @@ The eigenvector is
 
 $$ e = \left( \begin{array}{c} 0.00 \\ 0.80 \\ -0.60 \\ \end{array} \right) $$
 
-The eigenvalue corresponding to this eigenvector $$\lambda_1 = 9$$, which happens to be the largest eigenvalue of the matrix $$A$$.  This is generally true: for almost all initial vectors $$v_0$$, power iteration converges to the **eigenvector corresponding to the largest eigenvalue of the matrix** [footnote].
+The eigenvalue corresponding to this eigenvector $$\lambda_1 = 9$$, which happens to be the largest eigenvalue of the matrix $$A$$.  This is generally true: for almost all initial vectors $$v_0$$, power iteration converges to the **eigenvector corresponding to the largest eigenvalue of the matrix** [^largest-eigenvalue].
 
 Unfortunately, this puts us in a difficult spot if we hope to use power iteration to find *all* the eigenvectors of a matrix, as it almost always returns to us the same eigenvector.  Even if we apply the process to an entire orthonormal *basis*, each basis element will almost surely converge to the eigenvector with the largest eigenvalue.
 
@@ -230,7 +230,7 @@ or, restated
 
 $$ A^i = Q_i R_i R_{i-1} \cdots R_1 $$
 
-Now, since we assumed that $$A$$ has no zero-eigenvalues, it is invertible.  The $$QR$$-factorizations of invertible matrices are unique [footnote].  This means that we can interpret the above identity as expressing the unique $$QR$$-factorization of the powers of $$A$
+Now, since we assumed that $$A$$ has no zero-eigenvalues, it is invertible.  The $$QR$$-factorizations of invertible matrices are unique [^uniqueness-of-QR].  This means that we can interpret the above identity as expressing the unique $$QR$$-factorization of the powers of $$A$
 
 $$ A^i = \underbrace{Q_i}_{\text{orthogonal}} \underbrace{R_i R_{i-1} \cdots R_1}_{\text{upper triangular}} $$
 
@@ -247,7 +247,7 @@ $$ A_1 = R_1 Q_1 = Q_2 R_2 $$
 
 $$ A_2 = R_2 Q_2 = Q_3 R_3 $$
 
-This procedure converges to a diagonal matrix [footnote], and the diagonal entries are the eigenvalues of $$A$$.
+This procedure converges to a diagonal matrix [^convergence-to-diagonal], and the diagonal entries are the eigenvalues of $$A$$.
 
 We're in a confusing notational situation, as we now have two different algorithms involving a sequence of orthogonal and upper-triangular matrices.  To distinguish, we will decorate the sequence arising from the $$QR$$-algorithm with tildes
 
@@ -276,7 +276,7 @@ Visualizing the iterates of the $$QR$$-algorithm reveals an interesting pattern.
 
 !QR Algorithm]({{ site.url }}/img/qra-qr.png){: .center-img}
 
-While the iterates of the simultaneous orthogonalization algorithm converged to a basis of eigenvectors of $$Q$$, the iterates of the $$QR$$-algorithm seem to converge to the identity matrix [footnote].
+While the iterates of the simultaneous orthogonalization algorithm converged to a basis of eigenvectors of $$Q$$, the iterates of the $$QR$$-algorithm seem to converge to the identity matrix [^sign-concern].
 
 $$ \tilde Q_1 = \left( \begin{array}{ccc} -0.90 & 0.05 & 0.44 \\ -0.27 & -0.85 & -0.45 \\ 0.35 & -0.52 & 0.77 \\ \end{array} \right) $$
 
@@ -337,7 +337,7 @@ $$ A^3 = \underbrace{Q_3}_{\text{Orthogonal}} \ \underbrace{R_3 R_2 R_1}_{\text{
 
 $$ A^3 = \underbrace{\tilde Q_1 \tilde Q_2 \tilde Q_3}_{\text{Orthogonal}} \underbrace{\tilde R_3 \tilde R_2 \tilde R_1}_{\text{Upper Triangular}} $$
 
-Given that $$QR$$-factorizations are unique [footnote], we conclude the relations
+Given that $$QR$$-factorizations of invertible matricies are unique, we conclude the relations
 
 $$ Q_i = \tilde Q_1 \tilde Q_2 \cdots \tilde Q_i $$
 
@@ -362,7 +362,7 @@ $$ \tilde R_3 \tilde Q_3 = \left( \begin{array}{ccc} 4.00 & 0.00 & 0.04 \\ 0.00 
 
 $$ \tilde R_4 \tilde Q_4 = \left( \begin{array}{ccc} 4.00 & 0.00 & -0.01 \\ 0.00 & 9.00 & 0.00 \\ -0.01 & 0.00 & 1.00 \\ \end{array} \right) $$
 
-To begin to understand why this is the case, let's start from the fact that, for sufficiently large $$n$$, the product matrix $$\tilde Q_1 \tilde Q_2 \cdots \tilde Q_n$$ is a matrix of eigenvectors.  Letting $$D$$ denote the diagonal matrix of associated eigenvalues, this means that [footnote - these are really approximate equals]
+To begin to understand why this is the case, let's start from the fact that, for sufficiently large $$n$$, the product matrix $$\tilde Q_1 \tilde Q_2 \cdots \tilde Q_n$$ is a matrix of eigenvectors.  Letting $$D$$ denote the diagonal matrix of associated eigenvalues, this means that [^approx-equal]
 
 $$ A \tilde Q_1 \tilde Q_2 \cdots \tilde Q_n = \tilde Q_1 \tilde Q_2 \cdots \tilde Q_n D $$
 
@@ -387,3 +387,19 @@ So, alltogether
 $$ \tilde R_n \tilde Q_n = D $$
 
 Which explains the convergence of the $$RQ$$ products.
+
+[^zero-and-repeated-eigenvalues]: The case of zero eigenvalues is not difficult to treat, as we can simply resrict the action of $$A$$ to the orthogonal complement of the null space, where it has all non-zero eigenvalues.  The case of repreated eigenvalues is more difficult, and we will leave it to the reader to stydy further if interested.
+
+[^eigenvectors-are-columns]: This is easy to see by inspection: $$Q D Q^t Q = Q D$$.
+
+[^limit-must-satisfy]: By taking limits of the equation $$v_{i+1} = A v_i$$.
+
+[^largest-eigenvalue]: Largest in the sense of absolute value.
+
+[^uniqueness-of-QR]: For a proof, see the [paper of Francis](https://academic.oup.com/comjnl/article/4/3/265/380632/The-QR-Transformation-A-Unitary-Analogue-to-the-LR).
+
+[^convergence-to-diagonal]: In the general case where eigenvalues may be repeated, these matricies converge to an upper triangular matrix, the [Schur form](https://en.wikipedia.org/wiki/Schur_decomposition) of A.  The eigenvalues are on the diagonal of this limit matrix.
+
+[^sign-concern]: Actually, not exactly an identity matrix.  More preciesely, a square diagonal matrix with with a $$+1$$ or $$-1$$ for each entry.
+
+[^approx-equal]:: Of course, this is really an approximate equality which becomes exact it the limit of $$n \rightarrow \infty$$.
