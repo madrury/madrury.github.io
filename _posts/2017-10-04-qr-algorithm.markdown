@@ -274,7 +274,7 @@ def qr_algorithm(A, tol=0.0001):
 
 Visualizing the iterates of the $$QR$$-algorithm reveals an interesting pattern.
 
-!QR Algorithm]({{ site.url }}/img/qra-qr.png){: .center-img}
+![QR Algorithm]({{ site.url }}/img/qra-qr.png){: .center-img}
 
 While the iterates of the simultaneous orthogonalization algorithm converged to a basis of eigenvectors of $$Q$$, the iterates of the $$QR$$-algorithm seem to converge to the identity matrix [^sign-concern].
 
