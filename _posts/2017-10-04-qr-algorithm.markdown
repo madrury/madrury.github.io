@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "How Do You Calculate Eigenvalues?"
+title:  "How Does A Computer Calculate Eigenvalues?"
 date:   2017-10-04
 categories: jekyll update statistics
 ---
