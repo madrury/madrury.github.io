@@ -7,6 +7,11 @@ categories: jekyll update statistics
 
 The two most practically important problems in computational mathematics are solving systems of linear equations, and computing the eigenvalues and eigenvectors of a matrix.  We've already discussed a method for solving linear equations in [A Deep Dive Into How R Fits a Linear Model](http://madrury.github.io/jekyll/update/statistics/2016/07/20/lm-in-R.html), so for this post I thought we should complete the circle with a discussion of methods which compute eigenvalues and eigenvectors.
 
+The reader familiar with a standard linear algebra curriculum may wonder why this question is even interesting, all that must be done is to compute the characteristic equation of the matrix, then compute its roots.  While this is the textbook method, it is a poor method for numerical computation, because
+
+  - Computing the characteristic equation of a matrix involves symbolically computing a determinant, which is expensive, and should be avoided if possible.
+  - Computing the roots to a polynomial equation is also a difficult problem.  Even though techniques like Newton's method exist, the basins of initial points that converge to each individual root are extremely complex, so choosing initial points so that *all* the roots are found is very difficult.  In fact, it is easier to write down a matrix for which the characteristic polynomial of the matrix is the polynomial to be solved, and then find the eigenvalues of the resulting matrix using the methods we will discuss below.
+
 The standard algorithm for computing eigenvalues is called the $$QR$$-algorithm.  As the reader can surely guess, this involves the $$QR$$-factorization of the matrix in question (as a quick reminder, the $$QR$$-factorization encodes the Gram–Schmidt process for orthonormalizing a basis).
 
 The details of the $$QR$$-algorithm are mysterious.  Suppose we are interested in computing the eigenvalues of a matrix $$A$$.  The first step of the $$QR$$-algorithm is to factor $$A$$ into the product of an orthogonal and an upper triangular matrix (this is the $$QR$$-factorization mentioned above)
@@ -387,6 +392,14 @@ So, alltogether
 $$ \tilde R_n \tilde Q_n = D $$
 
 Which explains the convergence of the $$RQ$$ products.
+
+
+## Conclusions
+
+The $$QR$$-algorithm presented in this post is not yet production ready, there are various tricks that can be employed to make it more numerically stable, and converge more quickly.  We will leave investigating these ideas more to the user.
+
+Eigenvalues and eigenvectors of matrices are undoubtedly one of the most important mathematical concepts ever discovered.  They occur again and again in analysis, topology, geometry, statistics, physics, and probably any subject which uses mathematics in any non-trivial way.  It is nice to know at least a little about how they can practically be computed, if only to pay respect to their incredible utility.
+
 
 [^zero-and-repeated-eigenvalues]: The case of zero eigenvalues is not difficult to treat, as we can simply resrict the action of $$A$$ to the orthogonal complement of the null space, where it has all non-zero eigenvalues.  The case of repreated eigenvalues is more difficult, and we will leave it to the reader to stydy further if interested.
 
