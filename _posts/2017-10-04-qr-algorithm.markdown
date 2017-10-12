@@ -124,7 +124,7 @@ $$ e = \left( \begin{array}{c} 0.00 \\ 0.80 \\ -0.60 \\ \end{array} \right) $$
 
 The eigenvalue corresponding to this eigenvector $$\lambda_1 = 9$$, which happens to be the largest eigenvalue of the matrix $$A$$.  This is generally true: for almost all initial vectors $$v_0$$, power iteration converges to the **eigenvector corresponding to the largest eigenvalue of the matrix** [^largest-eigenvalue].
 
-Unfortunately, this puts us in a difficult spot if we hope to use power iteration to find *all* the eigenvectors of a matrix, as it almost always returns to us the same eigenvector.  Even if we apply the process to an entire orthonormal *basis*, each basis element will almost surely converge to the eigenvector with the largest eigenvalue.
+Unfortunately, this puts us in a difficult spot if we hope to use power iteration to find *all* the eigenvectors of a matrix, as it almost always returns to us the same eigenvector.  Even if we apply the process to an entire orthonormal *basis*, each basis element will almost surely converge to an eigenvector with the largest eigenvalue.
 
 ![Random Basis Converging to Eigenvector]({{ site.url }}/img/qra-power-iteration-basis.png){: .center-img}
 
@@ -235,7 +235,7 @@ or, restated
 
 $$ A^i = Q_i R_i R_{i-1} \cdots R_1 $$
 
-Now, since we assumed that $$A$$ has no zero-eigenvalues, it is invertible.  The $$QR$$-factorizations of invertible matrices are unique [^uniqueness-of-QR].  This means that we can interpret the above identity as expressing the unique $$QR$$-factorization of the powers of $$A$
+Now, since we assumed that $$A$$ has no zero-eigenvalues, it is invertible.  The $$QR$$-factorizations of invertible matrices are unique [^uniqueness-of-QR].  This means that we can interpret the above identity as expressing the unique $$QR$$-factorization of the powers of $$A$$
 
 $$ A^i = \underbrace{Q_i}_{\text{orthogonal}} \underbrace{R_i R_{i-1} \cdots R_1}_{\text{upper triangular}} $$
 
@@ -314,7 +314,7 @@ This is great, but it is still very mysterious exactly what is going on here.  T
 
 ## The Connection Between the QR and Simultaneous Orthogonalization Algorithms
 
-Recall our identity relating the iterates of the simultaneous orthogonalization to the powers of $$A$
+Recall our identity relating the iterates of the simultaneous orthogonalization to the powers of $$A$$
 
 $$ A^i = Q_i R_i R_{i-1} \cdots R_1 $$
 
