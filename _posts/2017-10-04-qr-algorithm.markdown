@@ -101,7 +101,7 @@ $$ A A^{\infty} v = \lambda A^{\infty} v $$
 So the convergent vector is an **eigenvector** of $$A$$, this time with an unknown eigenvalue.
 
 {% highlight python %}
-def power_iteration(A, tol=0.00001):
+def power_iteration(A, tol=0.0001):
     v = np.random.normal(size=A.shape[1])
     v = v / np.linalg.norm(v)
     previous = np.empty(shape=A.shape[1])
@@ -109,7 +109,7 @@ def power_iteration(A, tol=0.00001):
         previous[:] = v
         v = A @ v
         v = v / np.linalg.norm(v)
-        if np.all(np.abs(v - previous) < tol):
+        if np.allclose(v, previous, atol=tol):
             break
     return v
 {% endhighlight %}
@@ -177,14 +177,14 @@ $$ A Q_2 = Q_3 R_3 $$
 In code
 
 {% highlight python %}
-def simultaneous_orthogonalization(A, tol=0.001):
+def simultaneous_orthogonalization(A, tol=0.0001):
     Q, R = np.linalg.qr(A) 
     previous = np.empty(shape=Q.shape)
     for i in range(100):
         previous[:] = Q
         X = A @ Q
         Q, R = np.linalg.qr(X)
-        if np.all(np.abs(Q - previous) < 0.001):
+        if np.allclose(Q, previous, atol=tol):
             break
     return Q
 {% endhighlight %}
