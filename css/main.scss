@@ -30,7 +30,6 @@ $on-palm:          600px;
 $on-laptop:        850px;
 
 
-
 // Use media queries like this:
 // @include media-query($on-palm) {
 //     .wrapper {
@@ -52,3 +51,48 @@ $on-laptop:        850px;
         "layout",
         "syntax-highlighting"
 ;
+
+.green { color: lightgreen; }
+.blue  { color: blue;  }
+
+.theorem, .proposition, .lemma, .proof {
+  margin: 1.5em 0;
+  padding: 0.75em 1em;
+}
+
+.theorem {
+  background: #fff9e8;  
+  border-left: 4px solid #ffc000;
+}
+
+.proposition {
+  background: #f8f8ff;
+  border-left: 4px solid #4a90d9;
+}
+
+.lemma {
+  background: #f8f8ff;
+  border-left: 4px solid #4a90d9;
+}
+
+.proof {
+  background: #fafafa;
+  border-left: 4px solid #aaa;
+}
+
+.theorem-label, .lemma-label, .proposition-label, .proof-label {
+  font-weight: bold;
+  font-style: italic;
+}
+
+.qed {
+  float: right;
+}
+
+mjx-container {
+  display: inline !important;
+}
+
+mjx-container[jax="CHTML"][display="true"] {
+  display: block !important;
+}

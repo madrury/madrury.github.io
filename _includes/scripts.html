@@ -1,6 +1,18 @@
- <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
- <script src="/js/fourier-polynomial.js"></script>
- <script src="/js/oscilloscope.js"></script>
-<script type="text/javascript" async
-  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+<script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script src="/js/fourier-polynomial.js"></script>
+<script src="/js/oscilloscope.js"></script>
+
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']]
+    },
+    startup: {
+      ready() {
+        MathJax.startup.defaultReady();
+      }
+    }
+  };
 </script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
