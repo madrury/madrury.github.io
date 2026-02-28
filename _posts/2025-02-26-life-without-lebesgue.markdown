@@ -125,63 +125,30 @@ Since this bound holds independent of $x$, we've established the uniform converg
 {% include proof.html content=sinusoidal-uniform-approximation-proof %}
 
 
-□
-
 ## Splitting the Integral
 
 We turn our attention to the integral (or, more accurately, sequence of integrals):
 
 $$ I_n = \int_0^\infty \frac{n x^{n}}{0.1 + x^{n+3}} \sin\left( \frac{x}{n} \right) dx$$
 
-We also let $I_n(x)$ (used as a function, not a constant) denote the integrand of the integral $I_n$.
+We also use the notation $I_n(x)$ (as a function, not a constant) to denote the integrand of the integral $I_n$:
 
-For some inspiration, let's plot the integrands and see if there's any hint of a strategy:
+$$ I_n(x) = \frac{n x^{n}}{0.1 + x^{n+3}} \sin\left( \frac{x}{n} \right) $$
 
-
-```python
-def f(n: int, t: np.array):
-    return t**n / (0.1 + t**(n+3))
-                   
-def I(n: int, t: np.array):
-    return f(n, t) * s(n, t)
-```
+Let's plot the integrands and see if there's any hint of a strategy:
 
 
-```python
-N_MAX, X_MIN, X_MAX = 25, 0.0, 10.0
-
-t = np.linspace(X_MIN, X_MAX, num=1000)
-
-fig, ax = plt.subplots(figsize=(14, 3))
-for n in range(1, N_MAX):
-    ax.plot(t, I(n, t), color=cm.winter_r(n/N_MAX))
-ax.axvline(1.0, linewidth=3, color='black', linestyle='--', alpha=0.5)
-
-ax.set_xlabel('$t$')
-ax.set_ylabel('$I_n(t) = f_n(t) \\ s_n(t)$')
-```
+![Wedge Bound]({{ site.url }}/img/lwl-integrand-sequence.png){: .center-img}
 
 
-
-
-    Text(0, 0.5, '$I_n(t) = f_n(t) \\ s_n(t)$')
-
-
-
-
-    
-![png](integral-limit_files/integral-limit_18_1.png)
-    
-
-
-This is fairly illuminating, some observations:
+This is fairly illuminating:
 
   - There is a shift in qualitative behaviour of the integrand at $x = 1$, this suggests splitting into two integrals at this boundary.
   - For $x < 1$, the function seems to be converging pointwise (though not uniformly!) to zero. This suggests the integrals over $[0, 1]$ limit to zero.
-  - For $x \geq 1$ the integrands seem to be limiting to some function like $x \mapsto \frac{1}{x^k}$, though we'll have to figure out what $k$ is. If so, we may be able to compute the limit here as an integral of a reciporical power.
-  - For $x > A$, i.e. very large $x$, the integrands die out quickly. This suggests they have a negligable effect on the integral.
+  - For $x \geq 1$ the integrands seem to be limiting to some function like $x \mapsto \frac{1}{x^k}$, though we'll have to figure out what $k$ is.
+  - For $x > A$, i.e. very large $x$, the integrands die out quickly. This suggests they have a negligable effect.
 
-These considerations suggest fixing a large $A > 0$, and splitting our integral into three pieces, working piece by piece:
+These considerations suggest fixing a large $A > 0$, and then splitting our integral into three pieces, working piece by piece:
 
 $$ I_n = \int_0^1 I_n(x) dx + \int_1^A I_n(x) dx + \int_A^\infty I_n(x) dx$$
 
@@ -189,19 +156,21 @@ Let's go.
 
 ## The Integral To The Right
 
-The rightmost integral is most easily dispatched. Recall that our suspicion is that, since $I_n(x)$ dies out so quickly as $x \rightarrow \infty$, this integral should contribute negligably to the final value. So we seek to upper bound its value.
+The rightmost integral is most easily dispatched. Recall that our suspicion is that, since $I_n(x)$ dies out so quickly as $x \rightarrow \infty$, this tail should contribute negligably to the final integral value. So we seek an upper bound.
 
-We're working in the range $x > A$, and here we have no controll over the convergence of $s_n(x)$, but we do have the wedge bounding lemma $\left| s_n(x) \right| \leq x$ that applies everywhere. Let's see what this can do for bounding $I_n(x)$:
+We're working in the range $x > A$, and here we have no control over the convergence of $s_n(x)$, but we do have the wedge bounding lemma $\| s_n(x) \| \leq x$ that applies everywhere. Let's see what this can do for bounding $I_n(x)$:
 
 $$ \left| I_n(x) \right| = \frac{x^{n}}{0.1 + x^{n+3}} \left| s_n(x) \right| \leq \frac{x^{n + 1}}{0.1 + x^{n+3}} \leq \frac{x^{n+1}}{x^{n+3}} = \frac{1}{x^2} $$
 
-Where the first inequality uses the wedge bounding lemma, and the second follows from ignoring the $0.1$ summand in the demoninator (since $0.0 < 0.1$, this makes the denominator smaller, and the overall ratio larger).
+Where the first inequality uses the wedge bounding lemma, and the second follows from ignoring the $0.1$ summand in the demoninator.
+
+![Wedge Bound]({{ site.url }}/img/lwl-integrand-sequence-right.png){: .center-img}
 
 It works out nicely:
 
 $$ \left| \int_A^\infty I_n(x) dx \right| \leq \int_A^\infty \left| I_n(x) \right| dx \leq \int_A^\infty \frac{1}{x^2} dx = \frac{1}{A} $$
 
-So indeed, by taking $A$ large enough, we can reduce the contribution of the tail to the final integrals as much as we wish, and this bound is independent of $n$. From now on, we consider $A$ fixed and large.
+So indeed, by taking $A$ large enough, we can reduce the contribution of the tail to the final integrals as much as we wish, and this bound is independent of $n$. From now on, we consider $A$ as fixed and large.
 
 ## The Ingeral To The Left
 
@@ -212,68 +181,16 @@ $$ \lim_{n \rightarrow \infty} \int_0^1 I_n(x) dx =^{?} 0 $$
 Here's a zoomed in plot of this reigon to make this believable:
 
 
-```python
-N_MAX, X_MIN, X_MAX = 200, 0.0, 1.1
-
-t = np.linspace(X_MIN, X_MAX, num=1000)
-
-fig, ax = plt.subplots(figsize=(14, 3))
-for n in range(1, N_MAX):
-    ax.plot(t, I(n, t), color=cm.winter_r(n/N_MAX))
-ax.axvline(1.0, linewidth=3, color='black', linestyle='--', alpha=0.5)
-
-ax.set_xlabel('$t$')
-ax.set_ylabel('$I_n(t) = f_n(t) \\ s_n(t)$')
-```
+![Wedge Bound]({{ site.url }}/img/lwl-integrand-sequence-left.png){: .center-img}
 
 
-
-
-    Text(0, 0.5, '$I_n(t) = f_n(t) \\ s_n(t)$')
-
-
-
-
-    
-![png](integral-limit_files/integral-limit_24_1.png)
-    
-
-
-Again, our wedge bound on $s_n(x)$ will play. Let's get some intution by bounding the $s_n(x)$ factor of the integrand, similarly to the previous argument:
+Again, our wedge bound on $s_n(x)$ will work here. We can bound the integrand in a very similar way to our previous argument:
 
 $$ I_n(x) = \frac{x^{n}}{0.1 + x^{n+3}} s_n(x) \leq \frac{x^{n + 1}}{0.1 + x^{n+3}} \leq 10 x^{n + 1} $$
 
 
-```python
-N_MAX, X_MIN, X_MAX = 200, 0.0, 1.0
-
-t = np.linspace(X_MIN, X_MAX, num=1000)
-
-fig, ax = plt.subplots(figsize=(14, 3))
-for n in range(1, N_MAX):
-    ax.plot(t, I(n, t), color=cm.winter_r(n/N_MAX), alpha=0.5)
-ax.plot(t, 10 * t**(N_MAX + 1), color='orange', linestyle=':', linewidth=3, label="$10 x^{n+1}$")
-ax.axvline(1.0, linewidth=3, color='black', linestyle='--', alpha=0.5)
-
-ax.set_ylim([0.0, 1.6])
-
-ax.set_xlabel('$t$')
-ax.set_ylabel('$I_n(t) = f_n(t) \\ s_n(t)$')
-ax.legend()
-```
-
-
-
-
-    <matplotlib.legend.Legend at 0x113653d90>
-
-
-
-
+![Wedge Bound]({{ site.url }}/img/lwl-integrand-sequence-left-with-bound.png){: .center-img}
     
-![png](integral-limit_files/integral-limit_26_1.png)
-    
-
 
 This allows us to bound:
 
@@ -283,11 +200,11 @@ And so:
 
 $$ \lim_{n \rightarrow \infty} \int_0^1 I_n(x) dx \leq \lim_{n \rightarrow \infty} \frac{10}{n + 2} = 0 $$
 
-For the lower bound, we note that $s_n(x) = n \sin(\frac{x}{n}) \geq 0$ as long as $0 \leq \frac{x}{n} \leq \pi$. Since were working on the interval $0 \leq x \leq 1$ here, this is true for all $n$. So $s_n(x) \geq 0$ always in this regoin, and since $f_n(x) \geq 0$ always (by direct inspection), these combine to give us the lower bound:
+For a lower bound, we note that $s_n(x) = n \sin(\frac{x}{n}) \geq 0$ as long as $0 \leq \frac{x}{n} \leq \pi$. Since were working on the interval $0 \leq x \leq 1$ here, this is true for all $n$. So $s_n(x) \geq 0$ always in this region, and since $f_n(x) \geq 0$ always (by direct inspection), these combine to give us the lower bound:
 
 $$0 \leq \lim_{n \rightarrow \infty} \int_0^1 I_n(x) dx $$
 
-Alltogether:
+Together:
 
 $$0 \leq \lim_{n \rightarrow \infty} \int_0^1 I_n(x) dx \leq 0$$
 
@@ -297,7 +214,7 @@ $$ \lim_{n \rightarrow \infty} \int_0^1 I_n(x) dx = 0 $$
 
 Good.
 
-**Note:** We're freewheeling with the $\lim$ here, before we've shown the limit even exists. Real pros would use $\limsup$ and $\liminf$ here, inserting them for the proper unadorned $\lim$'s makes this all proper.
+**Note:** We're freewheeling with the $\lim$ here, before we've shown the limit even exists. Real pros would use $\limsup$ and $\liminf$, inserting them for the proper unadorned $\lim$'s makes this all proper.
 
 ## The Integral In The Middle
 
@@ -305,170 +222,65 @@ The middle integral remains:
 
 $$ \int_1^A I_n(x) dx $$
 
-From our previous arguments, we know that the left and right integrals do not contribute to the final value (in the limit), so we expect this middle integral holds the key to the whole story. Let's fix $A = 4$ for visualization purposes, and look at what we've got:
+From our previous arguments, we know that the left and right integrals do not contribute to the final value (in the limit), so we expect this middle integral to tell the most interesting part of the story. 
+
+Let's fix $A = 4$ for visualization purposes, and look at what we've got:
 
 
-```python
-N_MAX, X_MIN, X_MAX = 50, 0.8, 4.2
-
-t = np.linspace(X_MIN, X_MAX, num=1000)
-
-fig, ax = plt.subplots(figsize=(14, 3))
-for n in range(1, N_MAX):
-    ax.plot(t, I(n, t), color=cm.winter_r(n/N_MAX))
-ax.axvline(1.0, linewidth=3, color='black', linestyle='--', alpha=0.5)
-ax.axvline(4.0, linewidth=3, color='black', linestyle='--', alpha=0.5)
-
-ax.set_xlabel('$t$') 
-ax.set_ylabel('$I_n(t) = f_n(t) \\ s_n(t)$')
-```
+![Wedge Bound]({{ site.url }}/img/lwl-integrand-sequence-middle.png){: .center-img}
 
 
+It seems likely that the functions $I_n(x)$ are converging (uniformly?) to some limiting function, so we should try to figure out a canidate for this limit. We already know the uniform limit $s_n(x) \rightarrow x$, so that helps quite a bit:
 
-
-    Text(0, 0.5, '$I_n(t) = f_n(t) \\ s_n(t)$')
-
-
-
-
-    
-![png](integral-limit_files/integral-limit_30_1.png)
-    
-
-
-It seems likely, from this plot, that the functions $I_n(x)$ are converging (uniformly?) to some limiting function, so we should try to figure out a canidate for this limit. We already know the uniform limit $s_n(x) \rightarrow x$, so that helps quite a bit:
-
-$$ I_n(x) = f_n(x) s_n(x) \approx x f_n(x) = \frac{x^{n + 1}}{0.1 + x^{n+3}} \approx \frac{x^{n+1}}{x^{n+3}} = \frac{1}{x^2} $$
+$$ I_n(x) = s_n(x) f_n(x) \approx x f_n(x) = \frac{x^{n + 1}}{0.1 + x^{n+3}} \approx \frac{x^{n+1}}{x^{n+3}} = \frac{1}{x^2} $$
 
 In the final approximation, we've slyly used that $x \geq 1$, ensuring that $x^{n + 3}$ is the dominant term in the denominator.
 
 Let's superimpose our candidate limit function and see if we should believe this:
-
-
-```python
-N_MAX, X_MIN, X_MAX = 100, 0.8, 4.2
-
-t = np.linspace(X_MIN, X_MAX, num=1000)
-
-fig, ax = plt.subplots(figsize=(14, 3))
-for n in range(1, N_MAX):
-    ax.plot(t, I(n, t), color=cm.winter_r(n/N_MAX))
-ax.plot(t, 1/t**2, color="orange", linewidth=3, linestyle=":", label=r"$\frac{1}{x^2}$")
-
-ax.axvline(1.0, linewidth=3, color='black', linestyle='--', alpha=0.5)
-ax.axvline(4.0, linewidth=3, color='black', linestyle='--', alpha=0.5)
-
-ax.set_xlabel('$t$') 
-ax.set_ylabel('$I_n(t) = f_n(t) \\ s_n(t)$')
-ax.legend()
-```
-
-
-
-
-    <matplotlib.legend.Legend at 0x115946490>
-
-
-
-
-    
-![png](integral-limit_files/integral-limit_32_1.png)
     
 
+![Wedge Bound]({{ site.url }}/img/lwl-integrand-sequence-middle-with-bound.png){: .center-img}
 
-That seems promising! Our goal now is to show that:
+
+That seems promising! 
+
+Our goal now is to show that:
 
 $$ \lim_{n \rightarrow \infty} \int_1^A I_n(x) dx = \int_1^A \frac{1}{x^2} dx = 1 - \frac{1}{A} $$
 
-There are two paths here. The easier route calls upon the [dominated convergence theorem](https://en.wikipedia.org/wiki/Dominated_convergence_theorem) to deduce convergence of the integrals from pointwise convergence of the functions, this makes short work of this problem.
+**This** is where we choose the harder life. There are two paths here. The easier route calls upon the [dominated convergence theorem](https://en.wikipedia.org/wiki/Dominated_convergence_theorem) to deduce convergence of the integrals from pointwise convergence of the functions, this makes short work of this problem.
 
-The harder path makes use of simpler tools: we'll deduce convergence of the integrals from *uniform* convergence of the functions. This begs the question, is the (proposed) convergence $I_n(x) \rightarrow \frac{1}{x^2}$ uniform?
+The harder way makes use of simpler tools: we'll deduce convergence of the integrals from *uniform* convergence of the functions. This raises a question, is the (proposed) convergence $I_n(x) \rightarrow \frac{1}{x^2}$ uniform on $[0, A]$?
 
 **Actually, no, it's not**. There's trouble near $x = 1$:
 
 
-```python
-N_MAX, X_MIN, X_MAX = 200, 0.975, 1.1
-
-t = np.linspace(X_MIN, X_MAX, num=1000)
-
-fig, ax = plt.subplots(figsize=(14, 3))
-for n in range(1, N_MAX):
-    ax.plot(t, I(n, t), color=cm.winter_r(n/N_MAX))
-ax.plot(t, 1/t**2, color="orange", linewidth=3, linestyle=":", label=r"$\frac{1}{x^2}$")
-
-ax.axvline(1.0, linewidth=3, color='black', linestyle='--', alpha=0.5)
-
-ax.set_xlabel('$t$') 
-ax.set_ylabel('$I_n(t) = f_n(t) \\ s_n(t)$')
-ax.legend()
-```
-
-
-    ---------------------------------------------------------------------------
-
-    NameError                                 Traceback (most recent call last)
-
-    Cell In[2], line 3
-          1 N_MAX, X_MIN, X_MAX = 200, 0.975, 1.1
-    ----> 3 t = np.linspace(X_MIN, X_MAX, num=1000)
-          5 fig, ax = plt.subplots(figsize=(14, 3))
-          6 for n in range(1, N_MAX):
-
-
-    NameError: name 'np' is not defined
+![Wedge Bound]({{ site.url }}/img/lwl-integrand-sequence-middle-not-uniform.png){: .center-img}
 
 
 The problem here is that $f_n(1)$ is independent of $n$:
 
 $$ f_n(1) = \frac{1}{0.1 + 1} = \frac{10}{11} $$
 
-So there's no chance that $I_n(x) \rightarrow \frac{1}{x^2}$ uniformly on $[1, A]$. We'll need to adapt our strategy a little. Maybe we can isolate the trouble, and enclose the problematic reigon in a small enough box that it does not affect the integrals so much. Let's introduce a $B$ just *slightly* larger than $1$:
+So there's no chance that $I_n(x) \rightarrow \frac{1}{x^2}$ uniformly on $[1, A]$, we don't even have the pointwise correct limit at $x=1$. 
+
+So we'll need to adapt our strategy. Maybe we can isolate the trouble, and enclose the problematic reigon in a small enough box so that the trouble does not affect the integrals so much. This is a pretty common strategy in analysis.
+
+Let's introduce a $B$ just *slightly* larger than $1$:
 
 
-```python
-N_MAX, X_MIN, X_MAX = 200, 0.975, 1.1
-B = 1 + 0.005
-
-t = np.linspace(X_MIN, X_MAX, num=1000)
-
-fig, ax = plt.subplots(figsize=(14, 3))
-for n in range(1, N_MAX):
-    ax.plot(t, I(n, t), color=cm.winter_r(n/N_MAX))
-ax.plot(t, 1/t**2, color="orange", linewidth=3, linestyle=":", label=r"$\frac{1}{x^2}$")
-
-ax.axvline(1.0, linewidth=3, color='black', linestyle='--', alpha=0.5)
-ax.axvline(B, linewidth=3, color='black', linestyle='--', alpha=0.5)
-ax.axvspan(1.0, B, linewidth=None, color='grey', linestyle='--', alpha=0.5)
-ax.annotate('$B$', (B - 0.001, -0.09), fontsize=12, annotation_clip=False)
-
-ax.set_xlabel('$t$') 
-ax.set_ylabel('$I_n(t) = f_n(t) \\ s_n(t)$')
-ax.legend()
-```
+![Wedge Bound]({{ site.url }}/img/lwl-integrand-sequence-middle-with-slice.png){: .center-img}
 
 
-
-
-    <matplotlib.legend.Legend at 0x115ca2fd0>
-
-
-
-
-    
-![png](integral-limit_files/integral-limit_36_1.png)
-    
-
-
-Our strategy is to (again) split our integral up, this time into two peices:
+Our strategy is to (again) split our integral up, this time into two peices.
 
 $$ \int_1^A I_n(x) dx = \int_1^B I_n(x) dx + \int_B^1 I_n(x) dx $$
 
-The first integral is over a very small interval, and we can hopefully make its value as small as we like by making the interval very thin. We're hoping our original strategy exploiting uniform convergence works for the second integral.
+The first integral is over a small interval where we've quarentined the obstruction to uniform convergence, and we can hopefully make its value as small as we like by making the interval very thin. We're hoping our original strategy exploiting uniform convergence works for the second integral.
 
 ### The Integral Over $[1, B]$
 
-We want to bound $I_n(x)$ on $[1, \infty]$, this is straightforward by now using our wedge bound on $s_n(x)$:
+We've already bounded the integrand on $[1, \infty]$:
 
 $$ \left| I_n(x) \right| = \frac{x^{n}}{0.1 + x^{n+3}} \left| s_n(x) \right| \leq \frac{x^{n + 1}}{0.1 + x^{n+3}} \leq \frac{1}{x^2} \leq 1 $$
 
@@ -482,14 +294,14 @@ By taking $B$ close to $1$, we can make this piece as small as we'd like.
 
 Our hope here is that we can make use of uniform convergence, so we would like to show the following:
 
-#### Lemma (Uniform Convergence):
+{% capture uniform-convergence-middle %}
 On the interval $[B, A]$, $I_n(x) \rightarrow \frac{1}{x^2}$ as $n \rightarrow \infty$, uniformly in $x$.
+{% endcapture %}
+{% include lemma.html content=uniform-convergence-middle name="Uniform Convergence" %}
 
-#### Proof:
 
-Of course, fix $\epsilon > 0$.
-
-We want to estimate:
+{% capture uniform-convergence-middle-proof %}
+Fix $\epsilon > 0$.  We want to estimate:
 
 $$ \left| I_n(x) - \frac{1}{x^2} \right| = \left| f_n(x) s_n(x) - \frac{1}{x^2} \right| $$
 
@@ -497,7 +309,7 @@ Since $s_n(x) \rightarrow x$ uniformly, this suggests using the triangle inequal
 
 $$\left| f_n(x) s_n(x) - \frac{1}{x^2} \right| \leq \left| f_n(x) s_n(x) - x f_n(x) \right| + \left|x f_n(x) - \frac{1}{x^2} \right|$$
 
-For the first term here, we make use of the uniform convergence of $s_n(x)$ and the boundedness of $f_n(x)$. Choose $N$ so large that $n > N \implies \left| s_n(x) - x \right| < \epsilon$ for all $1 \leq x \leq A$. We have the simple bound on $f_n(x)$:
+For the first term here, we make use of the uniform convergence of $s_n(x)$ and boundedness of $f_n(x)$. Choose $N$ so large that $n > N \implies \| s_n(x) - x \| < \epsilon$ for all $1 \leq x \leq A$. We have the simple bound on $f_n(x)$:
 
 $$ f_n(x) = \frac{x^{n}}{0.1 + x^{n+3}} \leq \frac{x^{n}}{x^{n+3}} = \frac{1}{x^3} \leq 1 $$
 
@@ -509,24 +321,23 @@ For the second term, we calculate directly:
 
 $$\frac{1}{x^2} - x f_n(x) = \frac{1}{x^2} - \frac{x^{n + 1}}{0.1 + x^{n+3}} = \frac{0.1}{x^2 (0.1 + x^{n+3})} \leq \frac{0.1}{x^{n+3}} \leq \frac{0.1}{B^{n + 3}}$$
 
-Since $B > 1$, $\frac{0.1}{B^{n + 3}} \rightarrow 0$ as $n \rightarrow \infty$. So we may replace $N$, if needed, so that $n > N \implies \frac{0.1}{B^{n + 3}} < \epsilon$ as well.
+Since $B > 1$, $\frac{0.1}{B^{n + 3}} \rightarrow 0$ as $n \rightarrow \infty$. So we may replace $N$, if needed, to ensure that $n > N \implies \frac{0.1}{B^{n + 3}} < \epsilon$ as well.
 
 Alltogether, for $n > N$:
 
 $$\left| I_n(x) - \frac{1}{x^2} \right| < 2\epsilon$$
 
-Since this bound does not depend on $x$, we conclude that on the interval $[B, A]$, $I_n(x) \rightarrow \frac{1}{x^2}$ as $n \rightarrow \infty$, uniformly in $x$. □
+Since this bound does not depend on $x$, we conclude that on the interval $[B, A]$, $I_n(x) \rightarrow \frac{1}{x^2}$ as $n \rightarrow \infty$, uniformly in $x$.
+{% endcapture %}
+{% include proof.html content=uniform-convergence-middle-proof %}
+
 
 It follows immediately from this lemma that:
 
 $$ \lim_{n \rightarrow \infty} \int_A^B I_n(x) dx = \int_A^B \frac{1}{x^2} dx = \frac{1}{B} - \frac{1}{A} $$
 
-Informally, we can see we are on the right track here: as $B \searrow 1$ and $A \nearrow \infty$ the value of the integral tends to $1$.
-
 ### Together: The Integral Over $[1, A]$
-
-Returning to our main goal in this section, we aim to show that:
-
+Returning to our main goal in this section, let's put everything together. We aim to show that:
 
 $$ \lim_{n \rightarrow \infty} \int_1^A I_n(x) dx = \int_1^A \frac{1}{x^2} dx = 1 - \frac{1}{A} $$
 
@@ -541,9 +352,7 @@ $$
 \end{align}    
 $$
 
-Fix $\epsilon > 0$. Choose $B$ so close to $1$ that both $B - 1 < \frac{\epsilon}{3}$, and $1 - \frac{1}{B} < \frac{\epsilon}{3}$. 
-
-With this fixed $B$, now apply our computation of the integral limit over $[B, A]$ following from uniform convergence. Pick $N$ so large that:
+Fix $\epsilon > 0$. Choose $B$ so close to $1$ that both $B - 1 < \frac{\epsilon}{3}$, and $1 - \frac{1}{B} < \frac{\epsilon}{3}$. With this fixed $B$, now apply our computation of the limit over $[B, A]$ (following from uniform convergence). Pick $N$ so large that:
 
 $$ n > N \implies \left| \int_B^A I_n(x) dx - \left(\frac{1}{B} - \frac{1}{A}\right) \right| < \frac{\epsilon}{3} $$
 
@@ -563,7 +372,9 @@ As was our goal.
 
 ## Finale
 
-We've got all the pieces in hand now. Recall our intention is to show that:
+We've got all the pieces in hand now. 
+
+Recall our intention is to show that:
 
 $$\lim_{n \rightarrow \infty} \int_0^\infty I_n(x) dx= 1$$
 
@@ -571,7 +382,8 @@ So, let's estimate using our three integral strategy. For the moment, let $A > 1
 
 $$
 \begin{align}
-    \left| \int_0^\infty I_n(x) dx - 1 \right| &\leq \left| \int_0^1 I_n(x) dx \right| + \left| \int_1^A I_n(x) dx - \left(1 - \frac{1}{A}\right) \right| + \left| \frac{1}{A} \right| + \left| \int_A^\infty I_n(x) dx \right| \\
+    \left| \int_0^\infty I_n(x) dx - 1 \right| &= \left| \int_0^\infty I_n(x) dx - \left(1 - \frac{1}{A}\right) - \frac{1}{A} \right| \\
+    &\leq \left| \int_0^1 I_n(x) dx \right| + \left| \int_1^A I_n(x) dx - \left(1 - \frac{1}{A}\right) \right| + \left| \frac{1}{A} \right| + \left| \int_A^\infty I_n(x) dx \right| \\
      &\leq \left| \int_0^1 I_n(x) dx \right| + \left| \int_1^A I_n(x) dx - \left(1 - \frac{1}{A}\right) \right| + \frac{1}{A} + \frac{1}{A}
 \end{align}
 $$
@@ -602,13 +414,3 @@ Or, equivalently:
 $$\lim_{n \rightarrow \infty} \int_0^\infty I_n(x) dx = 1$$
 
 Fin.
-
-
-```python
-
-```
-
-{% capture prf %}
-Let $f$ be continuous on $[a, b]$...
-{% endcapture %}
-{% include proof.html content=prf %}

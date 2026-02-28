@@ -4,7 +4,6 @@
 @charset "utf-8";
 
 
-
 // Our variables
 $base-font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 $base-font-size:   16px;
@@ -15,7 +14,7 @@ $base-line-height: 1.5;
 $spacing-unit:     30px;
 
 $text-color:       #111;
-$background-color: #fdfdfd;
+$background-color: #f5f5f5;
 $brand-color:      #2a7ae2;
 
 $grey-color:       #828282;
@@ -71,12 +70,12 @@ $on-laptop:        850px;
 }
 
 .lemma {
-  background: #f8f8ff;
+  background: #f0f0f4;
   border-left: 4px solid #4a90d9;
 }
 
 .proof {
-  background: #fafafa;
+  background: #efefef;
   border-left: 4px solid #aaa;
 }
 
