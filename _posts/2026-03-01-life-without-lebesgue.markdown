@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Life Without Lebesgue"
-date:   2025-02-26
+date:   2026-02-26
 categories: jekyll update mathematics
 ---
 We show that:
