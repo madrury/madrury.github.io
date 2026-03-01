@@ -9,7 +9,7 @@ We show that:
 {% capture goal-result %}
 $$\lim_{n \rightarrow \infty} \int_0^\infty \frac{n x^{n}}{0.1 + x^{n+3}} \sin\left(\frac{x}{n}\right) dx= 1$$
 {% endcapture %}
-{% include goal.html content=goal-result %}
+{% include goal.html content=goal-result name="Goal" %}
 
 If one is well aquantned with this sort of problem, the limit of integrals calls to mind the great integration theorems of [Henri Lebesgue](https://en.wikipedia.org/wiki/Henri_Lebesgue): the [monotone convergence](https://en.wikipedia.org/wiki/Monotone_convergence_theorem#Monotone_convergence_for_non-negative_measurable_functions_(Beppo_Levi)) and [dominated convergence theorems](https://en.wikipedia.org/wiki/Dominated_convergence_theorem). These are powerful weapons, so, of course, we discard them. Sometimes it is fun and instructive to solve problems under self imposed constraints ⛓.
 
