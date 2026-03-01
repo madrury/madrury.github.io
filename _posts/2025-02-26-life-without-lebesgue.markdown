@@ -4,13 +4,14 @@ title:  "Life Without Lebesgue"
 date:   2025-02-26
 categories: jekyll update mathematics
 ---
-Sometimes it is fun and instructive to solve problems under self imposed constraints ⛓.
-
 We show that:
 
+{% capture goal-result %}
 $$\lim_{n \rightarrow \infty} \int_0^\infty \frac{n x^{n}}{0.1 + x^{n+3}} \sin\left(\frac{x}{n}\right) dx= 1$$
+{% endcapture %}
+{% include goal.html content=goal-result %}
 
-If one is well aquantned with this sort of problem, the limit of integrals calls to mind the great integration theorems of [Henri Lebesgue](https://en.wikipedia.org/wiki/Henri_Lebesgue): the [monotone convergence](https://en.wikipedia.org/wiki/Monotone_convergence_theorem#Monotone_convergence_for_non-negative_measurable_functions_(Beppo_Levi)) and [dominated convergence theorems](https://en.wikipedia.org/wiki/Dominated_convergence_theorem). These are powerful weapons, so, of course, we discard them.
+If one is well aquantned with this sort of problem, the limit of integrals calls to mind the great integration theorems of [Henri Lebesgue](https://en.wikipedia.org/wiki/Henri_Lebesgue): the [monotone convergence](https://en.wikipedia.org/wiki/Monotone_convergence_theorem#Monotone_convergence_for_non-negative_measurable_functions_(Beppo_Levi)) and [dominated convergence theorems](https://en.wikipedia.org/wiki/Dominated_convergence_theorem). These are powerful weapons, so, of course, we discard them. Sometimes it is fun and instructive to solve problems under self imposed constraints ⛓.
 
 Instead, our main tool will be simpler, we'll make use of uniform convergence:
 
@@ -20,14 +21,13 @@ If a sequence of integrable functions $f_n: [a, b] \rightarrow R$ converges *uni
 $$ \lim_{n \rightarrow \infty} \int_a^b f_n(t) dt = \int_a^b f(t) dt$$
 
 {% endcapture %}
-{% include theorem.html content=uniform-convergence name="Uniform Convergence of Integrals" %}
+{% include proposition.html content=uniform-convergence name="Uniform Convergence and Integrals" %}
 
-This proposition is commonly discussed in undergraduate real analysis classes, while the Lebesgue theorems are saved for later, after measures are developed. It is not so hard to prove the proposition once you're well practiced with the definitions, it's often used as an exam problem.
+This proposition is commonly discussed in undergraduate real analysis classes, while the Lebesgue theorems are saved for later, after measures are developed. It is not so hard to prove once you're well practiced with the definitions, it's often used as an exam problem.
 
-Its application to *our* problem is somewhat indirect. It can hardly be *completely* direct, because our intergrals range over the whole positive real line, not a compact interval. But that's not the only issue we'll encounter.
+Its application to our problem is somewhat indirect. It can hardly be *completely* direct, because our intergrals range over the whole positive real line, not a compact interval. But that's not the only issue we'll encounter.
 
 ## Notation
-
 Some notation for common expressions will be useful.
 
 $$
@@ -37,7 +37,7 @@ $$
 \end{align}
 $$
 
-Notably, we include the factor of $n$ with the sinusoidal function, not the rational function $f_n$. This is a good choice...
+Notably, we include the factor of $n$ with the sinusoidal function $s_n$, not the rational function $f_n$. This is a good choice...
 
 ## The Sinusoidal Factor
 Let's plot the evolution of the sinusoidal factor $s_n(x)$ with varying $n$ to get a sense of what's going on here. Throughout all our plots, later elements in a sequence are *blue*{: .blue}, earlier elements are *green*{: .green}, we'll always use this convention.
@@ -345,8 +345,7 @@ For the moment, let $B$ be any number slightly larger than $1$ (and, of course, 
 
 $$ 
 \begin{align}
-    \left| \int_1^A I_n(x) dx - \left(1 - \frac{1}{A}\right) \right| &= \left| \int_1^B I_n(x) dx + \int_B^A I_n(x) dx - \left(\frac{1}{B} - \frac{1}{A}\right) - \left(1 - \frac{1}{A}\right) + \left(\frac{1}{B} - \frac{1}{A}\right)\right| \\
-    &= \left| \int_1^B I_n(x) dx + \int_B^A I_n(x) dx - \left(\frac{1}{B} - \frac{1}{A}\right) + \left( \frac{1}{B} - 1 \right) \right| \\
+    \left| \int_1^A I_n(x) dx - \left(1 - \frac{1}{A}\right) \right| &= \left| \int_1^B I_n(x) dx + \int_B^A I_n(x) dx - \left(\frac{1}{B} - \frac{1}{A}\right) + \left( \frac{1}{B} - 1 \right) \right| \\
     &\leq \left| \int_1^B I_n(x) dx \right| + \left| \int_B^A I_n(x) dx - \left(\frac{1}{B} - \frac{1}{A}\right) \right| + \left| \frac{1}{B} - 1 \right| \\
     &\leq \left(B - 1\right) + \left(1 - \frac{1}{B}\right) + \left| \int_B^A I_n(x) dx - \left(\frac{1}{B} - \frac{1}{A}\right) \right| \\
 \end{align}    
