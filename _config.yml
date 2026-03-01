@@ -16,3 +16,6 @@ github_username: madrury
 
 # Build settings
 markdown: kramdown
+kramdown:
+  math_engine: null          # disable Kramdown's own math engine
+  math_engine_opts: {}

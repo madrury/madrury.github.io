@@ -4,7 +4,6 @@
 @charset "utf-8";
 
 
-
 // Our variables
 $base-font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 $base-font-size:   16px;
@@ -15,7 +14,7 @@ $base-line-height: 1.5;
 $spacing-unit:     30px;
 
 $text-color:       #111;
-$background-color: #fdfdfd;
+$background-color: #f5f5f5;
 $brand-color:      #2a7ae2;
 
 $grey-color:       #828282;
@@ -28,7 +27,6 @@ $content-width:    850px;
 
 $on-palm:          600px;
 $on-laptop:        850px;
-
 
 
 // Use media queries like this:
@@ -52,3 +50,66 @@ $on-laptop:        850px;
         "layout",
         "syntax-highlighting"
 ;
+
+.green { color: lightgreen; }
+.blue  { color: blue;  }
+
+.theorem, .proposition, .lemma, .proof, .goal {
+  margin: 1.5em 0;
+  padding: 0.75em 1em;
+}
+
+
+.theorem-label, .lemma-label, .proposition-label {
+  color: #4a90d9;
+  font-weight: bold;
+  font-style: italic;
+}
+
+.goal-label {
+  color: #ffc000;
+  font-weight: bold;
+  font-style: italic;
+}
+
+.theorem {
+  background: #f0f0f4;
+  border-left: 4px solid #4a90d9;
+}
+
+.goal {
+  background: #faf6ea;  
+  border-left: 4px solid #ffc000;
+}
+
+.proposition {
+  background: #f0f0f4;
+  border-left: 4px solid #4a90d9;
+}
+
+.lemma {
+  background: #f0f0f4;
+  border-left: 4px solid #4a90d9;
+}
+
+.proof {
+  background: #efefef;
+  border-left: 4px solid #aaa;
+}
+
+ .proof-label {
+  font-weight: bold;
+  font-style: italic;
+}
+
+.qed {
+  float: right;
+}
+
+mjx-container {
+  display: inline !important;
+}
+
+mjx-container[jax="CHTML"][display="true"] {
+  display: block !important;
+}
