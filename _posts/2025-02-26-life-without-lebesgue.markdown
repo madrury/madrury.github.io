@@ -86,7 +86,7 @@ Fix an $A > 0$. Then, on the interval $[0, A]$, $s_n(x) \rightarrow x$ **uniform
 {% include lemma.html content=sinusoidal-uniform-approximation name="Sinusoid Uniform Approximation" %}
 
 {% capture sinusoidal-uniform-approximation-proof %}
-As is traditional, let $\epsilon > 0$ be arbitrary, our goal is to bound the absolute difference $|x - s_n(x)|$ on the interval $[0, A]$ for all $n$ sufficiently large.
+As is traditional, let $\epsilon > 0$ be arbitrary, our goal is to bound the absolute difference $\|x - s_n(x)\|$ on the interval $[0, A]$ for all $n$ sufficiently large.
 
 Following the lead of our intution using the small angle apprximation, we make the change of variables $t = \frac{x}{n}$ to focus the argument near zero:
 
