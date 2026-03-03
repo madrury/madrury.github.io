@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Life Without Lebesgue"
-date:   2026-02-26
+date:   2026-03-01
 categories: jekyll update mathematics
 ---
 We show that:
@@ -278,7 +278,7 @@ $$ \int_1^A I_n(x) dx = \int_1^B I_n(x) dx + \int_B^1 I_n(x) dx $$
 
 The first integral is over a small interval where we've quarentined the obstruction to uniform convergence, and we can hopefully make its value as small as we like by making the interval very thin. We're hoping our original strategy exploiting uniform convergence works for the second integral.
 
-### The Integral Over $[1, B]$
+#### The Integral Over $[1, B]$
 
 We've already bounded the integrand on $[1, \infty]$:
 
@@ -290,7 +290,7 @@ $$ \left| \int_1^B I_n(x) dx \right| \leq \int_1^B \left| I_n(x) \right| dx \leq
 
 By taking $B$ close to $1$, we can make this piece as small as we'd like.
 
-### The Integral Over $[B, A]$
+#### The Integral Over $[B, A]$
 
 Our hope here is that we can make use of uniform convergence, so we would like to show the following:
 
@@ -336,7 +336,7 @@ It follows immediately from this lemma that:
 
 $$ \lim_{n \rightarrow \infty} \int_A^B I_n(x) dx = \int_A^B \frac{1}{x^2} dx = \frac{1}{B} - \frac{1}{A} $$
 
-### Together: The Integral Over $[1, A]$
+#### Together: The Integral Over $[1, A]$
 Returning to our main goal in this section, let's put everything together. We aim to show that:
 
 $$ \lim_{n \rightarrow \infty} \int_1^A I_n(x) dx = \int_1^A \frac{1}{x^2} dx = 1 - \frac{1}{A} $$

@@ -1,9 +1,8 @@
 ---
 layout: page
-title: About This Place
+title: About
 permalink: /about/
 ---
+This is my (Matt's) website. It is a place for hosting my essays on mathematics, statistics, machine learning and computer programming. I'm a data scientist from Seattle Washington.
 
-This is Matt's internet place, where he practices writing things about math, statistics, and programming.
-
-Matt is a data scientist from Seattle Washington.
+No LLMs were used to compose the essays hosted here. They were all written by hand, and any mistakes are my own. 
