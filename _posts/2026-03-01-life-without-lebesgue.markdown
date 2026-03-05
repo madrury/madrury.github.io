@@ -11,7 +11,7 @@ $$\lim_{n \rightarrow \infty} \int_0^\infty \frac{n x^{n}}{0.1 + x^{n+3}} \sin\l
 {% endcapture %}
 {% include goal.html content=goal-result name="Goal" %}
 
-If one is well aquantned with this sort of problem, the limit of integrals calls to mind the great integration theorems of [Henri Lebesgue](https://en.wikipedia.org/wiki/Henri_Lebesgue): the [monotone convergence](https://en.wikipedia.org/wiki/Monotone_convergence_theorem#Monotone_convergence_for_non-negative_measurable_functions_(Beppo_Levi)) and [dominated convergence theorems](https://en.wikipedia.org/wiki/Dominated_convergence_theorem). These are powerful weapons, so, of course, we discard them. Sometimes it is fun and instructive to solve problems under self imposed constraints ⛓.
+If one is well acquainted with this sort of problem, the limit of integrals calls to mind the great integration theorems of [Henri Lebesgue](https://en.wikipedia.org/wiki/Henri_Lebesgue): the [monotone convergence](https://en.wikipedia.org/wiki/Monotone_convergence_theorem#Monotone_convergence_for_non-negative_measurable_functions_(Beppo_Levi)) and [dominated convergence theorems](https://en.wikipedia.org/wiki/Dominated_convergence_theorem). These are powerful weapons, so, of course, we discard them. Sometimes it is fun and instructive to solve problems under self imposed constraints ⛓.
 
 Instead, our main tool will be simpler, we'll make use of uniform convergence:
 
@@ -25,7 +25,7 @@ $$ \lim_{n \rightarrow \infty} \int_a^b f_n(t) dt = \int_a^b f(t) dt$$
 
 This proposition is commonly discussed in undergraduate real analysis classes, while the Lebesgue theorems are saved for later, after measures are developed. It is not so hard to prove once you're well practiced with the definitions, it's often used as an exam problem.
 
-Its application to our problem is somewhat indirect. It can hardly be *completely* direct, because our intergrals range over the whole positive real line, not a compact interval. But that's not the only issue we'll encounter.
+Its application to our problem is somewhat indirect. It can hardly be *completely* direct, because our integrals range over the whole positive real line, not a compact interval. But that's not the only issue we'll encounter.
 
 ## Notation
 Some notation for common expressions will be useful.
@@ -62,7 +62,7 @@ We make the change of variables $t = \frac{x}{n}$, and look at these inequalitie
 - $x - s_n(x) = n(t - \sin(t))$, so $s_n(x) \leq x$ is equivelent to $\sin(t) \leq t$.
 - $s_n(x) + x = n(t + \sin(t))$, so the bound $s_n(x) \geq -x$ is equivelent to $\sin(t) \geq -t$.
 
-These are immediate consequences of the findamental theorem of calculus. Since $\frac{d}{dx} \sin(x) = \cos(x)$ and $-1 \leq \cos(x) \leq 1$ always:
+These are immediate consequences of the fundamental theorem of calculus. Since $\frac{d}{dx} \sin(x) = \cos(x)$ and $-1 \leq \cos(x) \leq 1$ always:
 
 $$ \sin(x) = \int_0^x \cos(t) dt \leq \int_0^x dt = x $$
 
@@ -88,7 +88,7 @@ Fix an $A > 0$. Then, on the interval $[0, A]$, $s_n(x) \rightarrow x$ **uniform
 {% capture sinusoidal-uniform-approximation-proof %}
 As is traditional, let $\epsilon > 0$ be arbitrary, our goal is to bound the absolute difference $\|x - s_n(x)\|$ on the interval $[0, A]$ for all $n$ sufficiently large.
 
-Following the lead of our intution using the small angle apprximation, we make the change of variables $t = \frac{x}{n}$ to focus the argument near zero:
+Following the lead of our intuition using the small angle approximation, we make the change of variables $t = \frac{x}{n}$ to focus the argument near zero:
 
 $$ x - s_n(x) = nt - n \sin(t) = n(t - \sin(t))$$
 
@@ -112,7 +112,7 @@ $$ \frac{t^5}{5!} - \frac{t^7}{7!} = \frac{t^5}{5!} \left( 1 - \frac{t^2}{7 \cdo
 and so on.
 <br><br>
 
-This is good. We can now esitmate the difference:
+This is good. We can now estimate the difference:
 
 $$ x - s_n(x) = n(t - \sin(t)) \leq n \frac{t^3}{3!} \leq \frac{n A^3}{n^3} = \frac{A^3}{n^2}$$
 
@@ -146,7 +146,7 @@ This is fairly illuminating:
   - There is a shift in qualitative behaviour of the integrand at $x = 1$, this suggests splitting into two integrals at this boundary.
   - For $x < 1$, the function seems to be converging pointwise (though not uniformly!) to zero. This suggests the integrals over $[0, 1]$ limit to zero.
   - For $x \geq 1$ the integrands seem to be limiting to some function like $x \mapsto \frac{1}{x^k}$, though we'll have to figure out what $k$ is.
-  - For $x > A$, i.e. very large $x$, the integrands die out quickly. This suggests they have a negligable effect.
+  - For $x > A$, i.e. very large $x$, the integrands die out quickly. This suggests they have a negligible effect.
 
 These considerations suggest fixing a large $A > 0$, and then splitting our integral into three pieces, working piece by piece:
 
@@ -156,13 +156,13 @@ Let's go.
 
 ## The Integral To The Right
 
-The rightmost integral is most easily dispatched. Recall that our suspicion is that, since $I_n(x)$ dies out so quickly as $x \rightarrow \infty$, this tail should contribute negligably to the final integral value. So we seek an upper bound.
+The rightmost integral is most easily dispatched. Recall that our suspicion is that, since $I_n(x)$ dies out so quickly as $x \rightarrow \infty$, this tail should contribute negligibly to the final integral value. So we seek an upper bound.
 
 We're working in the range $x > A$, and here we have no control over the convergence of $s_n(x)$, but we do have the wedge bounding lemma $\| s_n(x) \| \leq x$ that applies everywhere. Let's see what this can do for bounding $I_n(x)$:
 
 $$ \left| I_n(x) \right| = \frac{x^{n}}{0.1 + x^{n+3}} \left| s_n(x) \right| \leq \frac{x^{n + 1}}{0.1 + x^{n+3}} \leq \frac{x^{n+1}}{x^{n+3}} = \frac{1}{x^2} $$
 
-Where the first inequality uses the wedge bounding lemma, and the second follows from ignoring the $0.1$ summand in the demoninator.
+Where the first inequality uses the wedge bounding lemma, and the second follows from ignoring the $0.1$ summand in the denominator.
 
 ![Wedge Bound]({{ site.url }}/img/lwl-integrand-sequence-right.png){: .center-img}
 
@@ -172,13 +172,13 @@ $$ \left| \int_A^\infty I_n(x) dx \right| \leq \int_A^\infty \left| I_n(x) \righ
 
 So indeed, by taking $A$ large enough, we can reduce the contribution of the tail to the final integrals as much as we wish, and this bound is independent of $n$. From now on, we consider $A$ as fixed and large.
 
-## The Ingeral To The Left
+## The Integral To The Left
 
-We suspect the sequence of left ingetrals limits to zero:
+We suspect the sequence of left integrals limits to zero:
 
 $$ \lim_{n \rightarrow \infty} \int_0^1 I_n(x) dx =^{?} 0 $$
 
-Here's a zoomed in plot of this reigon to make this believable:
+Here's a zoomed in plot of this region to make this believable:
 
 
 ![Wedge Bound]({{ site.url }}/img/lwl-integrand-sequence-left.png){: .center-img}
@@ -230,7 +230,7 @@ Let's fix $A = 4$ for visualization purposes, and look at what we've got:
 ![Wedge Bound]({{ site.url }}/img/lwl-integrand-sequence-middle.png){: .center-img}
 
 
-It seems likely that the functions $I_n(x)$ are converging (uniformly?) to some limiting function, so we should try to figure out a canidate for this limit. We already know the uniform limit $s_n(x) \rightarrow x$, so that helps quite a bit:
+It seems likely that the functions $I_n(x)$ are converging (uniformly?) to some limiting function, so we should try to figure out a candidate for this limit. We already know the uniform limit $s_n(x) \rightarrow x$, so that helps quite a bit:
 
 $$ I_n(x) = s_n(x) f_n(x) \approx x f_n(x) = \frac{x^{n + 1}}{0.1 + x^{n+3}} \approx \frac{x^{n+1}}{x^{n+3}} = \frac{1}{x^2} $$
 
@@ -264,7 +264,7 @@ $$ f_n(1) = \frac{1}{0.1 + 1} = \frac{10}{11} $$
 
 So there's no chance that $I_n(x) \rightarrow \frac{1}{x^2}$ uniformly on $[1, A]$, we don't even have the pointwise correct limit at $x=1$. 
 
-So we'll need to adapt our strategy. Maybe we can isolate the trouble, and enclose the problematic reigon in a small enough box so that the trouble does not affect the integrals so much. This is a pretty common strategy in analysis.
+So we'll need to adapt our strategy. Maybe we can isolate the trouble, and enclose the problematic region in a small enough box so that the trouble does not affect the integrals so much. This is a pretty common strategy in analysis.
 
 Let's introduce a $B$ just *slightly* larger than $1$:
 
@@ -272,11 +272,11 @@ Let's introduce a $B$ just *slightly* larger than $1$:
 ![Wedge Bound]({{ site.url }}/img/lwl-integrand-sequence-middle-with-slice.png){: .center-img}
 
 
-Our strategy is to (again) split our integral up, this time into two peices.
+Our strategy is to (again) split our integral up, this time into two pieces.
 
 $$ \int_1^A I_n(x) dx = \int_1^B I_n(x) dx + \int_B^1 I_n(x) dx $$
 
-The first integral is over a small interval where we've quarentined the obstruction to uniform convergence, and we can hopefully make its value as small as we like by making the interval very thin. We're hoping our original strategy exploiting uniform convergence works for the second integral.
+The first integral is over a small interval where we've quarantined the obstruction to uniform convergence, and we can hopefully make its value as small as we like by making the interval very thin. We're hoping our original strategy exploiting uniform convergence works for the second integral.
 
 #### The Integral Over $[1, B]$
 
