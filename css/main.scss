@@ -54,13 +54,19 @@ $on-laptop:        850px;
 .green { color: lightgreen; }
 .blue  { color: blue;  }
 
-.theorem, .proposition, .lemma, .proof, .goal {
+.theorem, .proposition, .result, .lemma, .proof, .goal {
   margin: 1.5em 0;
   padding: 0.75em 1em;
 }
 
 .theorem-label, .lemma-label, .proposition-label {
   color: #4a90d9;
+  font-weight: bold;
+  font-style: italic;
+}
+
+.result-label {
+  color: #54d94a;
   font-weight: bold;
   font-style: italic;
 }
@@ -84,6 +90,11 @@ $on-laptop:        850px;
 .proposition {
   background: #f0f0f4;
   border-left: 4px solid #4a90d9;
+}
+
+.result {
+  background: #e5f2e5;
+  border-left: 4px solid #4cd94a;
 }
 
 .lemma {
