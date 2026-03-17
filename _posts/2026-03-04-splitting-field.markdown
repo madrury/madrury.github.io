@@ -29,7 +29,7 @@ $$
 In this essay, we discuss a moderately involved example in Galois Theory. Our main result is:
 
 {% capture goal-result %}
-Let $K$ denote the splitting field of the polynomial $f(x) = (x^5 - 7)(x^4 - 5)$ over the rational number field $\Q$, and let $G \defeq Gal(K / \Q)$  be its Galois group. Then:
+Let $K$ denote the splitting field of the polynomial $p(x) = (x^5 - 7)(x^4 - 5)$ over the rational number field $\Q$, and let $G \defeq Gal(K / \Q)$  be its Galois group. Then:
 
 $$[K:\Q] = 80$$
 
@@ -47,10 +47,13 @@ and so induces a semi-direct product structure: $G \cong (\Zmodtwo \times \Zmodt
 {% include goal.html content=goal-result name="Goal" %}
 
 We will see without too much trouble that:
+
 - The splitting field of $\pfour$ has degree eight over $\Q$, and
 - The splitting field of $\pfive$ has degree twenty over $\Q$.
 
-So the degree of $K$ is at most $8 \cdot 20 = 160$. That this maximum does not occur indicates there is some non-obvious algebraic relation between the roots of $\pfour$ and $\pfive$, which is indeed the case[^pentagons]. This intertwining of the roots is what makes this particular analysis interesting, it will be the source of complexity in computing both the degree, and the Galois group.
+So the degree of $K$ is at most $8 \cdot 20 = 160$. That this maximum does not occur indicates there is some non-obvious algebraic relation between the roots of $\pfour$ and $\pfive$, which is indeed the case[^pentagons]. 
+
+This relation intertwines the roots of $\p$, and is what makes this particular analysis interesting, it will be the source of complexity in computing both the degree, and the Galois group.
 
 
 ## Warming Up
@@ -466,7 +469,7 @@ Let's start from our exact sequence, which is, up to isomorphism:
 
 $$ 0 \rightarrow \Zmodtwo \times \Zmodtwo \times D_{10} \rightarrow G \rightarrow \Zmodtwo \rightarrow 0$$
 
-Blessedly, [Group Names also has information on this short exact sequence](https://people.maths.bris.ac.uk/~matyd/GroupNames/73/e14/C2byC2%5E2xD5.html#d2). There are eight isomorphism classes which fit into such a short exact sequence. We've already ruled out four, the direct and semi-direct products. This leaves the four non-split extensions as possibilities.
+Blessedly, the database [also has information on this short exact sequence](https://people.maths.bris.ac.uk/~matyd/GroupNames/73/e14/C2byC2%5E2xD5.html#d2). There are eight isomorphism classes which fit into such a short exact sequence. We've already ruled out four, the direct and semi-direct products. This leaves the four non-split extensions as possibilities.
 
 Thanks to the Galois correspondence, we know quite a bit about the structure of $G$. Every splitting field we've found has its own Galios group, and this group is a quotient group of $G$:
 
@@ -508,7 +511,7 @@ We conclude that $K / B$ has at least two intermediate degree two subfields, $B(
 {% endcapture %}
 {% include proof.html content=galois-k-over-b-proof %}
 
-It is more difficult to idnetify the complementary subgroup. We're looking for a **non-normal** subextension of index twenty, so a non-normal degree four extension of $\Q$. We've encountered a couple of these already: $\Q(\fourthroot)$ and $\Q(i \fourthroot)$, but these do not provide the complement we're after (trust us). The subextension we're after takes some looking for, and I'm not sure how to find it without some guessing and good luck, but it's:
+It is more difficult to identify the complementary subgroup. We're looking for a **non-normal** subextension of index twenty, so a non-normal degree four extension of $\Q$. We've encountered a couple of these already: $\Q(\fourthroot)$ and $\Q(i \fourthroot)$, but these do not provide the complement we're after (trust us). The subextension we're after takes some looking for, and I'm not sure how to find it without some guessing and good luck, but it's:
 
 $$ C = \Q \left( (1 + i) \fourthroot \right) $$
 
@@ -522,13 +525,65 @@ $$ Gal(K / B) \cap Gal(K / C) = \identity $$
 {% include lemma.html content=trivial-intersection name="Galois Group Complements" %}
 
 {% capture trivial-intersection-proof %}
+Let $\varphi \in Gal(K / B)$. 
+
+Any automorophism of $K / \Q$ is determined by its action on the roots of $\p$. We've constrained ours to fix the roots of $\pfive$, so $\varphi$ is determined by how it moves the roots of $\pfour$. Because of our old friend, $\sqrt{5} \in B$, not every permutation is possible. For example:
+
+$$\varphi(\fourthroot)^2 = \varphi(\fourthroot^2) = \varphi(\sqrt{5}) = \sqrt{5} = \fourthroot^2$$
+
+So: $\varphi(\fourthroot) = \pm \fourthroot$. Similarly:
+
+$$\varphi(i \fourthroot)^2 = \varphi(- \fourthroot^2) = - \varphi(\sqrt{5}) = - \sqrt{5} = ( i \fourthroot)^2$$
+
+So: $\varphi(i \fourthroot) = \pm i \fourthroot$.
+
+We've got four possibilities for the action of $\varphi$ on the roots of $\pfour$, let's now see how each of the non-identity possibilities affects $\xi = (1 + i) \fourthroot$.
+
+- **Case** $\fourthroot \mapsto - \fourthroot$, and $i \fourthroot \mapsto i \fourthroot$.
+
+$$ (1 + i) \fourthroot \mapsto (- 1 + i) \fourthroot \neq \xi$$
+
+- **Case** $\fourthroot \mapsto \fourthroot$, and $i \fourthroot \mapsto - i \fourthroot$.
+
+$$ (1 + i) \fourthroot \mapsto (1 - i) \fourthroot \neq \xi$$
+
+- **Case** $\fourthroot \mapsto - \fourthroot$, and $i \fourthroot \mapsto - i \fourthroot$.
+
+$$ (1 + i) \fourthroot \mapsto - (1 + i) \fourthroot \neq \xi$$
+
+So all possible automorphisms $\varphi$ move $\xi$ **except** the identity automorphism. It follows that:
+
+$$ \varphi \in Gal(K / C) \implies \varphi = \identity $$
+
+Or, said differently:
+
+$$ Gal(K / B) \cap Gal(K / C) = \identity $$
+
+Which was our objective.
 {% endcapture %}
 {% include proof.html content=trivial-intersection-proof name="Galois Group Complements" %}
 
-(1 + i) fourthroot(5)
-alpha^2: to negative
-beta: (1 - i) fthrt(5)
-beta alpha^2: - (1 - i) frthrt(5)
+The rest is now easy. We can quickly show that $Gal(K / B)$ and $Gal(K / C)$ are complementary subgroups by just counting orders:
+
+$$ \left| Gal(K / B) Gal(K / C) \right| = \frac{\left| Gal(K / B) \right| \left| Gal(K / C) \right|}{\left| Gal(K / B) \cap Gal(K / C) \right|} = 4 \cdot 20 = 80 $$
+
+So $Gal(K / B) Gal(K / C) = G$. 
+
+
+We deduce immediately that:
+
+$$G \cong Gal(K / B) \rtimes Gal(K / C)$$
+
+And the isomorphism class of $Gal(K / C)$ follows:
+
+$$ Gal(K / C) \cong G / Gal(K / B) = Gal(K / \Q) / Gal(K / B) \cong Gal(B / \Q) \cong GA(1, 5) $$
+
+Which gives us, finally, that:
+
+$$G \cong (\Zmodtwo \times \Zmodtwo) \rtimes GA(1, 5)$$
+
+Which was our very final goal.
+
 
 [^pentagons]: This is related to the constructability of a regular pentagon ⬠. We'll show that $\cos \left( \frac{2 \pi}{5} \right) = \frac{-1 + \sqrt{5}}{4}$.
 [^real-subfields]: A **real subfield** is definitionally fixed by complex conjugation. Ajoining a real number to $\Q$ always produces a real subfield, since a vector space basis of the extension over $\Q$ consists of powers of the ajoined element, which are all real numbers.
