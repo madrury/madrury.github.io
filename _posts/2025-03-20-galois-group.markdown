@@ -59,12 +59,12 @@ This relation regarding $\sqrt{5}$ intertwines the roots of $\pfour$ and $\pfive
 
 
 ## Warming Up
-We'll begin by describing the splitting fields and Galos groups of the two factors.
+We'll begin by describing the splitting fields and Galois groups of the two factors.
 
 ### The Galois Group of $\pfour$
 It's easy to enumerate the roots of $\pfour$: $ \pm \fourthroot,  \pm i \fourthroot $. Since the splitting field of $\pfour$ contains ratios of these roots, it contains the fourth root of unity $i$. Conversely, each of the four roots is a product of $\pm i$ and $\fourthroot$. It follows that the splitting field of $\pfour$ is $\Qfour$.
 
-To compute the degree  $[\Qfour:\Q]$, observe that $\pfour$ is eisenstein at $p = 5$, so irreducible. Ajoining a single root, it follow that $\Q(\fourthroot)$ is a degree four extension of $\Q$. This is a real [^real-subfields] field, so it does not yet contain $i$, and therefore:
+To compute the degree  $[\Qfour:\Q]$, observe that $\pfour$ is Eisenstein at $p = 5$, so irreducible. Adjoining a single root, it follow that $\Q(\fourthroot)$ is a degree four extension of $\Q$. This is a real [^real-subfields] field, so it does not yet contain $i$, and therefore:
 
 $$[\Qfour:\Q(\fourthroot)] \neq 1$$
 
@@ -72,7 +72,7 @@ But the minimal polynomial of $i$ over $\Q$ is $x^2 + 1$, so the degree of $i$ o
 
 $$[\Qfour:\Q(\fourthroot)] \leq 2$$
 
-The only possibliliy is that this extension's degree is exactly two. It follows that:
+The only possibility is that this extension's degree is exactly two. It follows that:
 
 $$[\Qfour:\Q] = [\Qfour:\Q(\fourthroot)] [\Q(\fourthroot):\Q] = 2 \cdot 4 = 8 $$
 
@@ -83,7 +83,7 @@ The splitting field of $\pfour$ is $\Qfour$. Its degree over the rationals is $$
 {% endcapture %}
 {% include result.html content=splitting-field-fourth %}
 
-Now we compute the the Galois group of the extension $\Qfour / \Q$. Since $\pfour$ is irreducible, rhe Galois group acts transitively on its roots, so there is at least some automorphism:
+Now we compute the Galois group of the extension $\Qfour / \Q$. Since $\pfour$ is irreducible, the Galois group acts transitively on its roots, so there is at least some automorphism:
 
 $$ \alpha: \fourthroot \mapsto i \fourthroot $$
 
@@ -105,7 +105,7 @@ while:
 
 $$ \alpha \beta (\fourthroot) = \alpha(\fourthroot) = i \fourthroot$$
 
-So we've got either the dihedral $D_8$ or the quaternion group $Q$. Our two elements happen to satisfy the defining relations of the diherdral group:
+So we've got either the dihedral $D_8$ or the quaternion group $Q$. Our two elements happen to satisfy the defining relations of the dihedral group:
 
 $$ \beta \alpha \beta (\fourthroot) = \beta \alpha (\fourthroot) = \beta (i \fourthroot) = - i \fourthroot $$
 
@@ -131,11 +131,11 @@ By enumerating the roots, we deduce that the splitting field of $\pfive$ is $\Qf
 
 $$ [\Q(\roufive):\Q] = \varphi(5) = 4 $$
 
-On the other hand, $\pfive$ is eisenstein at $7$, and so irreducible, so:
+On the other hand, $\pfive$ is Eisenstein at $7$, and so irreducible, so:
 
 $$ [\Q(\fifthroot):\Q] = 5 $$
 
-It follows that the degree of the splitting extension is divisible by both $4$ and $5$, and hence divisible by $20$. On the other hand, the minimal polynomial of $\fifthroot$ over $\Q(\roufive)$ is some factor of the minimial polynomial of $\fifthroot$ over $\Q$, which is $\pfive$. So:
+It follows that the degree of the splitting extension is divisible by both $4$ and $5$, and hence divisible by $20$. On the other hand, the minimal polynomial of $\fifthroot$ over $\Q(\roufive)$ is some factor of the minimal polynomial of $\fifthroot$ over $\Q$, which is $\pfive$. So:
 
 $$[\Qfive:\Q] = [\Q(\roufive)(\fifthroot):\Q(\roufive)] [\Q(\roufive):\Q] \leq 5 \cdot 4 = 20 $$
 
@@ -146,7 +146,7 @@ The splitting field of $\pfive$ is $\Qfive$. Its degree over the rationals is $$
 {% endcapture %}
 {% include result.html content=splitting-field-fifth %}
 
-Now for the Galois group. In the same manner as before, it acts transaitively on the roots of the ploynomials $\pfive$ and $\phi_5(x) = x^4 + x^3 + x^2 + x + 1$ [^minimial-polynomial]. So, under any automorphism, $\fifthroot$ has five possible images, and $\roufive$ has four; the pair has $5 \cdot 4 = 20$ possible images. This pair of images determines an automorphism uniquely, and there are in total $20$ automorphisms (the degree of the extension), so each of pair of images must occur.
+Now for the Galois group. In the same manner as before, it acts transitively on the roots of the polynomials $\pfive$ and $\phi_5(x) = x^4 + x^3 + x^2 + x + 1$ [^minimial-polynomial]. So, under any automorphism, $\fifthroot$ has five possible images, and $\roufive$ has four; the pair has $5 \cdot 4 = 20$ possible images. This pair of images determines an automorphism uniquely, and there are in total $20$ automorphisms (the degree of the extension), so each of pair of images must occur.
 
 To identify the isomorphism class of the Galois group, we pick two specific automorphisms in a similar manner to the last section.
 
@@ -179,7 +179,7 @@ $$ [KL:F] = \frac{[K:F][L:F]}{[K \cap L:F]}$$
 {% endcapture %}
 {% include proposition.html content=composite-degree name="The Degree of a Composite Extension" %}
 
-A proof of this proposition, and the sister proposition used later that charecterizes the Galois groups of such extensions, is in [Keith Conrad's Blurb](https://kconrad.math.uconn.edu/blurbs/), [Galois Correspondence Theorems](https://kconrad.math.uconn.edu/blurbs/galoistheory/galoiscorrthms.pdf).
+A proof of this proposition, and the sister proposition used later that characterizes the Galois groups of such extensions, is in [Keith Conrad's Blurb](https://kconrad.math.uconn.edu/blurbs/), [Galois Correspondence Theorems](https://kconrad.math.uconn.edu/blurbs/galoistheory/galoiscorrthms.pdf).
 
 In our case, this reads:
 
@@ -205,7 +205,7 @@ Since all the roots of $\phi_4(x)$ are non-zero:
 
 $$x^4 + x^3 + x^2 + x + 1 = 0 \iff x^2 + x + 1 + \frac{1}{x} + \frac{1}{x^2} $$
 
-Now we can group together the reciporcal powers:
+Now we can group together the reciprocal powers:
 
 $$
 \begin{align}
@@ -253,7 +253,7 @@ We're interested in $\Qtwenty$:
 
 $$Gal(\Qtwenty / \Q) \cong \left( \Z / 20\Z \right)^{\times} \cong \Z / 4 \Z \times \Z / 2 \Z$$
 
-The second isomorphism here is from direct computation using the classiciation of finite abelian groups, we can easily sort out the orders of the overall group and its elements. The order of the group is $\phi(20) = 8$. There are no elements of order eight, and it's easy to find some elements of order 4, this is enough to lock down its isomorphism class. 
+The second isomorphism here is from direct computation using the classification of finite abelian groups, we can easily sort out the orders of the overall group and its elements. The order of the group is $\phi(20) = 8$. There are no elements of order eight, and it's easy to find some elements of order 4, this is enough to lock down its isomorphism class. 
 
 We won't need to know so much about this Galois group, but it is very important that **it is abelian**. This means that all its subgroups are normal, and according to the Galois correspondence, all subfields of $\Qtwenty$ are normal extensions of $\Q$.
 
@@ -267,9 +267,9 @@ We already know that $\sqrt{5} \in \Qtwenty$, so we can factor over $\Qtwenty$:
 
 $$ x^4 - 5 = (x^2 + \sqrt{5})(x^2 - \sqrt{5}) $$
 
-The minimial polynomial of $\fourthroot$ over $\Qtwenty$ divides $x^2 - \sqrt{5}$, so the degree of the extension $\Qtwentyfour / \Qtwenty$ is either one or two. We want to rule out the first case, which happens only if $\fourthroot \in \Qtwenty$, so we aim to show this is not so.
+The minimal polynomial of $\fourthroot$ over $\Qtwenty$ divides $x^2 - \sqrt{5}$, so the degree of the extension $\Qtwentyfour / \Qtwenty$ is either one or two. We want to rule out the first case, which happens only if $\fourthroot \in \Qtwenty$, so we aim to show this is not so.
 
-Well, suppose **it is so**. Then $\Q(\fourthroot) \subset \Qtwenty$, and, as we observed, this is a *normal* subextension of $\Q$. This means that *all* the roots of the minimial polynomial $x^4 - 5$ of $\fourthroot$ over $\Q$ lie in $\Q(\fourthroot)$. Now  $i \fourthroot$ is another root of $x^4 - 5$, and thus the ratio $i$ of the two roots is in $\Q(\fourthroot)$ as well. But this is clearly not so, because $\Q(\fourthroot)$ consists entirely of real numbers! Thus $\Q(\fourthroot)$ is *not* a normal extension, a contradiction that rejects the assertion $\fourthroot \in \Qtwenty$.
+Well, suppose **it is so**. Then $\Q(\fourthroot) \subset \Qtwenty$, and, as we observed, this is a *normal* subextension of $\Q$. This means that *all* the roots of the minimal polynomial $x^4 - 5$ of $\fourthroot$ over $\Q$ lie in $\Q(\fourthroot)$. Now  $i \fourthroot$ is another root of $x^4 - 5$, and thus the ratio $i$ of the two roots is in $\Q(\fourthroot)$ as well. But this is clearly not so, because $\Q(\fourthroot)$ consists entirely of real numbers! Thus $\Q(\fourthroot)$ is *not* a normal extension, a contradiction that rejects the assertion $\fourthroot \in \Qtwenty$.
 
 We have shown:
 
@@ -321,7 +321,7 @@ $$ Gal(AB / F) \rightarrow Gal(A / F) \times Gal(B / F) $$
 
 $$ \sigma \mapsto \left(\sigma \mid_K, \sigma \mid_L \right) $$
 
-is an embedding whose image is the subgroup of the product consisting of compatable pairs of automorphisms:
+is an embedding whose image is the subgroup of the product consisting of compatible pairs of automorphisms:
 
 $$ (\alpha, \beta): x \in A \cap B \implies \alpha(x) = \beta(x) $$
 {% endcapture %}
@@ -359,7 +359,7 @@ $$ Gal(B / \Q) = \left< a, b: a^5 = b^4 = \identity, b a b^{-1} = a^2 \right> \c
 
 and also gave explicit definitions of the generating automorphisms in terms of their actions on the roots of $\pfour$ and $\pfive$ respectively. 
 
-To make good use of the proposition, we need to determine which pairs of automorphisms have compatable restrictions to $A \cap B = \Q(\sqrt{5})$. This is a simple enough condition, a pair of automorphisms are compatable if and only if they map $\sqrt{5}$ to the same image, so let's investiate our automorphisms action on $\sqrt{5}$.
+To make good use of the proposition, we need to determine which pairs of automorphisms have compatible restrictions to $A \cap B = \Q(\sqrt{5})$. This is a simple enough condition, a pair of automorphisms are compatible if and only if they map $\sqrt{5}$ to the same image, so let's investigate our automorphisms action on $\sqrt{5}$.
 
 ### The Actions on $\sqrt{5}$
 Any automorphism in $Gal(A / \Q)$ or $Gal(B / \Q)$ must map $\sqrt{5}$ to one of its two conjugates $\pm \sqrt{5}$.
@@ -428,7 +428,7 @@ We've everything in place now to use our proposition describing the Galois group
 Let's summarize what we've accomplished:
 
 {% capture galois-group-of-K %}
-The Galois group $G = Gal(K / \Q)$ consists of (the unique extention to $K / \Q$ of) those pairs of automorphisms in $Gal(A / \Q) \times Gal(B / \Q)$ that either:
+The Galois group $G = Gal(K / \Q)$ consists of (the unique extension to $K / \Q$ of) those pairs of automorphisms in $Gal(A / \Q) \times Gal(B / \Q)$ that either:
 
 - Both fix $\Q(\sqrt{5})$, these elements form a subgroup we'll call $G^{\sqrt{5}} = A^{\sqrt{5}} \times B^{\sqrt{5}}$.
 - Both map $\sqrt{5} \mapsto -\sqrt{5}$, these elements *do not* form a subgroup, we'll call the *(co)set* $G^{-\sqrt{5}}$.
@@ -467,7 +467,7 @@ $$ Gal(A / \Q) \times Gal(B / \Q) \cong D_8 \times GA(1, 5) $$
 
 and so our hypothetical involution, when viewed as an element $D_8 \times GA(1, 5)$, consists of a pair of involutions, one from each factor group. 
 
-We are looking for a complement to the subroup:
+We are looking for a complement to the subgroup:
 
 $$ G^{\sqrt{5}} = A^{\sqrt{5}} \times B^{\sqrt{5}} \cong \Zmodtwo \times \Zmodtwo \times D_{10} $$
 
@@ -486,7 +486,7 @@ $$ 0 \rightarrow \Zmodtwo \times \Zmodtwo \times D_{10} \rightarrow G \rightarro
 
 Blessedly, the database [also has information on this short exact sequence](https://people.maths.bris.ac.uk/~matyd/GroupNames/73/e14/C2byC2%5E2xD5.html#d2). There are eight isomorphism classes which fit into such a short exact sequence. We've already ruled out four, the direct and semi-direct products. This leaves the four non-split extensions as possibilities.
 
-Thanks to the Galois correspondence, we know quite a bit about the structure of $G$. Every splitting field we've found has its own Galios group, and this group is a quotient group of $G$:
+Thanks to the Galois correspondence, we know quite a bit about the structure of $G$. Every splitting field we've found has its own Galois group, and this group is a quotient group of $G$:
 
 - $\Qtwenty$ has Galois group $\Z / 4\Z \times \Z / 2 \Z$.
 - $\Qfour$ has Galois group $D_8$.
@@ -499,7 +499,7 @@ $$ G \cong (\Z / 2\Z \times \Z / 2 \Z) \rtimes GA(1, 5) $$
 {% endcapture %}
 {% include result.html content=isomorphism-class-of-G %}
 
-### Identitfying the Complementary Subgroups
+### Identifying the Complementary Subgroups
 Wiser folk would stop here, but this is for recreation and there's more treasure to find. The semi-direct product structure informs us that $G$ contains two subgroups:
 
 - A **normal** copy of $\Z / 2\Z \times \Z / 2 \Z$.
@@ -519,7 +519,7 @@ $$Gal(K / B) \cong \Z / 2\Z \times \Z / 2 \Z$$
 {% capture galois-k-over-b-proof %}
 This is not so hard, so we'll keep it terse. 
 
-We know $K = B(i, \fourthroot)$. Both of these ajoined elements have degree two over $B$, and in fact $i$ has degree two over $B(\fourthroot)$ as well. For otherwise, $i \in B(\fourthroot)$, but this would mean $i \roufive = \routwenty \in B(\fourthroot)$ as well. This would force $B(\fourthroot) = K$, which is not so because $[K:B] = 4$. 
+We know $K = B(i, \fourthroot)$. Both of these adjoined elements have degree two over $B$, and in fact $i$ has degree two over $B(\fourthroot)$ as well. For otherwise, $i \in B(\fourthroot)$, but this would mean $i \roufive = \routwenty \in B(\fourthroot)$ as well. This would force $B(\fourthroot) = K$, which is not so because $[K:B] = 4$. 
 
 We conclude that $K / B$ has at least two intermediate degree two subfields, $B(\fourthroot)$ and $B(i)$, so $Gal(K / B)$ has at least two order two subgroups, so $Gal(K / B)$ is not cyclic. Since it has order four, $Gal(K / B) \cong \Z / 2\Z \times \Z / 2 \Z$, the only non-cyclic group of order four.
 {% endcapture %}
@@ -529,7 +529,7 @@ It is more difficult to identify the complementary subgroup. We're looking for a
 
 $$ C = \Q \left( (1 + i) \fourthroot \right) $$
 
-Some algebra shows that $\xi = (1 + i) \fourthroot$ satisfies the polynomial $x^4 + 20$. This is irreducible as its 5-eisensten, and so $[C:\Q] = 4$ and $[K:C] = 20$.
+Some algebra shows that $\xi = (1 + i) \fourthroot$ satisfies the polynomial $x^4 + 20$. This is irreducible as its 5-Eisenstein, and so $[C:\Q] = 4$ and $[K:C] = 20$.
 
 Let's show that:
 
@@ -541,7 +541,7 @@ $$ Gal(K / B) \cap Gal(K / C) = \identity $$
 {% capture trivial-intersection-proof %}
 Let $\varphi \in Gal(K / B)$. 
 
-Any automorophism of $K / \Q$ is determined by its action on the roots of $\p$. We've constrained ours to fix the roots of $\pfive$, so $\varphi$ is determined by how it moves the roots of $\pfour$. Because of our old friend, $\sqrt{5} \in B$, not every permutation is possible. For example:
+Any automorphism of $K / \Q$ is determined by its action on the roots of $\p$. We've constrained ours to fix the roots of $\pfive$, so $\varphi$ is determined by how it moves the roots of $\pfour$. Because of our old friend, $\sqrt{5} \in B$, not every permutation is possible. For example:
 
 $$\varphi(\fourthroot)^2 = \varphi(\fourthroot^2) = \varphi(\sqrt{5}) = \sqrt{5} = \fourthroot^2$$
 
@@ -601,8 +601,8 @@ Which was our very final goal.
 
 
 [^pentagons]: This is related to the constructability of a regular pentagon ⬠. We'll show that $\cos \left( \frac{2 \pi}{5} \right) = \frac{-1 + \sqrt{5}}{4}$.
-[^real-subfields]: A **real subfield** is definitionally fixed by complex conjugation. Ajoining a real number to $\Q$ always produces a real subfield, since a vector space basis of the extension over $\Q$ consists of powers of the ajoined element, which are all real numbers.
-[^alternative-eight]: Alternatively, we can count possibilities for where these two roots map. There are four possibilities for the image of $\fourthroot$ and two for $i$, so eight total, and we know the extension is Galois of degree eiight, so every possibility must be achieved. We'll use this argument in the next section.
+[^real-subfields]: A **real subfield** is definitionally fixed by complex conjugation. Adjoining a real number to $\Q$ always produces a real subfield, since a vector space basis of the extension over $\Q$ consists of powers of the adjoined element, which are all real numbers.
+[^alternative-eight]: Alternatively, we can count possibilities for where these two roots map. There are four possibilities for the image of $\fourthroot$ and two for $i$, so eight total, and we know the extension is Galois of degree eight, so every possibility must be achieved. We'll use this argument in the next section.
 [^root-of-unity]: The notation $\zeta_k$ denotes "the" k'th primitive root of unity. I.e., $\zeta_5, \zeta_5^2, \zeta_5^3, \zeta_5^4 \neq 1$, while $\zeta_5^5 = 1$. We'll only used algebraic properties of these numbers, so their non-uniqueness will not be trouble.
 [^minimial-polynomial]: This is the minimal polynomial of $\roufive$ by a standard argument.
 [^normal-notation]: $H \leq G$ means $H$ is a subgroup of $G$, and $H \triangleleft G$ means $H$ is a *normal* subgroup of $G$.
