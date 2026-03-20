@@ -26,7 +26,14 @@ $$
 $$
 </div>
 
-In this essay, we discuss a moderately involved example in Galois Theory. Our main result is:
+In this essay, we discuss a moderately involved example in Galois Theory. 
+
+Galois theory studies the symmetries of polynomial equations. It offers the deepest and most general explantation of why there **are** formulas for the solutions of [quadratic equations](https://en.wikipedia.org/wiki/Quadratic_equation) (the quadratic formula), [cubic](https://en.wikipedia.org/wiki/Cubic_equation) and [quartic](https://en.wikipedia.org/wiki/Quartic_equation) equations (which are less well known, but do exist!), but then there are [**no more**](https://en.wikipedia.org/wiki/Abel%E2%80%93Ruffini_theorem)! It developed out of the ideas of two young men who died tragic early deaths and have become part of the mythology of mathematics, and that I personally admire: [Niels  Abel](https://en.wikipedia.org/wiki/Niels_Henrik_Abel) and [Évariste Galois](https://en.wikipedia.org/wiki/%C3%89variste_Galois).
+
+Galois theory also stands as a representative of what mathematicians consider an "ideal" theory. It serves as a rich thesaurus between two sub-domains of mathematics that are on the surface, not obviously connected. Galois theory allows jumping between two domains (Group theory and Field theory), applying results in one domain to their reflection in another.
+
+### Problem Description
+Our main result is:
 
 {% capture goal-result %}
 Let $K$ denote the splitting field of the polynomial $p(x) = (x^5 - 7)(x^4 - 5)$ over the rational number field $\Q$, and let $G \defeq Gal(K / \Q)$  be its Galois group. Then:
@@ -56,7 +63,6 @@ We will see without too much trouble that:
 So the degree of $K$  over $\Q$ is **at most** $8 \cdot 20 = 160$. That this maximum does **not** occur indicates there is some non-obvious algebraic relation between the roots of $\pfour$ and $\pfive$, which is indeed the case[^pentagons]. Much fuss will be made about the square root of five, which resides in the splitting field of both factors!
 
 This relation regarding $\sqrt{5}$ intertwines the roots of $\pfour$ and $\pfive$, and this is what makes this particular analysis interesting, it will be the source of complexity in computing both the degree, and the Galois group.
-
 
 ### Resources
 I came to this problem from a misreading of a University of Washington qualifying exam question, which, when correctly stated, is:
