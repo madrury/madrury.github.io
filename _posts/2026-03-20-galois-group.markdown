@@ -59,20 +59,20 @@ This relation regarding $\sqrt{5}$ intertwines the roots of $\pfour$ and $\pfive
 
 
 ### Resources
-I came to this problem from a misreading of a Univeristy of Washington qualifying exam question, which, when correctly stated, is:
+I came to this problem from a misreading of a University of Washington qualifying exam question, which, when correctly stated, is:
 
 {% capture qualifying-exam-question %}
 Let $\alpha, \beta$ denote the unique positive real 5th root of 7 and 4th root of 5, respectively. Determine the degree of $\Q(\alpha, \beta)$ over $\Q$.
 {% endcapture %}
-{% include goal.html content=qualifying-exam-question name="Qalifying Exam Problem" %}
+{% include goal.html content=qualifying-exam-question name="Qualifying Exam Problem" %}
 
 This is, of course, a much simpler problem than what we're getting up to here. You can find the problem on the [2018 Algebra Prelim](https://math.washington.edu/sites/math/files/documents/grad/algebra-sept-2018.pdf) hosted [here](https://math.washington.edu/past-phd-preliminary-exams).
 
 Various resources were very helpful in learning and practicing enough Galois theory to solve this sort of problem.
 
-- My all time favorite book on Algebra is [Topics In Algebra](https://www.thriftbooks.com/w/topics-in-algebra_in-herstein/254351) by Herstein. There's not enough Galois theory in there for everything we need, but its style and entusiasm is very close to my ♥.
-- [Keith Conrad's Essays](https://kconrad.math.uconn.edu/blurbs/) on many, many subjects in algebra do have all we need. These are such a rich source of joy and information, I am very indebteed to Keith for providing these free resources. I'll cite particualr articles as we need them.
-- A free texbook that has also has everything we need is J.S. Milne's [Fields and Galois Theory](https://www.jmilne.org/math/CourseNotes/ft.html).
+- My all time favorite book on Algebra is [Topics In Algebra](https://www.thriftbooks.com/w/topics-in-algebra_in-herstein/254351) by Herstein. There's not enough Galois theory in there for everything we need, but its style and enthusiasm is very close to my ♥.
+- [Keith Conrad's Essays](https://kconrad.math.uconn.edu/blurbs/) on many, many subjects in algebra do have all we need. These are such a rich source of joy and information, I am very indebted to Keith for providing these free resources. I'll cite particular articles as we need them.
+- A free textbook that has also has everything we need is J.S. Milne's [Fields and Galois Theory](https://www.jmilne.org/math/CourseNotes/ft.html).
 - The [PARI](https://pari.math.u-bordeaux.fr/) computer algebra system is free [^as-in-freedom] software, and includes algorithms for computing splitting fields and Galois groups. This is free software and we'll use it to check our work.
 - The [Groupprops Wiki](https://groupprops.subwiki.org/wiki/Main_Page) and [Group Names database](https://people.maths.bris.ac.uk/~matyd/GroupNames) holds rich information about the structure and identity of finite groups. We'll make use of them to narrow down possible isomorphism classes of our Galois groups.
 
@@ -234,7 +234,7 @@ So the splitting field is indeed of degree $20$ over $\Q$.
 "C5 : C4"
 ```
 
-The `:` notation here is used by PARI to denote a [semi direct product](https://en.wikipedia.org/wiki/Semidirect_product), for which the usual mathematical notation is $\rtimes$. This concept will come up a few times in the future, so if the reader is not familiar, it will be a good idea to reserch this concept if they wish to follow to the end.
+The `:` notation here is used by PARI to denote a [semi direct product](https://en.wikipedia.org/wiki/Semidirect_product), for which the usual mathematical notation is $\rtimes$. This concept will come up a few times in the future, so if the reader is not familiar, it will be a good idea to research this concept if they wish to follow to the end.
 
 Consulting again the [Groups Wiki](https://groupprops.subwiki.org/wiki/Groups_of_order_20) the group with GAP ID $3$ is indeed our $GA(1, 5)$. The connection between our notation and the semi-direct product is that, for all $n$:
 
@@ -600,7 +600,7 @@ For a final time, we cross our finger and hope PARI validates our work.
 [80, 34]
 ```
 
-The groups database also lists the GAP ID's of all our groups. We're happy to see that, yes, group $34$ is eactly the semidirect product $G \cong (\Z / 2\Z \times \Z / 2 \Z) \rtimes GA(1, 5)$.
+The groups database also lists the GAP ID's of all our groups. We're happy to see that, yes, group $34$ is exactly the semidirect product $G \cong (\Z / 2\Z \times \Z / 2 \Z) \rtimes GA(1, 5)$.
 
 
 ### Identifying the Complementary Subgroups
