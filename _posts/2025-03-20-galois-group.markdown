@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "The Galois Group of $(x^5 - 7)(x^4 - 5)$"
-date:   2026-03-14
+date:   2026-03-19
 categories: jekyll update mathematics
 ---
 
@@ -58,13 +58,34 @@ So the degree of $K$  over $\Q$ is **at most** $8 \cdot 20 = 160$. That this max
 This relation regarding $\sqrt{5}$ intertwines the roots of $\pfour$ and $\pfive$, and this is what makes this particular analysis interesting, it will be the source of complexity in computing both the degree, and the Galois group.
 
 
+### Resources
+I came to this problem from a misreading of a Univeristy of Washington qualifying exam question, which, when correctly stated, is:
+
+{% capture qualifying-exam-question %}
+Let $\alpha, \beta$ denote the unique positive real 5th root of 7 and 4th root of 5, respectively. Determine the degree of $\Q(\alpha, \beta)$ over $\Q$.
+{% endcapture %}
+{% include goal.html content=qualifying-exam-question name="Qalifying Exam Problem" %}
+
+This is, of course, a much simpler problem than what we're getting up to here. You can find the problem on the [2018 Algebra Prelim](https://math.washington.edu/sites/math/files/documents/grad/algebra-sept-2018.pdf) hosted [here](https://math.washington.edu/past-phd-preliminary-exams).
+
+Various resources were very helpful in learning and practicing enough Galois theory to solve this sort of problem.
+
+- My all time favorite book on Algebra is [Topics In Algebra](https://www.thriftbooks.com/w/topics-in-algebra_in-herstein/254351) by Herstein. There's not enough Galois theory in there for everything we need, but its style and entusiasm is very close to my ♥.
+- [Keith Conrad's Essays](https://kconrad.math.uconn.edu/blurbs/) on many, many subjects in algebra do have all we need. These are such a rich source of joy and information, I am very indebteed to Keith for providing these free resources. I'll cite particualr articles as we need them.
+- A free texbook that has also has everything we need is J.S. Milne's [Fields and Galois Theory](https://www.jmilne.org/math/CourseNotes/ft.html).
+- The [PARI](https://pari.math.u-bordeaux.fr/) computer algebra system is free [^as-in-freedom] software, and includes algorithms for computing splitting fields and Galois groups. This is free software and we'll use it to check our work.
+- The [Groupprops Wiki](https://groupprops.subwiki.org/wiki/Main_Page) and [Group Names database](https://people.maths.bris.ac.uk/~matyd/GroupNames) holds rich information about the structure and identity of finite groups. We'll make use of them to narrow down possible isomorphism classes of our Galois groups.
+
+Let's get started!
+
+
 ## Warming Up
-We'll begin by describing the splitting fields and Galois groups of the two factors.
+Let's begin by describing the splitting fields and Galois groups of the two factors $\pfour$ and $\pfive$. We'll need a lot of this information anyway, and this serves as a good place to review the fundamentals of Field Extensions and Galois Theory.
 
 ### The Galois Group of $\pfour$
-It's easy to enumerate the roots of $\pfour$: $ \pm \fourthroot,  \pm i \fourthroot $. Since the splitting field of $\pfour$ contains ratios of these roots, it contains the fourth root of unity $i$. Conversely, each of the four roots is a product of $\pm i$ and $\fourthroot$. It follows that the splitting field of $\pfour$ is $\Qfour$.
+It's easy to enumerate the roots of $\pfour$: $ \pm \fourthroot,  \pm i \fourthroot $. The the splitting field of $\pfour$ is the smallest extension field of $\Q$ containing all these roots, so it must contain any algebraic expression in them as well. In particualr, the splitting field contains ratios of these roots, so it contains the fourth root of unity $i = \frac{i \fourthroot}{\fourthroot}$. Conversely, each of the four roots is a product of $\pm i$ and $\fourthroot$. It follows that the splitting field of $\pfour$ is $\Qfour$.
 
-To compute the degree  $[\Qfour:\Q]$, observe that $\pfour$ is Eisenstein at $p = 5$, so irreducible. Adjoining a single root, it follow that $\Q(\fourthroot)$ is a degree four extension of $\Q$. This is a real [^real-subfields] field, so it does not yet contain $i$, and therefore:
+To compute the degree  $[\Qfour:\Q]$, observe that $\pfour$ is Eisenstein at $p = 5$, and so irreducible. Adjoining a single root, it follow that $\Q(\fourthroot)$ is a degree four extension of $\Q$. This is a real [^real-subfields] field, so it does not yet contain $i$, and therefore:
 
 $$[\Qfour:\Q(\fourthroot)] \neq 1$$
 
@@ -124,6 +145,39 @@ The isomorphism class of the Galois group of the extension $\Qfour / \Q$ is $D_8
 {% endcapture %}
 {% include result.html content=galios-group-fourth %}
 
+Let's check our work with PARI.
+
+```pari
+? P1 = x^4 - 5;        
+? K1 = nfsplitting(P1);
+? K1
+x^8 + 70*x^4 + 15625
+```
+
+This polynomial $x^8 + 70x^4 + 15625$ is an irreducible whose root(s) is a primitive element for $\Qfour / \Q$. In particular, this validates for us that our degree computation is correct. If we want to simply ask for the degree directly:
+
+```pari
+? poldegree(K1)
+8
+```
+
+PARI can also compute the Galois group:
+
+```pari
+? G1 = galoisinit(K1); 
+? galoisidentify(G1)   
+[8, 3]
+```
+
+This output `[8, 3]` refers to the *third* group of order *eight* in a standardized list of finite groups, and is called the GAP id. Checking out the [groups of order eight](https://groupprops.subwiki.org/wiki/Groups_of_order_8) in the wiki, the dihedral group $D_8$ is indeed the third one. Alternatively, sometimes PARI will give us a nice standard group name if we ask:
+
+```pari
+? galoisgetname(8, 3)       
+"D8"
+```
+
+But, as we get into more exotic groups later on, this will not be as reliable.
+
 ### The Galois Group of $\pfive$
 Much here is similar to our arguments in the previous section, so we speed up the pace a bit. 
 
@@ -161,6 +215,32 @@ The isomorphism class of the Galois group of the extension $\Qfive / \Q$ is $GA(
 {% endcapture %}
 {% include result.html content=galios-group-fifth %}
 
+Again, let's use PARI to check our results.
+
+```pari
+? P2 = x^5 - 7;        
+? K2 = nfsplitting(P2);
+? K2
+x^20 + 30625*x^10 + 7503125
+```
+
+So the splitting field is indeed of degree $20$ over $\Q$.
+
+```pari
+? G2 = galoisinit(K2);
+? galoisidentify(G2)  
+[20, 3]
+? galoisgetname(20, 3)
+"C5 : C4"
+```
+
+The `:` notation here is used by PARI to denote a [semi direct product](https://en.wikipedia.org/wiki/Semidirect_product), for which the usual mathematical notation is $\rtimes$. This concept will come up a few times in the future, so if the reader is not familiar, it will be a good idea to reserch this concept if they wish to follow to the end.
+
+Consulting again the [Groups Wiki](https://groupprops.subwiki.org/wiki/Groups_of_order_20) the group with GAP ID $3$ is indeed our $GA(1, 5)$. The connection between our notation and the semi-direct product is that, for all $n$:
+
+$$GA(1, n) \cong \Z / n\Z \rtimes (\Z / n\Z)^{\times} \cong \Z / n\Z \rtimes \Z / (n - 1)\Z $$
+
+Which is exactly what PARI was telling us.
 
 ## The Degree of $[K:\Q]$.
 We'll first attempt a direct attack on the degree of $K / \Q$ using some arithmetic facts about the degree of a composite extension. This won't quite work out directly, so we'll need to route around the obstruction using some knowledge of cyclotomic extensions.
@@ -179,7 +259,7 @@ $$ [KL:F] = \frac{[K:F][L:F]}{[K \cap L:F]}$$
 {% endcapture %}
 {% include proposition.html content=composite-degree name="The Degree of a Composite Extension" %}
 
-A proof of this proposition, and the sister proposition used later that characterizes the Galois groups of such extensions, is in [Keith Conrad's Blurb](https://kconrad.math.uconn.edu/blurbs/), [Galois Correspondence Theorems](https://kconrad.math.uconn.edu/blurbs/galoistheory/galoiscorrthms.pdf).
+A proof of this proposition, and the sister proposition used later that characterizes the Galois groups of such extensions, is in , [Galois Correspondence Theorems](https://kconrad.math.uconn.edu/blurbs/galoistheory/galoiscorrthms.pdf).
 
 In our case, this reads:
 
@@ -308,8 +388,21 @@ $$[K:\Q] = 5 \cdot 2 \cdot 8 = 80$$
 {% endcapture %}
 {% include result.html content=the-degree-is-eighty %}
 
+Let's check with PARI:
+
+```pari
+? K = polcompositum(K1, K2)[1];
+? K
+x^80 + 700*x^76 + 376750*x^72 + 122500*x^70 + 95130000*x^68 - 2979812500*x^66 + 801539465625*x^64 - 41334562500000*x^62 + 694191368806250*x^60 + 24292867276562500*x^58 - 1706422058500781250*x^56 + 47410076486609375000*x^54 - 561280887291911718750*x^52 - 5925051209411851562500*x^50 + 425738647346641890625000*x^48 - 10790892168628955468750000*x^46 + 183554573392784643847656250*x^44 - 2528010683248970014648437500*x^42 + 35972053699210446367470703125*x^40 - 768232793228539696401367187500*x^38 + 17153193885189412931541992187500*x^36 - 281775242580953170523974609375000*x^34 + 3907526182486440822706536865234375*x^32 - 52533236808938827424323339843750000*x^30 + 591352356366436736840804577636718750*x^28 - 4993722921805202339864712524414062500*x^26 + 35823431176257807213779829345703125000*x^24 - 255887448170399691060807519531250000000*x^22 + 1613583093853447936679328622680664062500*x^20 - 8107215087346077123489843444824218750000*x^18 + 37687261253933487304379112288665771484375*x^16 - 168768187761658568807417415466308593750000*x^14 + 599077440553741527979187232505798339843750*x^12 - 1503372877256505452119239327850341796875000*x^10 + 2484344289732659850787588464870452880859375*x^8 - 1891941353139473713527982845306396484375000*x^6 - 966628620840780845350436599540710449218750*x^4 + 1602009581825354991088548536300659179687500*x^2 + 967942349979812958711005584812164306640625
+? poldegree(K)
+80
+```
+
+That's some minimal polynomial! Anyway, looks like we got it right.
+
+
 ## The Galois Group of $K / \Q$
-With the degree $[K:\Q] = 80$ determined, let's turn to determining the Galois group $Gal(K / \Q)$. The same sorts of difficulties that prevented a direct calculation of the degree will be troublesome here, but let's give it a try anyway and see what we run into.
+With the degree $[K:\Q] = 80$ determined, let's turn to the Galois group $Gal(K / \Q)$. The same sorts of difficulties that prevented a direct calculation of the degree will be troublesome here, but let's give it a try anyway and see what we run into.
 
 ### The Galois Group of a Composite Extension
 Just as there is a formula for the degree of a composite extension, there is a description of the Galois group:
@@ -499,6 +592,17 @@ $$ G \cong (\Z / 2\Z \times \Z / 2 \Z) \rtimes GA(1, 5) $$
 {% endcapture %}
 {% include result.html content=isomorphism-class-of-G %}
 
+For a final time, we cross our finger and hope PARI validates our work.
+
+```pari
+? G = galoisinit(K);           
+? galoisidentify(G)            
+[80, 34]
+```
+
+The groups database also lists the GAP ID's of all our groups. We're happy to see that, yes, group $34$ is eactly the semidirect product $G \cong (\Z / 2\Z \times \Z / 2 \Z) \rtimes GA(1, 5)$.
+
+
 ### Identifying the Complementary Subgroups
 Wiser folk would stop here, but this is for recreation and there's more treasure to find. The semi-direct product structure informs us that $G$ contains two subgroups:
 
@@ -591,15 +695,23 @@ $$G \cong Gal(K / B) \rtimes Gal(K / C)$$
 
 And the isomorphism class of $Gal(K / C)$ follows:
 
-$$ Gal(K / C) \cong G / Gal(K / B) = Gal(K / \Q) / Gal(K / B) \cong Gal(B / \Q) \cong GA(1, 5) $$
+$$ 
+\begin{align*}
+Gal(K / C) &\cong G / Gal(K / B) \\
+&= Gal(K / \Q) / Gal(K / B) \\
+&\cong Gal(B / \Q) \\
+&\cong GA(1, 5) 
+\end{align*}
+$$
 
-Which gives us, finally, that:
+Which gives us, finally, an **internal** semi-directo product structure like:
 
 $$G \cong (\Zmodtwo \times \Zmodtwo) \rtimes GA(1, 5)$$
 
 Which was our very final goal.
 
 
+[^as-in-freedom]: Free as in **Free**dom.
 [^pentagons]: This is related to the constructability of a regular pentagon ⬠. We'll show that $\cos \left( \frac{2 \pi}{5} \right) = \frac{-1 + \sqrt{5}}{4}$.
 [^real-subfields]: A **real subfield** is definitionally fixed by complex conjugation. Adjoining a real number to $\Q$ always produces a real subfield, since a vector space basis of the extension over $\Q$ consists of powers of the adjoined element, which are all real numbers.
 [^alternative-eight]: Alternatively, we can count possibilities for where these two roots map. There are four possibilities for the image of $\fourthroot$ and two for $i$, so eight total, and we know the extension is Galois of degree eight, so every possibility must be achieved. We'll use this argument in the next section.

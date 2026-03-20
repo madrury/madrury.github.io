@@ -116,6 +116,22 @@ $on-laptop:        850px;
   float: right;
 }
 
+.footnotes {
+  margin-top: 2rem;
+}
+
+.footnotes::before {
+  content: "Footnotes";
+  font-style: italic;
+  font-size: 0.875rem;
+  display: block;
+  width: 80%;
+  border-top: 1px solid #999;
+  border-bottom: 1px solid #999;
+  text-align: center;
+  margin: 0 auto 1rem; 
+}
+
 mjx-container {
   display: inline !important;
 }
