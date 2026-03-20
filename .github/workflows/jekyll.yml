@@ -3,7 +3,7 @@ name: Build and deploy Jekyll site
 on:
   push:
     branches:
-      - main   # change to master if that's your default branch
+      - master
 
 permissions:
   contents: read
