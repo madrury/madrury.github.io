@@ -61,7 +61,7 @@ This horizontal line first meets the ROC curve at one of the lattice points, the
 
 Since the y-coordinate of a point on the ROC curve is the true positive rate at the threshold producing the point on the curve, the true positive rate at the green point is its y-coordinate
 
-$$ \text{false positive rate} = \frac{k}{\text{# positive classes}} $$
+$$ \text{false positive rate} = \frac{k}{\text{count of positive classes}} $$
 
 But the positive classes were layed down along the y-axis in order of decreasing score, so the *actual points* that are correctly classified to produce this true positive rate are the first $k$ points along the y-axis.  Consequently, the threshold corresponding to the green point on the ROC curve is the *minimal possible threshold* that classifies the orange point correctly (i.e. as a positive class).
 
