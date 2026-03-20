@@ -31,7 +31,7 @@
     .gt    { color: #a00 } // Generic.Traceback
     .kc    { font-weight: bold } // Keyword.Constant
     .kd    { font-weight: bold } // Keyword.Declaration
-    .kp    { font-weight: bold } // Keyword.Pseudo
+    .kp    { font-weight: bold; color: #000080 } // Keyword.Pseudo
     .kr    { font-weight: bold } // Keyword.Reserved
     .kt    { color: #458; font-weight: bold } // Keyword.Type
     .m     { color: #099 } // Literal.Number
