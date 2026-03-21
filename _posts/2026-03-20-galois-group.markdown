@@ -30,7 +30,7 @@ In this essay, we discuss a moderately involved example in Galois Theory.
 
 Galois theory studies the symmetries of polynomial equations. It offers the deepest and most general explantation of why there **are** formulas for the solutions of [quadratic equations](https://en.wikipedia.org/wiki/Quadratic_equation) (the quadratic formula), [cubic](https://en.wikipedia.org/wiki/Cubic_equation) and [quartic](https://en.wikipedia.org/wiki/Quartic_equation) equations (which are less well known, but do exist!), but then there are [**no more**](https://en.wikipedia.org/wiki/Abel%E2%80%93Ruffini_theorem)! It developed out of the ideas of two young men who died tragic early deaths and have become part of the mythology of mathematics, and that I personally admire: [Niels  Abel](https://en.wikipedia.org/wiki/Niels_Henrik_Abel) and [Évariste Galois](https://en.wikipedia.org/wiki/%C3%89variste_Galois).
 
-Galois theory also stands as a representative of what mathematicians consider an "ideal" theory. It serves as a rich thesaurus between two sub-domains of mathematics that are on the surface, not obviously connected. Galois theory allows jumping between two domains (Group theory and Field theory), applying results in one domain to their reflection in another.
+Galois theory also stands as a representative of what mathematicians consider an "ideal" theory. It serves as a rich thesaurus between two sub-domains of mathematics that are on the surface, not obviously connected. Galois theory allows jumping between two domains (Group theory and Field theory), applying results in one domain to their reflection in another. This, modern, form of the theory is due to [Emil Artin](https://en.wikipedia.org/wiki/Emil_Artin).
 
 ### Problem Description
 Our main result is:
