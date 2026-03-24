@@ -79,7 +79,7 @@ Various resources were very helpful in learning and practicing enough Galois the
 - My all time favorite book on Algebra is [Topics In Algebra](https://www.thriftbooks.com/w/topics-in-algebra_in-herstein/254351) by Herstein. There's not enough Galois theory in there for everything we need, but its style and enthusiasm is very close to my ♥.
 - [Keith Conrad's Essays](https://kconrad.math.uconn.edu/blurbs/) on many, many subjects in algebra do have all we need. These are such a rich source of joy and information, I am very indebted to Keith for providing these free resources. I'll cite particular articles as we need them.
 - A free textbook that also has everything we need is J.S. Milne's [Fields and Galois Theory](https://www.jmilne.org/math/CourseNotes/ft.html).
-- The [PARI](https://pari.math.u-bordeaux.fr/) computer algebra system is free [^as-in-freedom] software, and includes algorithms for computing splitting fields and Galois groups. This is free software and we'll use it to check our work.
+- The [PARI](https://pari.math.u-bordeaux.fr/) computer algebra system is free [^as-in-freedom] software, and includes algorithms for computing splitting fields and Galois groups. We'll use PARI to check our work.
 - The [Groupprops Wiki](https://groupprops.subwiki.org/wiki/Main_Page) and [Group Names database](https://people.maths.bris.ac.uk/~matyd/GroupNames) holds rich information about the structure and identity of finite groups. We'll make use of them to narrow down possible isomorphism classes of our Galois groups.
 
 Let's get started!
@@ -265,7 +265,7 @@ $$ [KL:F] = \frac{[K:F][L:F]}{[K \cap L:F]}$$
 {% endcapture %}
 {% include proposition.html content=composite-degree name="The Degree of a Composite Extension" %}
 
-A proof of this proposition, and the sister proposition used later that characterizes the Galois groups of such extensions, is in , [Galois Correspondence Theorems](https://kconrad.math.uconn.edu/blurbs/galoistheory/galoiscorrthms.pdf).
+A proof of this proposition, and the sister proposition used later that characterizes the Galois groups of such extensions, is in [Galois Correspondence Theorems](https://kconrad.math.uconn.edu/blurbs/galoistheory/galoiscorrthms.pdf).
 
 In our case, this reads:
 
