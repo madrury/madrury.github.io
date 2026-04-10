@@ -11,7 +11,7 @@ $$
 $$
 </div>
 
-Danger always stalks the data analyst: whereas a software engineer's code may fail to compile or pass unit tests, the data analyst's work is silent about its incorrectness. It's rare for the conclusions of an analysis of observational data to be falsifyable. This post is about a data analytic error that I've encountered a few times in my career.
+Danger always stalks the data analyst: whereas a software engineer's code may fail to compile or pass unit tests, the data analyst's work is silent about its incorrectness. It's rare for the conclusions of an analysis of observational data to be falsifiable. This post is about a data analytic error that I've encountered a few times in my career.
 
 ## Setup
 Imagine a world with two nations:
@@ -21,7 +21,7 @@ Imagine a world with two nations:
 
 The nations exist in peaceful times, long after the forests have subsided and the earth cleansed of the residual toxins of war. The world has healthy culture of travel and trade. 
 
-We are employed as a data analyst at a currency trading firm, our job is to support Tourmekians seeking to purchase ₩ with ₮, and Valleyers seeeking to purchase ₮ with ₩. We look at plots like this, the exchange rate from ₮ to ₩, all days of our working life [^currency-symbols]:
+We are employed as a data analyst at a currency trading firm, our job is to support Tourmekians seeking to purchase ₩ with ₮, and Valleyers seeking to purchase ₮ with ₩. We look at plots like this, the exchange rate from ₮ to ₩, all days of our working life [^currency-symbols]:
 
 ![Exhange Rate Series]({{ site.url }}/img/mrts-exhange-rate.png){: .center-img}
 
@@ -33,9 +33,9 @@ Being a responsible business that would never, ever cut corners on data engineer
 
 We can inspect our hypothesis by scattering the day-over-day change in transaction volume against the change in exchange rate. There is a clear association:
 
-![Change in Exhange Rate Against Change in Transaction Volume]({{ site.url }}/img/mrts-scatter-plot.png){: .center-img}
+![Change in Exchange Rate Against Change in Transaction Volume]({{ site.url }}/img/mrts-scatter-plot.png){: .center-img}
 
-It's simple to validate this non-visually, the mean change in volume is positive when the exchange rate increases, and negative when it decreases. Deamnd goes up and down in synchronization with the exchange rate. The effect is symmetric, or close enough to believe that it is:
+It's simple to validate this non-visually, the mean change in volume is positive when the exchange rate increases, and negative when it decreases. Demand goes up and down in synchronization with the exchange rate. The effect is symmetric, or close enough to believe that it is:
 
 ```python
 up = df["y"].diff().filter(df["Δfx"] > 0).mean()
@@ -47,7 +47,7 @@ print(f"mean(Δy) where Δfx < 0: {down:2.2f}")
 # mean(Δy) where Δfx < 0: -10.62
 ```
 
-This is a nice result! Our curiositiy has been rewarded, and we've made a useful discovery about our customer dynamics. **We're wrong**.
+This is a nice result! Our curiosity has been rewarded, and we've made a useful discovery about our customer dynamics. **We're wrong**.
 
 {% capture sin %}
 自分の 罪深さに おののきます
@@ -60,7 +60,7 @@ Here is a different simulation of the transaction volume series:
 
 ![Transaction Volume Series]({{ site.url }}/img/mrts-volume-symmetric.png){: .center-img}
 
-This series looks structually identical to previous one to the untrained eye, any observer would be forgiven to alloacate the slight differences to noise. In support, the summary statistics of this new series are very simlar to the previous:
+This series looks structurally identical to previous one to the untrained eye, any observer would be forgiven to allocate the slight differences to noise. In support, the summary statistics of this new series are very similar to the previous:
 
 ```python
 up = df["y_new"].diff().filter(df["Δfx"] > 0).mean()
@@ -94,7 +94,7 @@ This is much easier to see if we plot the **true** trendline (i.e. the $a + b t$
 
 In the first series, the observed transaction volume mostly stays above the true trendline, any dips below are due to the  noise term $\epsilon$. The second series moves around the trendline symmetrically.
 
-So why, in the first case of only upwards effects, does our data alalysis detect an association? Our finding is due to **mean reversion**: when the exchange rate decreases customer bahaviour reverts to its baseline state of a random perturbation around the true trendline. When such an observation follows one where the exchange rate moved upwards (which happens about half the time) this results in (most likely) a downwards move from its elevated state back towards the trendline. So, on average, a fall in exchange rate is simultaneous with a fall in tarnsaction rate. 
+So why, in the first case of only upwards effects, does our data analysis detect an association? Our finding is due to **mean reversion**: when the exchange rate decreases customer behaviour reverts to its baseline state of a random perturbation around the true trendline. When such an observation follows one where the exchange rate moved upwards (which happens about half the time) this results in (most likely) a downwards move from its elevated state back towards the trendline. So, on average, a fall in exchange rate is simultaneous with a fall in transaction rate. 
 
 ## Capturing the True Effect
 Asymmetric effect are common in practice, and are worth considering whenever analysing a response to some stimuli that may be positive or negative.
@@ -157,6 +157,6 @@ Insidiously, with the wrong model we draw **two** incorrect conclusions: we infe
 
 [^currency-symbols]: In the world of non-fiction: ₮ is the Mongolian tögrög and ₩ is the Korean won.
 [^translation]: [Source](https://www.reddit.com/r/Nausicaa/comments/4f3nyt/i_shudder_at_the_depth_of_my_sin/).
-[^in-reality]: Of course, in reality, we'd never have **both** of these to comapare, the world is what it is and all we get to see is one of them.
+[^in-reality]: Of course, in reality, we'd never have **both** of these to compare, the world is what it is and all we get to see is one of them.
 
 
