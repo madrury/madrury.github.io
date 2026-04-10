@@ -59,6 +59,10 @@ $on-laptop:        850px;
   padding: 0.75em 1em;
 }
 
+.display {
+   display: flex; justify-content: center; align-items: center; 
+}
+
 .theorem-label, .lemma-label, .proposition-label {
   color: #4a90d9;
   font-weight: bold;
