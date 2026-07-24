@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Mean Reverting Time Series and Subtle Mistakes"
+title:  "Mean Reverting Time Series and Spurious Assocation"
 date:   2026-04-08
 categories: jekyll update mathematics
 ---
@@ -11,7 +11,7 @@ $$
 $$
 </div>
 
-Danger always stalks the data analyst: whereas a software engineer's code may fail to compile or pass unit tests, the data analyst's work is silent about its incorrectness. It's rare for the conclusions of an analysis of observational data to be falsifiable. This post is about a data analytic error that I've encountered a few times in my career.
+Danger always stalks the data analyst: whereas a software engineer's code may fail to compile or pass unit tests, the data analyst's work is silent about its incorrectness. It's rare for the conclusions of an analysis of observational data to be directly falsifiable. This post is about a data analytic error that I've encountered a few times in my career.
 
 ## Setup
 Imagine a world with two nations:
@@ -158,5 +158,3 @@ Insidiously, with the wrong model we draw **two** incorrect conclusions: we infe
 [^currency-symbols]: In the world of non-fiction: ₮ is the Mongolian tögrög and ₩ is the Korean won.
 [^translation]: [Source](https://www.reddit.com/r/Nausicaa/comments/4f3nyt/i_shudder_at_the_depth_of_my_sin/).
 [^in-reality]: Of course, in reality, we'd never have **both** of these to compare, the world is what it is and all we get to see is one of them.
-
-
