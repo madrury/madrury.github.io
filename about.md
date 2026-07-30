@@ -3,6 +3,6 @@ layout: page
 title: About
 permalink: /about/
 ---
-This is a place for hosting my essays on mathematics, statistics, machine learning, and computer programming. 
+This is a place for hosting Matt's essays on mathematics, statistics, machine learning, and computer programming. 
 
-The author is from Seattle, Washington.
+Matt is from Seattle, Washington. He lives with his partner and dogs Tomo and Benji.
