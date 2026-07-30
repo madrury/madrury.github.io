@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "All of Nothing is True"
-date:   2026-07-28
+date:   2026-07-30
 categories: jekyll update programming
 ---
 
