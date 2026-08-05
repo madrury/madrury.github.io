@@ -282,41 +282,41 @@ Our only other option is to abandon the universality of the compatibility equati
 ## A Sneaky Point
 A skeptical person may have noticed an assumption I [snuck](https://www.youtube.com/watch?v=PJVNzwTnfbk) in the argument without any consideration. Yes, we'd like the compatibility equation to hold for *all* boolean lists, but does the empty list count? There's nothing in an empty list, so what right do we have to claim that it's a `list[bool]`.
 
-This is a fair objection, and you can probably make it thought life just find holding this position, but I think you'd be worse off for it. Generally, it's good style to make definitions, arguments, and conclusions as general as possible, even when doing so requires a touch of the unnatural. In this case, it may be off-putting, but it's a good idea to consider `[]` as a member of *all* list types. I.e., `[] ∈ list[T]` for *any* type `T`.
+This is a fair objection, and you can probably make it through life just fine holding this position, but I think you'd be worse off for it. Generally, it's good style to make definitions, arguments, and conclusions as general as possible, even when doing so requires a touch of the unnatural. In this case, it may be off-putting, but it's a good idea to consider `[]` as a member of *all* list types. I.e., `[] ∈ list[T]` for *any* type `T`.
 
-One way to find comfort with this position is to consider another important function on lists, the `head` function. This function is not built in to Python, but it would be easy enough to write. It takes a list of a certain length, and removes the final element, returning the bit in front:
+One way to find comfort with this position is to consider another important function on lists, the `tail` function. This function is not built in to Python, but it would be easy enough to write. It takes a list of a certain length, and removes the first element, returning the rest:
 
 ```python
-> head([True, False, True, False])
-[True, False, True]
-> head([1, 2, 3, 4, 5])
-[1, 2, 3, 4]
+> tail([True, False, True, False])
+[False, True, False]
+> tail([1, 2, 3, 4, 5])
+[2, 3, 4, 5]
 ```
 
-How would we annotate such a function? The type of data in the list doesn't matter, `head` is generic, so we'd go like this:
+How would we annotate such a function? The type of data in the list doesn't matter, `tail` is generic, so we'd go like this:
 
 ```python
 # A generic type...
 T = TypeVar['T']
 # Returns a list containing the same datatype.
-def head(xs: list[T]) -> list[T]
+def tail(xs: list[T]) -> list[T]
 ```
 
-Alright, you likely see where this is going, what if we pass in a singleton list to `head`?
+Alright, you likely see where this is going, what if we pass in a singleton list to `tail`?
 
 ```python
-> head([True])
+> tail([True])
 []
-> head([154])
+> tail([154])
 []
 ```
 
 We, of course, get out an empty list. But according to our annotation, this should have the same datatype as we started with, `list[bool]` in the first example and `list[int]` in the second. So the empty list is a member of both types according to our annotation.
 
-There's nothing forcing us to annotate `head` as such, we could instead introduce an `EmptyList` type that contains only one value, and:
+There's nothing forcing us to annotate `tail` as such, we could instead introduce an `EmptyList` type that contains only one value, and:
 
 ```python
-def head(xs: list[T]) -> list[T] | EmptyList
+def tail(xs: list[T]) -> list[T] | EmptyList
 ```
 
 But like, yuck, why? Things work better when there's less exceptional cases, so it's preferred to consider an empty list as very generically typed.
