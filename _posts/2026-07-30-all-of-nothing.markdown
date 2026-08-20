@@ -18,7 +18,7 @@ $$
   .square-svg line { stroke: #1a1a1a; }
 </style>
 
-The `all` and `any` functions are present in many programming languages, in the case of this essay, our examples will be given in Python. These functions are well named:
+The `all` and `any` functions are present in many programming languages, in the case of this essay, our examples will be given in Python.
 
 ```python
 # Are ALL the values truthy?
