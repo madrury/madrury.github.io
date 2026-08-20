@@ -149,7 +149,7 @@ The empty list `[]` has an important role to play in relation to concatenation. 
 It's very important that this works for *any list whatsoever*, so that we can express this property as equations including a generic list `bs`:
 
 ```python
-# For any list xs whatsoever...
+# For any boolean list bs whatsoever...
 bs: list[bool]
 ## ...both of these equations hold.
 [] + bs == bs
@@ -188,7 +188,7 @@ So, again, we can express this as an equation involving a generic boolean `b`:
 
 ```python
 # For any boolean b whatsoever...
-bs: list[bool]
+b: list[bool]
 ## ...both of these equations hold.
 True and b == b
 b and True == b
