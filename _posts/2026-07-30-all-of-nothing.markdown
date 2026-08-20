@@ -57,7 +57,7 @@ But this?
 All of the following are true:
 ```
 
-That seems incomplete, we suspect the author wandered off to get some coffee. So we expect that `all([])` should produce an error, but it doesn't, it's `True`.
+That seems incomplete, we suspect the author wandered off to get some coffee. Maybe we expect that `all([])` should produce an error, but it doesn't, it's `True`.
 
 So, here we attempt to answer why the Python developers chose for all of nothing to evaluate as `True`. We'll use this question to introduce a style of algebraic reasoning common in modern mathematics.
 
