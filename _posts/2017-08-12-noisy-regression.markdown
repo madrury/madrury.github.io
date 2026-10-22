@@ -16,7 +16,7 @@ Ridge penalization is a popular and well studied method for reducing the varianc
   - As a penalized optimization problem.
   - As a constrained optimization problem.
   - As a maximum a-posteriori estimate in Bayesian linear regression.
-  - As a linear regression on an augmented data set augmented with "fake" observations.
+  - As a linear regression on a data set augmented with "fake" observations.
   
 In this post we will describe another, less common, characterization of ridge regression.
 
@@ -50,14 +50,14 @@ In the standard description, ridge regression is described as a penalized optimi
 
 $$ \hat \beta = \operatorname{argmin}_\beta \left( \left| y - X \beta \right|^2 + \lambda \left| \beta \right|^2 \right) $$
 
-The parameter $$\lambda$$ controls the severity of the variance reduction: larger values attenuate the linear regression line more, and result in more biased but lower variance estimates.
+The parameter $$\lambda$$ controls the severity of the variance reduction: larger values attenuate the regression line more, and result in more biased but lower variance estimates.
 
 ![Regression Data With Ridge Lines]({{ site.url }}/img/amrnirr-regression-data-w-ridge-lines.png){: .center-img }
 
 ## Applying Multiplicative Noise to Regression Predictors
 Suppose we have available an unlimited number of independent and identically distributed Gaussian random variables with mean one and standard deviation $$\sigma$$:
 
-$$ \epsilon_{ij} \sim N(1, \sigma^2) \\ i, j = 1, 2, \ldots $$
+$$ \epsilon_{ij} \sim N(1, \sigma^2) \quad i, j = 1, 2, \ldots $$
 
 If $$X$$ is the matrix containing feature values, we say we have **applied multiplicative random noise to X** when we replace $$X$$ with:
 
