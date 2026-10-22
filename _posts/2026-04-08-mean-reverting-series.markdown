@@ -2,7 +2,9 @@
 layout: post
 title:  "Mean Reverting Time Series and Spurious Assocation"
 date:   2026-04-08
-categories: jekyll update mathematics
+categories: mathematics
+redirect_from:
+  - /jekyll/update/mathematics/2026/04/08/mean-reverting-series.html
 ---
 
 <div style="display:none">

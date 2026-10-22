@@ -189,6 +189,10 @@
 .post-meta {
     font-size: $small-font-size;
     color: $grey-color;
+}
+
+// On the front page, the date is a fixed width column beside the title.
+.post-list .post-meta {
     width: 90px;
     display: inline-block;
 }

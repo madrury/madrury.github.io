@@ -2,7 +2,9 @@
 layout: post
 title:  "The Galois Group of $(x^5 - 7)(x^4 - 5)$"
 date:   2026-03-19
-categories: jekyll update mathematics
+categories: mathematics
+redirect_from:
+  - /jekyll/update/mathematics/2026/03/19/galois-group.html
 ---
 
 <div style="display:none">

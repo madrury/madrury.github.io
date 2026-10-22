@@ -2,7 +2,9 @@
 layout: post
 title:  "Writing a C Extension Module for Python"
 date:   2016-06-20 08:52:55 -0700
-categories: jekyll update programming
+categories: programming
+redirect_from:
+  - /jekyll/update/programming/2016/06/20/python-extension-modules.html
 ---
 
 I like to solve [project euler](https://projecteuler.net/) problems using python.  Over time, I've built up a small library of helper routines that are useful for many different problems.  Since these routines get used so often, it pays to make them as efficient as possible.

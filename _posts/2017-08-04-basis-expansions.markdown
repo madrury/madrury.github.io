@@ -2,7 +2,9 @@
 layout: post
 title:  "A Comparison of Basis Expansions in Regression"
 date:   2017-08-04
-categories: jekyll update statistics
+categories: statistics
+redirect_from:
+  - /jekyll/update/statistics/2017/08/04/basis-expansions.html
 ---
 
 Beginners in machine learning often write off regression methods after learning of more exotic algorithms like Boosting, Random Forests, and Support Vector machines; why bother with a *linear* method when powerful non-parametric methods are readily available?

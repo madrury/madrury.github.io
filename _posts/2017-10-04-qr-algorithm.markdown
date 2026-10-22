@@ -2,10 +2,12 @@
 layout: post
 title:  "How Does A Computer Calculate Eigenvalues?"
 date:   2017-10-04
-categories: jekyll update statistics
+categories: statistics
+redirect_from:
+  - /jekyll/update/statistics/2017/10/04/qr-algorithm.html
 ---
 
-The two most practically important problems in computational mathematics are solving systems of linear equations, and computing the eigenvalues and eigenvectors of a matrix.  We've already discussed a method for solving linear equations in [A Deep Dive Into How R Fits a Linear Model](http://madrury.github.io/jekyll/update/statistics/2016/07/20/lm-in-R.html), so for this post I thought we should complete the circle with a discussion of methods which compute eigenvalues and eigenvectors.
+The two most practically important problems in computational mathematics are solving systems of linear equations, and computing the eigenvalues and eigenvectors of a matrix.  We've already discussed a method for solving linear equations in [A Deep Dive Into How R Fits a Linear Model](http://madrury.github.io/lm-in-R/), so for this post I thought we should complete the circle with a discussion of methods which compute eigenvalues and eigenvectors.
 
 The reader familiar with a standard linear algebra curriculum may wonder why this question is even interesting, all that must be done is to compute the characteristic equation of the matrix, then compute its roots.  While this is the textbook method, it is a poor method for numerical computation, because
 

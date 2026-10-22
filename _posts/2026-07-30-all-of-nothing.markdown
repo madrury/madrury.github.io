@@ -2,7 +2,9 @@
 layout: post
 title:  "All of Nothing is True"
 date:   2026-07-30
-categories: jekyll update programming
+categories: programming
+redirect_from:
+  - /jekyll/update/programming/2026/07/30/all-of-nothing.html
 ---
 
 <div style="display:none">

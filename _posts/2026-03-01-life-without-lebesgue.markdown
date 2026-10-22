@@ -2,7 +2,9 @@
 layout: post
 title:  "Life Without Lebesgue"
 date:   2026-03-01
-categories: jekyll update mathematics
+categories: mathematics
+redirect_from:
+  - /jekyll/update/mathematics/2026/03/01/life-without-lebesgue.html
 ---
 We show that:
 
