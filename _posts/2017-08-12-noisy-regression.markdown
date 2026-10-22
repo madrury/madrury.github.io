@@ -84,13 +84,13 @@ In the plot below, the original data set is plotted in black, and the dispersed 
 Of course, when applying random noise to data, one expects to get a different result each time.  In our case, each time we fit a regression line to a different version of our noisy data, we expect to get a slightly different line. We would like to get a stable result out of this process, and there are a couple options:
 
   - We could *average together* all of our estimated regression lines. We call this average line taken over many random dispersions of the same data set the **averaged regression line with noise $$\sigma$$**.
-  - We could repeat the process of applying multiplicative noise multiple times, concatenate the resulting datasets, and then fit a single regression line to the inflated data. We call this single regression line fit to noisily replicated data the **noise-augmented regression line with noise $$\sigma$$**.
+  - We could repeat the process of applying multiplicative noise multiple times, *concatenate together* the resulting datasets, and then fit a single regression line to the longer data. We call this single regression line fit to noisily replicated data the **noise-augmented regression line with noise $$\sigma$$**.
 
-Below we repeat the process of applying noise and fitting a regression many times, and plot each resulting regression line. The result is a bundle of regression lines, and averaging these would produce the averaged regression line:
+Below we repeat the process of applying noise and fitting a regression many times, and plot each resulting regression line. The result is a bundle of regression lines, and averaging these would produce the **averaged regression line**:
 
 ![Bundles of Dispersed Regression Lines]({{ site.url }}/img/amrnirr-dispersed-regression-lines-bundle.png){: .center-img }
 
-The noise-augmented regression line instead concatenates multiple copies of data after applying the noise repeatedly and independently, and then fits a single regression line:
+The **noise-augmented regression** line instead concatenates multiple copies of data after applying the noise repeatedly and independently, and then fits a single regression line:
 
 ![Single Regression Line Fit To Concatenated Data]({{ site.url }}/img/amrnirr-noise-augmented-regression-lines.png){: .center-img }
 
@@ -243,7 +243,6 @@ We mentioned earlier that the difference is small, and is only observable when y
 The gap is small, and shrinks as the data set grows. This can be analyzed, a second order expansion of the expectation shows that the difference between the averaged and ridge slopes shrinks like $$1/N$$. A detailed analysis of the difference in these estimators takes us far from our original goal, which was only to demonstrate the equivalence of ridge to the noise-augmented line. We'll leave a more thorough elaboration for another day.
 
 This observation and I go way back, I first encountered essentially the exact same point many years ago in a different context: [Is the true linear regressor equal to the average linear regressor?](https://stats.stackexchange.com/q/148209/74500)[^first-question]. Years later, I'm very confident that the answer to my question is **no**.
-
 
 [^convergence-of-minimizers]: Strictly, the law of large numbers only tells us the average converges to the expectation for each fixed $$\beta$$, and we need the *minimizers* to converge too. Here that takes just a little more effort: the averaged objective is quadratic in $$\beta$$, with coefficients like $$\frac{1}{K} \sum_i (g_i \ast X)^t (g_i \ast X)$$ that are themselves sample means. Those converge to their expectations, and so the minimizer converges to the minimizer of the expected objective.
 
