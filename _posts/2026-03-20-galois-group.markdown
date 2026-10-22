@@ -30,7 +30,7 @@ $$
 
 In this essay, we discuss a moderately involved example in Galois Theory. 
 
-Galois theory studies the symmetries of polynomial equations. It offers the deepest and most general explantation of why there **are** formulas for the solutions of [quadratic equations](https://en.wikipedia.org/wiki/Quadratic_equation) (the quadratic formula), [cubic](https://en.wikipedia.org/wiki/Cubic_equation) and [quartic](https://en.wikipedia.org/wiki/Quartic_equation) equations (which are less well known, but do exist!), but then there are [**no more**](https://en.wikipedia.org/wiki/Abel%E2%80%93Ruffini_theorem)! It developed out of the ideas of two young men who died tragic early deaths and have become part of the mythology of mathematics, and that I personally admire: [Niels  Abel](https://en.wikipedia.org/wiki/Niels_Henrik_Abel) and [Évariste Galois](https://en.wikipedia.org/wiki/%C3%89variste_Galois).
+Galois theory studies the symmetries of polynomial equations. It offers the deepest and most general explanation of why there **are** formulas for the solutions of [quadratic equations](https://en.wikipedia.org/wiki/Quadratic_equation) (the quadratic formula), [cubic](https://en.wikipedia.org/wiki/Cubic_equation) and [quartic](https://en.wikipedia.org/wiki/Quartic_equation) equations (which are less well known, but do exist!), but then there are [**no more**](https://en.wikipedia.org/wiki/Abel%E2%80%93Ruffini_theorem)! It developed out of the ideas of two young men who died tragic early deaths and have become part of the mythology of mathematics, and that I personally admire: [Niels Abel](https://en.wikipedia.org/wiki/Niels_Henrik_Abel) and [Évariste Galois](https://en.wikipedia.org/wiki/%C3%89variste_Galois).
 
 Galois theory also stands as a representative of what mathematicians consider an "ideal" theory. It serves as a rich thesaurus between two sub-domains of mathematics that are on the surface, not obviously connected. Galois theory allows jumping between two domains (Group theory and Field theory), applying results in one domain to their reflection in another. This, modern, form of the theory is due to [Emil Artin](https://en.wikipedia.org/wiki/Emil_Artin).
 
@@ -42,7 +42,7 @@ Let $K$ denote the splitting field of the polynomial $p(x) = (x^5 - 7)(x^4 - 5)$
 
 $$[K:\Q] = 80$$
 
-The Galois group $G$ fits into two exact sequences. The first does not split, so does not induce a semi-direct product structure, but arises naturally from the two factors of $f$: 
+The Galois group $G$ fits into two exact sequences. The first does not split, so does not induce a semi-direct product structure, but arises naturally from the two factors of $p$: 
 
 $$ 0 \rightarrow \Zmodtwo \times \Zmodtwo \times D_{10} \rightarrow G \rightarrow \Zmodtwo \rightarrow 0$$
 
@@ -78,11 +78,11 @@ This is, of course, a much simpler problem than what we're getting up to here. Y
 
 Various resources were very helpful in learning and practicing enough Galois theory to solve this sort of problem.
 
-- My all time favorite book on Algebra is [Topics In Algebra](https://www.thriftbooks.com/w/topics-in-algebra_in-herstein/254351) by Herstein. There's not enough Galois theory in there for everything we need, but its style and enthusiasm is very close to my ♥.
+- My all time favorite book on Algebra is [Topics In Algebra](https://www.thriftbooks.com/w/topics-in-algebra_in-herstein/254351) by Herstein. There's not enough Galois theory in there for everything we need, but its style and enthusiasm are very close to my ♥.
 - [Keith Conrad's Essays](https://kconrad.math.uconn.edu/blurbs/) on many, many subjects in algebra do have all we need. These are such a rich source of joy and information, I am very indebted to Keith for providing these free resources. I'll cite particular articles as we need them.
 - A free textbook that also has everything we need is J.S. Milne's [Fields and Galois Theory](https://www.jmilne.org/math/CourseNotes/ft.html).
 - The [PARI](https://pari.math.u-bordeaux.fr/) computer algebra system is free [^as-in-freedom] software, and includes algorithms for computing splitting fields and Galois groups. We'll use PARI to check our work.
-- The [Groupprops Wiki](https://groupprops.subwiki.org/wiki/Main_Page) and [Group Names database](https://people.maths.bris.ac.uk/~matyd/GroupNames) holds rich information about the structure and identity of finite groups. We'll make use of them to narrow down possible isomorphism classes of our Galois groups.
+- The [Groupprops Wiki](https://groupprops.subwiki.org/wiki/Main_Page) and [Group Names database](https://people.maths.bris.ac.uk/~matyd/GroupNames) hold rich information about the structure and identity of finite groups. We'll make use of them to narrow down possible isomorphism classes of our Galois groups.
 
 Let's get started!
 
@@ -91,9 +91,9 @@ Let's get started!
 Let's begin by describing the splitting fields and Galois groups of the two factors $\pfour$ and $\pfive$. We'll need a lot of this information anyway, and this serves as a good place to review the fundamentals of Field Extensions and Galois Theory.
 
 ### The Galois Group of $\pfour$
-It's easy to enumerate the roots of $\pfour$: $ \pm \fourthroot,  \pm i \fourthroot $. The the splitting field of $\pfour$ is the smallest extension field of $\Q$ containing all these roots, so it must contain any algebraic expression in them as well. In particualr, the splitting field contains ratios of these roots, so it contains the fourth root of unity $i = \frac{i \fourthroot}{\fourthroot}$. Conversely, each of the four roots is a product of $\pm i$ and $\fourthroot$. It follows that the splitting field of $\pfour$ is $\Qfour$.
+It's easy to enumerate the roots of $\pfour$: $ \pm \fourthroot,  \pm i \fourthroot $. The splitting field of $\pfour$ is the smallest extension field of $\Q$ containing all these roots, so it must contain any algebraic expression in them as well. In particular, the splitting field contains ratios of these roots, so it contains the fourth root of unity $i = \frac{i \fourthroot}{\fourthroot}$. Conversely, each of the four roots is a product of $\pm i$ and $\fourthroot$. It follows that the splitting field of $\pfour$ is $\Qfour$.
 
-To compute the degree  $[\Qfour:\Q]$, observe that $\pfour$ is Eisenstein at $p = 5$, and so irreducible. Adjoining a single root, it follow that $\Q(\fourthroot)$ is a degree four extension of $\Q$. This is a real [^real-subfields] field, so it does not yet contain $i$, and therefore:
+To compute the degree  $[\Qfour:\Q]$, observe that $\pfour$ is Eisenstein at $p = 5$, and so irreducible. Adjoining a single root, it follows that $\Q(\fourthroot)$ is a degree four extension of $\Q$. This is a real [^real-subfields] field, so it does not yet contain $i$, and therefore:
 
 $$[\Qfour:\Q(\fourthroot)] \neq 1$$
 
@@ -116,9 +116,9 @@ Now we compute the Galois group of the extension $\Qfour / \Q$. Since $\pfour$ i
 
 $$ \alpha: \fourthroot \mapsto i \fourthroot $$
 
-Additionally, complex conjugation is an automorphism of any **normal** extension (i.e., any extension that's a **splitting field**). We'll denote the complex conjugation automorphism by $\beta$.
+Additionally, complex conjugation restricts to an automorphism of any **normal** extension of $\Q$ inside the complex numbers (i.e., any such extension that's a **splitting field**). We'll denote the complex conjugation automorphism by $\beta$.
 
-Now, $\alpha$ must map $i$ to a root of its minimal polynomial $x^2 + 1$, so to $\pm i$. If we have chosen an automorphism $\alpha$ that maps $i \mapsto -i$, then we may as well replace our choice with $\beta \alpha$ instead, which has the benefit of fixing $i$. That's all to say, we may assume $\alpha(i) = i$ [^alternative-eight].
+Now, $\alpha$ must map $i$ to a root of its minimal polynomial $x^2 + 1$, so to $\pm i$. If we have chosen an automorphism $\alpha$ that maps $i \mapsto -i$, then we may as well replace our choice with $\alpha \beta$ instead, which still maps $\fourthroot \mapsto i \fourthroot$, and has the benefit of fixing $i$. That's all to say, we may assume $\alpha(i) = i$ [^alternative-eight].
 
 We have now the eight distinct (since they act distinctly on the two values $\fourthroot$ and $i$) automorphisms:
 
@@ -162,7 +162,7 @@ Let's check our work with PARI.
 x^8 + 70*x^4 + 15625
 ```
 
-This polynomial $x^8 + 70x^4 + 15625$ is an irreducible whose root(s) is a primitive element for $\Qfour / \Q$. In particular, this validates for us that our degree computation is correct. If we want to simply ask for the degree directly:
+This polynomial $x^8 + 70x^4 + 15625$ is an irreducible polynomial whose roots are primitive elements for $\Qfour / \Q$. In particular, this validates for us that our degree computation is correct. If we want to simply ask for the degree directly:
 
 ```pari
 ? poldegree(K1)
@@ -208,7 +208,7 @@ The splitting field of $\pfive$ is $\Qfive$. Its degree over the rationals is $$
 {% endcapture %}
 {% include result.html content=splitting-field-fifth %}
 
-Now for the Galois group. In the same manner as before, it acts transitively on the roots of the polynomials $\pfive$ and $\phi_5(x) = x^4 + x^3 + x^2 + x + 1$ [^minimial-polynomial]. So, under any automorphism, $\fifthroot$ has five possible images, and $\roufive$ has four; the pair has $5 \cdot 4 = 20$ possible images. This pair of images determines an automorphism uniquely, and there are in total $20$ automorphisms (the degree of the extension), so each of pair of images must occur.
+Now for the Galois group. In the same manner as before, it acts transitively on the roots of the polynomials $\pfive$ and $\phi_5(x) = x^4 + x^3 + x^2 + x + 1$ [^minimial-polynomial]. So, under any automorphism, $\fifthroot$ has five possible images, and $\roufive$ has four; the pair has $5 \cdot 4 = 20$ possible images. This pair of images determines an automorphism uniquely, and there are in total $20$ automorphisms (the degree of the extension), so each pair of images must occur.
 
 To identify the isomorphism class of the Galois group, we pick two specific automorphisms in a similar manner to the last section.
 
@@ -242,11 +242,11 @@ So the splitting field is indeed of degree $20$ over $\Q$.
 "C5 : C4"
 ```
 
-The `:` notation here is used by PARI to denote a [semi direct product](https://en.wikipedia.org/wiki/Semidirect_product), for which the usual mathematical notation is $\rtimes$. This concept will come up a few times in the future, so if the reader is not familiar, it will be a good idea to research this concept if they wish to follow to the end.
+The `:` notation here is used by PARI to denote a [semi-direct product](https://en.wikipedia.org/wiki/Semidirect_product), for which the usual mathematical notation is $\rtimes$. This concept will come up a few times in the future, so if the reader is not familiar, it will be a good idea to research this concept if they wish to follow to the end.
 
-Consulting again the [Groups Wiki](https://groupprops.subwiki.org/wiki/Groups_of_order_20) the group with GAP ID $3$ is indeed our $GA(1, 5)$. The connection between our notation and the semi-direct product is that, for all $n$:
+Consulting again the [Groups Wiki](https://groupprops.subwiki.org/wiki/Groups_of_order_20) the group with GAP ID $3$ is indeed our $GA(1, 5)$. The connection between our notation and the semi-direct product is that, for any prime $p$:
 
-$$GA(1, n) \cong \Z / n\Z \rtimes (\Z / n\Z)^{\times} \cong \Z / n\Z \rtimes \Z / (n - 1)\Z $$
+$$GA(1, p) \cong \Z / p\Z \rtimes (\Z / p\Z)^{\times} \cong \Z / p\Z \rtimes \Z / (p - 1)\Z $$
 
 Which is exactly what PARI was telling us.
 
@@ -287,11 +287,11 @@ $$\sqrt{5} \in \Qfour \cap \Qfive$$
 {% capture square-root-of-five-proof %}
 It's clear that $\sqrt{5} = \fourthroot^2 \in \Qfour$, so the only interesting bit is to locate $\sqrt{5}$ within $\Qfive$. In fact, $\sqrt{5} \in \Q(\roufive)$, $\fifthroot$ doesn't have anything to do with this business.
 
-We're looking for a real number in $\Q(\roufive)$ so considering $\roufive + \bar \roufive = \roufive + \roufive^{-1}$, which is invariant under conjugation and thus real, seems like a reasonable strategy. Recall that $\roufive$ satisfies the cyclotomic polynomial $\phi_4(x) = x^4 + x^3 + x^2 + x + 1$, we can modify this into a polynomial satisfied by $t = \roufive + \roufive^{-1}$. 
+We're looking for a real number in $\Q(\roufive)$ so considering $\roufive + \bar \roufive = \roufive + \roufive^{-1}$, which is invariant under conjugation and thus real, seems like a reasonable strategy. Recall that $\roufive$ satisfies the cyclotomic polynomial $\phi_5(x) = x^4 + x^3 + x^2 + x + 1$, we can modify this into a polynomial satisfied by $t = \roufive + \roufive^{-1}$. 
 
-Since all the roots of $\phi_4(x)$ are non-zero:
+Since all the roots of $\phi_5(x)$ are non-zero:
 
-$$x^4 + x^3 + x^2 + x + 1 = 0 \iff x^2 + x + 1 + \frac{1}{x} + \frac{1}{x^2} $$
+$$x^4 + x^3 + x^2 + x + 1 = 0 \iff x^2 + x + 1 + \frac{1}{x} + \frac{1}{x^2} = 0 $$
 
 Now we can group together the reciprocal powers:
 
@@ -333,7 +333,7 @@ Let $\zeta_n$ be a primitive n'th root of unity. The mapping:
 
 $$\left( \Z / n \Z \right)^{\times} \rightarrow Gal(\Q(\zeta_n)/\Q)$$
 
-defined as $k \mapsto (\zeta_n \mapsto \zeta_n^k)$ (the right hand side defines a unique automorphism) is an isomoprhism.
+defined as $k \mapsto (\zeta_n \mapsto \zeta_n^k)$ (the right hand side defines a unique automorphism) is an isomorphism.
 {% endcapture %}
 {% include theorem.html content=cyclotomic-galois-groups name="Galois Groups of Cyclotomic Extensions" %}
 
@@ -345,11 +345,11 @@ The second isomorphism here is from direct computation using the classification 
 
 We won't need to know so much about this Galois group, but it is very important that **it is abelian**. This means that all its subgroups are normal, and according to the Galois correspondence, all subfields of $\Qtwenty$ are normal extensions of $\Q$.
 
-**Let's lay some cards and the table and outline our plan**. We want to compute 
+**Let's lay some cards on the table and outline our plan**. We want to compute 
 
 $$[\Qalltwenty:\Qtwenty] = ?$$
 
-Ajoining the $\fifthroot$ will pose no trouble, so the interesting bit is the degree $$[\Qtwentyfour:\Qtwenty]$$. 
+Adjoining the $\fifthroot$ will pose no trouble, so the interesting bit is the degree $$[\Qtwentyfour:\Qtwenty]$$. 
 
 We already know that $\sqrt{5} \in \Qtwenty$, so we can factor over $\Qtwenty$:
 
@@ -420,7 +420,7 @@ If $A / F$ and $B / F$ are Galois extensions, then the restriction mapping:
 
 $$ Gal(AB / F) \rightarrow Gal(A / F) \times Gal(B / F) $$
 
-$$ \sigma \mapsto \left(\sigma \mid_K, \sigma \mid_L \right) $$
+$$ \sigma \mapsto \left(\sigma \mid_A, \sigma \mid_B \right) $$
 
 is an embedding whose image is the subgroup of the product consisting of compatible pairs of automorphisms:
 
@@ -428,7 +428,7 @@ $$ (\alpha, \beta): x \in A \cap B \implies \alpha(x) = \beta(x) $$
 {% endcapture %}
 {% include proposition.html content=composite-galois-group name="The Galois Group of a Composite Extension" %}
 
-We want to apply this proposition in the case where, in the notation of the theorem:
+We want to apply this proposition in the case where, in the notation of the proposition:
 
 $$
 \begin{align*} 
@@ -476,7 +476,7 @@ So we get the action:
 {% capture galois-action-of-A-on-root-five %}
 The action of $Gal(A / \Q) \cong D_8$ on $\Q(\sqrt{5})$ is given by:
 
-$$\beta \alpha^k (\sqrt{5}) = (-1)^k \sqrt{5} $$
+$$\alpha^k (\sqrt{5}) = \beta \alpha^k (\sqrt{5}) = (-1)^k \sqrt{5} $$
 
 In particular, the subgroup $Gal(A / \Q(\sqrt{5}))$ fixing $\Q(\sqrt{5})$ is:
 
@@ -516,9 +516,9 @@ $$B^{\sqrt{5}} \defeq \left<a, b^2 \right> \cong D_{10}$$
 {% endcapture %}
 {% include result.html content=galois-action-of-B-on-root-five %}
 
-The final isomorphism $B^{\sqrt{5}} \cong D_{10}$ follows from a short computation with generators and the relation $ab = ba^2$:
+The final isomorphism $B^{\sqrt{5}} \cong D_{10}$ follows from a short computation with generators, the relation $b a b^{-1} = a^2$, and $b^{-2} = b^2$:
 
-$$b^2 a b^2 = b^3 a^2 b = b^4 a^4 = a^4 $$
+$$b^2 a b^{-2} = b (b a b^{-1}) b^{-1} = b a^2 b^{-1} = a^4 = a^{-1} $$
 
 Showing that the generators satisfy the defining relations of $D_{10}$.
 
@@ -562,17 +562,15 @@ $G^{\sqrt{5}}$ is not complemented in $G$.
 {% include lemma.html content=not-complemented name="$G^{\sqrt{5}}$ is not Complemented" %}
 
 {% capture not-complemented-proof %}
-A complementary subgroup $H$ has order two, hence consists of an involution in the coset $G^{-\sqrt{5}}$ along with the identity element. We've represented $G$ as a subgroup of:
+A complement $H$ within $G = Gal(K / \Q)$ has order two, so $H = \lbrace \identity, h \rbrace$ for an involution $h$ in the coset $G^{-\sqrt{5}}$. We've represented $G$ as a subgroup of:
 
 $$ Gal(A / \Q) \times Gal(B / \Q) \cong D_8 \times GA(1, 5) $$
 
-and so our hypothetical involution, when viewed as an element $D_8 \times GA(1, 5)$, consists of a pair of involutions, one from each factor group. 
+so write $h = (x, y)$. Since $h$ maps $\sqrt{5} \mapsto -\sqrt{5}$, so do both $x$ and $y$; in particular, neither is the identity. And since $h^2 = (x^2, y^2) = \identity$, both are involutions. So $y$ is an involution in $GA(1, 5)$ that does not fix $\sqrt{5}$, i.e., one lying outside of:
 
-We are looking for a complement to the subgroup:
+$$ B^{\sqrt{5}} \cong D_{10} < GA(1, 5) $$
 
-$$ G^{\sqrt{5}} = A^{\sqrt{5}} \times B^{\sqrt{5}} \cong \Zmodtwo \times \Zmodtwo \times D_{10} $$
-
-Where $\Zmodtwo \times \Zmodtwo < D_8$ and $D_{10} < GA(1, 5)$. The trouble is that **we've already accounted for all the involutions in $GA(1, 5)$**, so there are no more to go around. We can just count! [According to the data](https://groupprops.subwiki.org/wiki/General_affine_group:GA(1,5)) there are five involutions in $GA(1, 5)$, and there are five in $D_{10}$ as well. So there's no possibility to find a involution in $G^{-\sqrt{5}}$, and so no complementary subgroup.
+The trouble is that **we've already accounted for all the involutions in $GA(1, 5)$**, so there are no more to go around. We can just count! [According to the data](https://groupprops.subwiki.org/wiki/General_affine_group:GA(1,5)) there are five involutions in $GA(1, 5)$, and there are five in $D_{10}$ as well, so every involution of $GA(1, 5)$ lies in $D_{10}$. So there's no possibility to find an involution in $G^{-\sqrt{5}}$, and so no complementary subgroup.
 {% endcapture %}
 {% include proof.html content=not-complemented-proof %}
 
@@ -591,7 +589,7 @@ Thanks to the Galois correspondence, we know quite a bit about the structure of 
 
 - $\Qtwenty$ has Galois group $\Z / 4\Z \times \Z / 2 \Z$.
 - $\Qfour$ has Galois group $D_8$.
-- $\Qfive$ has Galois group $GL(1, 5)$.
+- $\Qfive$ has Galois group $GA(1, 5)$.
 
 The database lists the possible quotients of each group, so we can search our list for any of the four possibilities that has these quotients. This time, we have some good luck, [there is only one](https://people.maths.bris.ac.uk/~matyd/GroupNames/73/C2%5E2sF5.html). We've identified our group as:
 
@@ -600,7 +598,7 @@ $$ G \cong (\Z / 2\Z \times \Z / 2 \Z) \rtimes GA(1, 5) $$
 {% endcapture %}
 {% include result.html content=isomorphism-class-of-G %}
 
-For a final time, we cross our finger and hope PARI validates our work.
+For a final time, we cross our fingers and hope PARI validates our work.
 
 ```pari
 ? G = galoisinit(K);           
@@ -608,7 +606,7 @@ For a final time, we cross our finger and hope PARI validates our work.
 [80, 34]
 ```
 
-The groups database also lists the GAP ID's of all our groups. We're happy to see that, yes, group $34$ is exactly the semidirect product $G \cong (\Z / 2\Z \times \Z / 2 \Z) \rtimes GA(1, 5)$.
+The groups database also lists the GAP IDs of all our groups. We're happy to see that, yes, group $34$ is exactly the semidirect product $G \cong (\Z / 2\Z \times \Z / 2 \Z) \rtimes GA(1, 5)$.
 
 
 ### Identifying the Complementary Subgroups
@@ -619,7 +617,7 @@ Wiser folk would stop here, but this is for recreation and there's more treasure
 
 We should be able to find these inside $G$. Let's try.
 
-The Galois correspondence will continue to guide us. A normal subgroup within the Galois group corresponds to a normal subextension, that is, a **splitting field**. We're looking for a splitting field with **index** four, and we actually already know one of those, its $B = \Qfive$[^has-to-be-it]! 
+The Galois correspondence will continue to guide us. A normal subgroup within the Galois group corresponds to a normal subextension, that is, a **splitting field**. We're looking for a splitting field with **index** four, and we actually already know one of those, it's $B = \Qfive$[^has-to-be-it]! 
 
 So we'd like to show that:
 
@@ -641,7 +639,7 @@ It is more difficult to identify the complementary subgroup. We're looking for a
 
 $$ C = \Q \left( (1 + i) \fourthroot \right) $$
 
-Some algebra shows that $\xi = (1 + i) \fourthroot$ satisfies the polynomial $x^4 + 20$. This is irreducible as its 5-Eisenstein, and so $[C:\Q] = 4$ and $[K:C] = 20$.
+Some algebra shows that $\xi = (1 + i) \fourthroot$ satisfies the polynomial $x^4 + 20$. This is irreducible as it's 5-Eisenstein, and so $[C:\Q] = 4$ and $[K:C] = 20$.
 
 Let's show that:
 
@@ -712,20 +710,20 @@ Gal(K / C) &\cong G / Gal(K / B) \\
 \end{align*}
 $$
 
-Which gives us, finally, an **internal** semi-directo product structure like:
+Which gives us, finally, an **internal** semi-direct product structure like:
 
 $$G \cong (\Zmodtwo \times \Zmodtwo) \rtimes GA(1, 5)$$
 
-Which was our very final goal.
+Which was our very final goal.[^which-semidirect]
 
 
 [^as-in-freedom]: Free as in **Free**dom.
 [^pentagons]: This is related to the constructability of a regular pentagon ⬠. We'll show that $\cos \left( \frac{2 \pi}{5} \right) = \frac{-1 + \sqrt{5}}{4}$.
 [^real-subfields]: A **real subfield** is definitionally fixed by complex conjugation. Adjoining a real number to $\Q$ always produces a real subfield, since a vector space basis of the extension over $\Q$ consists of powers of the adjoined element, which are all real numbers.
 [^alternative-eight]: Alternatively, we can count possibilities for where these two roots map. There are four possibilities for the image of $\fourthroot$ and two for $i$, so eight total, and we know the extension is Galois of degree eight, so every possibility must be achieved. We'll use this argument in the next section.
-[^root-of-unity]: The notation $\zeta_k$ denotes "the" k'th primitive root of unity. I.e., $\zeta_5, \zeta_5^2, \zeta_5^3, \zeta_5^4 \neq 1$, while $\zeta_5^5 = 1$. We'll only used algebraic properties of these numbers, so their non-uniqueness will not be trouble.
+[^root-of-unity]: The notation $\zeta_k$ denotes "the" k'th primitive root of unity. I.e., $\zeta_5, \zeta_5^2, \zeta_5^3, \zeta_5^4 \neq 1$, while $\zeta_5^5 = 1$. We'll only use algebraic properties of these numbers, so their non-uniqueness will not be trouble.
 [^minimial-polynomial]: This is the minimal polynomial of $\roufive$ by a standard argument.
 [^normal-notation]: $H \leq G$ means $H$ is a subgroup of $G$, and $H \triangleleft G$ means $H$ is a *normal* subgroup of $G$.
-[^dihedral-notation]: While we subscript our dihedral groups with their order (so $D_{10}$ has ten elements), the Group Names database subscripts with half this (so their $D_{10}$ are the rigid symmetries of a regular pentagon). Additionally, the group we have named $GA(1, 5)$ is called $\mathbb{F}_5$ in the database.
+[^dihedral-notation]: While we subscript our dihedral groups with their order (so $D_{10}$ has ten elements), the Group Names database subscripts with half this (so our $D_{10}$, the rigid symmetries of a regular pentagon, is their $D_5$). Additionally, the group we have named $GA(1, 5)$ is called $F_5$ in the database.
 [^has-to-be-it]: And this *has to be it*, since [there's only one normal subgroup of order four](https://people.maths.bris.ac.uk/~matyd/GroupNames/73/C2%5E2sF5.html).
-[^more-sqrt-five]: Here we make even more use of $\sqrt{5} \in B$.
+[^which-semidirect]: A semi-direct product also depends on how $GA(1, 5)$ acts on $\Zmodtwo \times \Zmodtwo$ by conjugation, and different actions can produce different groups. Here there is only one candidate. The automorphism group of $\Zmodtwo \times \Zmodtwo$ is $S_3$, so the image of an action has order dividing both $\lvert GA(1, 5) \rvert = 20$ and $\lvert S_3 \rvert = 6$. A non-trivial action therefore has image of order two, and its kernel is an index two subgroup. There is only one of these: an index two subgroup contains every square, and the squares $a = (a^3)^2$ and $b^2$ already generate the index two subgroup $D_{10}$. All such actions are conjugate, so they produce isomorphic groups. Nor can the action be trivial, since then $Gal(K / C)$ would be normal in $G$, making $C$ a normal extension of $\Q$. It is not: $i \xi$ is a root of $x^4 + 20$, but if $i \xi \in C$ then $i \in C$, and so $\fourthroot = \xi / (1 + i) \in C$, forcing $\Qfour \subseteq C$, which is impossible for degree reasons.
