@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Mean Reverting Time Series and Spurious Association"
+title:  "The Fictions of Mean Reversion"
 date:   2026-04-08
 categories: mathematics
 redirect_from:
