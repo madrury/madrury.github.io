@@ -120,12 +120,13 @@ r.summary_frame(level=0.95).round(2)
 |                    |   estimate |   std error |   lower 95% |   upper 95% |
 |:-------------------|-----------:|------------:|------------:|------------:|
 | Intercept          |      94.93 |        1.28 |       92.41 |       97.46 |
-| day                |       0.2  |        0.01 |        0.19 |        0.21 |
+| day                |       0.20 |        0.01 |        0.19 |        0.21 |
 | np.maximum(Δfx, 0) |      19.87 |        1.04 |       17.83 |       21.92 |
 | np.minimum(Δfx, 0) |      -0.59 |        1.09 |       -2.73 |        1.54 |
+{: .row-labels}
 
 
-We infer correct coefficients from the observed data. In particular, the confidence interval for the `np.minimum(Δfx, 0)` predictor contains zero, so we correctly deduce that there is no detectible effect of downwards movements in $\Delta fx$.
+We infer correct coefficient estimates from the observed data. In particular, the confidence interval for the `np.minimum(Δfx, 0)` predictor contains zero, so we correctly deduce that there is no detectible effect of downwards movements in $\Delta fx$.
 
 If instead we fit the **wrong** model:
 
@@ -146,12 +147,73 @@ r.summary_frame(level=0.95).round(2)
 |           |   estimate |   std error |   lower 95% |   upper 95% |
 |:----------|-----------:|------------:|------------:|------------:|
 | Intercept |     102.75 |        1.25 |      100.3  |      105.19 |
-| day       |       0.2  |        0.01 |        0.19 |        0.21 |
+| day       |       0.20 |        0.01 |        0.19 |        0.21 |
 | Δfx       |       9.93 |        0.62 |        8.72 |       11.15 |
+{: .row-labels}
 
 Insidiously, with the wrong model we draw **two** incorrect conclusions: we infer half of the correct positive effect, and a negative effect when there is none.
 
+## The Change-In-Slope Parameterization
+
+Consider what happens when we fit the hinge transformation model to the data with a symmetric effect:
+
+```python
+r = GLM(family=Gaussian()).fit(
+    df, 
+    formula="y_symm ~ day + np.maximum(Δfx, 0) + np.minimum(Δfx, 0)"
+)
+r.summary_frame(level=0.95).round(2)
+```
+
+|                    |   estimate |   std error |   lower 95% |   upper 95% |
+|:-------------------|-----------:|------------:|------------:|------------:|
+| Intercept          |      97.57 |        1.24 |       95.13 |      100.01 |
+| day                |       0.21 |        0.00 |        0.2  |        0.22 |
+| np.maximum(Δfx, 0) |      10.70 |        1.00 |        8.72 |       12.68 |
+| np.minimum(Δfx, 0) |       8.48 |        1.05 |        6.42 |       10.55 |
+{: .row-labels}
+
+Now, we know that the **true** coefficients for `np.maximum(Δfx, 0)` and `np.minimum(Δfx, 0)` are equal, since the correct specification has only a `Δfx` term. But there's no way to test this from the ouput table. What we want is for the *change in slope at zero* to appear in our model. There's a nice trick to this, we use the change-in-slope parameterization:
+
+```python
+r = GLM(family=Gaussian()).fit(
+    df, 
+    formula="y_symm ~ day + Δfx + np.maximum(Δfx, 0)"
+)
+r.summary_frame(level=0.95).round(2)
+```
+
+|                    |   estimate |   std error |   lower 95% |   upper 95% |
+|:-------------------|-----------:|------------:|------------:|------------:|
+| Intercept          |      97.57 |        1.24 |       95.13 |      100.01 |
+| day                |       0.21 |        0.00 |        0.20 |        0.22 |
+| Δfx                |       8.48 |        1.05 |        6.42 |       10.55 |
+| np.maximum(Δfx, 0) |       2.22 |        1.78 |       -1.28 |        5.71 |
+{: .row-labels}
+
+In this parameterization, the `np.maximum(Δfx, 0)` coefficient is how much the slope *changes* when crossing $$\Delta \fx$$ left-to-right[^exercise-to-the-reader]. As we expect, the change in slope is indistinguishable from zero on the symmetric data.
+
+On the other hand, on the asymmetric effect data:
+
+```python
+r = GLM(family=Gaussian()).fit(
+    df, 
+    formula="y_symm ~ day + Δfx + np.maximum(Δfx, 0)"
+)
+r.summary_frame(level=0.95).round(2)
+```
+
+|                    |   estimate |   std error |   lower 95% |   upper 95% |
+|:-------------------|-----------:|------------:|------------:|------------:|
+| Intercept          |      94.93 |        1.28 |       92.41 |       97.46 |
+| day                |       0.2  |        0.01 |        0.19 |        0.21 |
+| Δfx                |      -0.59 |        1.09 |       -2.73 |        1.54 |
+| np.maximum(Δfx, 0) |      20.46 |        1.84 |       16.85 |       24.08 |
+{: .row-labels}
+
+Everything checks out again, there's no effect initially, but it jumps to an effect size of $$20$$ when zero is crossed.
 
 [^currency-symbols]: In the world of non-fiction: ₮ is the Mongolian tögrög and ₩ is the Korean won.
 [^translation]: [Source](https://www.reddit.com/r/Nausicaa/comments/4f3nyt/i_shudder_at_the_depth_of_my_sin/).
 [^in-reality]: Of course, in reality, we'd never have **both** of these to compare, the world is what it is and all we get to see is one of them.
+[^exercise-to-the-reader]: A much scorned exercise to the reader.
