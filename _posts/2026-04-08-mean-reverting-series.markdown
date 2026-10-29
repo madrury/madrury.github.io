@@ -44,11 +44,11 @@ We can inspect our hypothesis by scattering the day-over-day change in transacti
 We can validate this non-visually, the mean change in volume is positive when the exchange rate increases, and negative when it decreases. Demand goes up and down in synchronization with the exchange rate. The effect is symmetric, or close enough to believe that it is:
 
 ```python
-up = df["y"].diff()[df["Δfx"] > 0].mean()
+up = df["y_asymm"].diff()[df["Δfx"] > 0].mean()
 print(f"mean(Δy) where Δfx > 0: {up:2.2f}")
 # mean(Δy) where Δfx > 0: 8.99
 
-down = df["y"].diff()[df["Δfx"] < 0].mean()
+down = df["y_asymm"].diff()[df["Δfx"] < 0].mean()
 print(f"mean(Δy) where Δfx < 0: {down:2.2f}")
 # mean(Δy) where Δfx < 0: -8.92
 ```
@@ -69,11 +69,11 @@ Here is a different simulation of the transaction volume series:
 This series looks structurally identical to the previous one to the untrained eye, any observer would be forgiven if they blamed the slight differences on noise. In support, the summary statistics of this new series are very similar to the previous one:
 
 ```python
-up = df["y_new"].diff().filter(df["Δfx"] > 0).mean()
+up = df["y_symm"].diff()[df["Δfx"] > 0].mean()
 print(f"mean(Δy) where Δfx > 0: {up:2.2f}")
 # mean(Δy) where Δfx > 0: 8.88
 
-down = df["y_new"].diff().filter(df["Δfx"] < 0).mean()
+down = df["y_symm"].diff()[df["Δfx"] < 0].mean()
 print(f"mean(Δy) where Δfx < 0: {down:2.2f}")
 # mean(Δy) where Δfx < 0: -8.82
 ```
@@ -232,6 +232,11 @@ Everything checks out again, there's no effect when $$\Delta \fx < 0$$, but it j
 
 ## The Error Model
 We've assumed the error $$\epsilon$$ is i.i.d. Gaussian throughout. The Gaussian bit is a reasonable enough assumption, but independence is not so much. In natural data of this sort, the errors are autocorrelated. Our assumption will tend to result in confidence intervals that are too narrow: we're assuming the data is more informative than it really is.
+
+{% capture sin %}
+自分の 罪深さに おののきます
+{% endcapture %}
+{% include display.html content=sin %}
 
 A more careful analysis would specify a dependence structure on the error term (an `AR` structure of some sort maybe), or use a non-parametric tool like the block bootstrap to estimate the standard errors.
 
