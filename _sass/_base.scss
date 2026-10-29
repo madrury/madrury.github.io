@@ -75,6 +75,44 @@ figcaption {
 
 
 /**
+ * Tables
+ */
+table {
+    width: 80%;
+    margin: 0 auto $spacing-unit / 2 auto;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 4px 10px;
+    vertical-align: middle;
+    border: 1px solid $grey-color-light;
+}
+
+tr:hover {background-color: #eef;} 
+
+th {
+    font-weight: bold;
+}
+
+// Thicker rules separating the column names and row names from the body.
+thead th {
+    border-bottom: 2px solid $grey-color;
+}
+
+th:first-child, td:first-child {
+    border-right: 2px solid $grey-color;
+}
+
+// Opt-in for tables whose first column holds row labels. In markdown, tag the
+// table with `{: .row-labels}` on the line directly after it.
+table.row-labels td:first-child {
+    font-weight: bold;
+}
+
+
+
+/**
  * Lists
  */
 ul, ol {
@@ -162,6 +200,8 @@ pre {
     }
 }
 
+.penance {color: #f00000}
+.updated {color: #0f0099}
 
 
 /**
@@ -184,8 +224,6 @@ pre {
     }
 }
 
-
-
 /**
  * Clearfix
  */
@@ -197,8 +235,6 @@ pre {
         clear: both;
     }
 }
-
-
 
 /**
  * Icons
