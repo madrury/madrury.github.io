@@ -9,7 +9,7 @@ redirect_from:
   - /jekyll/update/statistics/2017/08/12/noisy-regression.html
 ---
 
-*Updated October 2026: Clarifies the distinction between the two ways to marginalize out multiplicative noise. The original post incorrectly averaged the lines, but only stacking recovers ridge.*
+*Updated October 2026:*{: .updated} *Clarifies the distinction between the two ways to marginalize out multiplicative noise. The original post incorrectly averaged the lines, but only stacking recovers ridge.*
 
 Ridge penalization is a popular and well studied method for reducing the variance of predictions in regression. There are many different yet equivalent ways to think about ridge regression, some of the well known ones are:
 
