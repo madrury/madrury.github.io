@@ -40,13 +40,13 @@ We can inspect our hypothesis by scattering the day-over-day change in transacti
 It's simple to validate this non-visually, the mean change in volume is positive when the exchange rate increases, and negative when it decreases. Demand goes up and down in synchronization with the exchange rate. The effect is symmetric, or close enough to believe that it is:
 
 ```python
-up = df["y"].diff().filter(df["Δfx"] > 0).mean()
+up = df["y"].diff()[df["Δfx"] > 0].mean()
 print(f"mean(Δy) where Δfx > 0: {up:2.2f}")
-# mean(Δy) where Δfx > 0: 9.29
+# mean(Δy) where Δfx > 0: 8.99
 
-down = df["y"].diff().filter(df["Δfx"] < 0).mean()
+down = df["y"].diff()[df["Δfx"] < 0].mean()
 print(f"mean(Δy) where Δfx < 0: {down:2.2f}")
-# mean(Δy) where Δfx < 0: -10.62
+# mean(Δy) where Δfx < 0: -8.92
 ```
 
 This is a nice result! Our curiosity has been rewarded, and we've made a useful discovery about our customer dynamics. **We're wrong**.
@@ -62,29 +62,29 @@ Here is a different simulation of the transaction volume series:
 
 ![Transaction Volume Series]({{ site.url }}/img/mrts-volume-symmetric.png){: .center-img}
 
-This series looks structurally identical to previous one to the untrained eye, any observer would be forgiven to allocate the slight differences to noise. In support, the summary statistics of this new series are very similar to the previous:
+This series looks structurally identical to previous one to the untrained eye, any observer would be forgiven if they blamed the slight differences on noise. In support, the summary statistics of this new series are very similar to the previous one:
 
 ```python
 up = df["y_new"].diff().filter(df["Δfx"] > 0).mean()
 print(f"mean(Δy) where Δfx > 0: {up:2.2f}")
-# mean(Δy) where Δfx > 0: 8.97
+# mean(Δy) where Δfx > 0: 8.88
 
 down = df["y_new"].diff().filter(df["Δfx"] < 0).mean()
 print(f"mean(Δy) where Δfx < 0: {down:2.2f}")
-# mean(Δy) where Δfx < 0: -10.20
+# mean(Δy) where Δfx < 0: -8.82
 ```
 
-These two transaction processes are not the same, and encode very different dynamics of customer behaviour. If we scatterplot side by side, maybe the observant and lucky among us will start to sense something is up[^in-reality]:
+These two transaction processes are not the same, and sample from very different dynamics of customer behaviour. If we scatterplot side by side, maybe the observant and lucky among us will start to sense something is up[^in-reality]:
 
 ![Change in Exhange Rate Against Change in Transaction Volume, Both Series]({{ site.url }}/img/mrts-scatter-plot-side-by-side.png){: .center-img}
 
 We generated data according to the following random processes:
 
-**First series, asymmetric**:
+**First series, asymmetric Δfx effect**:
 
 $$ y = 95.0 + 0.2 t + 20.0 \mathop{max}(\Delta \fx, 0) + \epsilon $$
 
-**Second series, symmetric**:
+**Second series, symmetric Δfx effect**:
 
 $$ y = 100.0 + 0.2 t + 10.0 \Delta \fx + \epsilon $$
 
@@ -94,12 +94,12 @@ This is much easier to see if we plot the **true** trendline (i.e. the $a + b t$
 
 ![Transaction Volume with Trendlines, Both Series]({{ site.url }}/img/mrts-volume-with-trendlines.png){: .center-img}
 
-In the first series, the observed transaction volume mostly stays above the true trendline, any dips below are due to the  noise term $\epsilon$. The second series moves around the trendline symmetrically.
+In the first series, the observed transaction volume mostly stays above the true trendline, any dips below are due to the  noise term $\epsilon$. The second series moves around the trendline symmetrically. Of course, this is not an effective test of which one we have, nature never lets us see the true trend line, it's only available in our fictional worlds.
 
-So why, in the first case of only upwards effects, does our data analysis detect an association? Our finding is due to **mean reversion**: when the exchange rate decreases customer behaviour reverts to its baseline state of a random perturbation around the true trendline. When such an observation follows one where the exchange rate moved upwards (which happens about half the time) this results in (most likely) a downwards move from its elevated state back towards the trendline. So, on average, a fall in exchange rate is simultaneous with a fall in transaction rate. 
+So why, in the first case of only upwards effects, does our naïve data analysis detect an association? It's is due to **mean reversion**: when the exchange rate decreases customer behaviour reverts to its baseline state of a random perturbation around the true trendline. When such an observation follows one where the exchange rate moved upwards (which happens about half the time) this results in (most likely) a downwards move from its elevated state back towards the trendline. So, on average, a fall in exchange rate is simultaneous with a fall in transaction rate. 
 
 ## Capturing the True Effect
-Asymmetric effect are common in practice, and are worth considering whenever analysing a response to some stimuli that may be positive or negative.
+Asymmetric effects are common in practice, and are worth considering whenever analysing a response to some stimuli that may be positive or negative.
 
 The basic technique is to specify a regression model including **hinge transformations** of $\Delta \fx$:
 
@@ -110,25 +110,22 @@ $$
 If we fit this model:
 
 ```python
-X = np.column_stack([
-    df["day"], 
-    np.maximum(df["fx"].diff(1), 0),
-    np.minimum(df["fx"].diff(1), 0),
-])
-
-regression = LinearRegression().fit(X[1:], df["y"][1:])
-
-print(f"Regression Coefficient: β0 = {regression.intercept_:2.2f}")
-# Regression Coefficient: β0 = 94.58
-print(f"Regression Coefficient: βt = {regression.coef_[0]:2.2f}")
-# Regression Coefficient: βt = 0.21
-print(f"Regression Coefficient: β+ = {regression.coef_[1]:2.2f}")
-# Regression Coefficient: β+ = 19.82
-print(f"Regression Coefficient: β- = {regression.coef_[2]:2.2f}")
-# Regression Coefficient: β- = -0.57
+r = GLM(family=Gaussian()).fit(
+    df, 
+    formula="y_asymm ~ t + np.maximum(Δfx, 0) + np.minimum(Δfx, 0)"
+)
+r.summary_frame(level=0.95).round(2)
 ```
 
-We infer correct coefficients from the observed data. In particular, we correctly deduce that there is no effect of downwards movements in $\Delta fx$.
+|                    |   estimate |   std error |   lower 95% |   upper 95% |
+|:-------------------|-----------:|------------:|------------:|------------:|
+| Intercept          |      94.93 |        1.28 |       92.41 |       97.46 |
+| day                |       0.2  |        0.01 |        0.19 |        0.21 |
+| np.maximum(Δfx, 0) |      19.87 |        1.04 |       17.83 |       21.92 |
+| np.minimum(Δfx, 0) |      -0.59 |        1.09 |       -2.73 |        1.54 |
+
+
+We infer correct coefficients from the observed data. In particular, the confidence interval for the `np.minimum(Δfx, 0)` predictor contains zero, so we correctly deduce that there is no detectible effect of downwards movements in $\Delta fx$.
 
 If instead we fit the **wrong** model:
 
@@ -139,20 +136,18 @@ $$
 We infer an symmetric effect of half the size:
 
 ```python
-X = np.column_stack([
-    df["day"], 
-    df["fx"].diff(1)
-])
-
-regression = lin.LinearRegression().fit(X[1:], df["y"][1:])
-
-print(f"Regression Coefficient: β0 = {regression.intercept_:2.2f}")
-# Regression Coefficient: β0 = 103.16
-print(f"Regression Coefficient: βt = {regression.coef_[0]:2.2f}")
-# Regression Coefficient: βt = 0.20
-print(f"Regression Coefficient: β = {regression.coef_[1]:2.2f}")
-# Regression Coefficient: β = 10.62
+r = GLM(family=Gaussian()).fit(
+  df, 
+  formula="y_asymm ~ day + Δfx"
+)
+r.summary_frame(level=0.95).round(2)
 ```
+
+|           |   estimate |   std error |   lower 95% |   upper 95% |
+|:----------|-----------:|------------:|------------:|------------:|
+| Intercept |     102.75 |        1.25 |      100.3  |      105.19 |
+| day       |       0.2  |        0.01 |        0.19 |        0.21 |
+| Δfx       |       9.93 |        0.62 |        8.72 |       11.15 |
 
 Insidiously, with the wrong model we draw **two** incorrect conclusions: we infer half of the correct positive effect, and a negative effect when there is none.
 
