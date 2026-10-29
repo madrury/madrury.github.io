@@ -44,11 +44,11 @@ We can inspect our hypothesis by scattering the day-over-day change in transacti
 We can validate this non-visually, the mean change in volume is positive when the exchange rate increases, and negative when it decreases. Demand goes up and down in synchronization with the exchange rate. The effect is symmetric, or close enough to believe that it is:
 
 ```python
-up = df["y_asymm"].diff()[df["Δfx"] > 0].mean()
+up = df["y"].diff()[df["Δfx"] > 0].mean()
 print(f"mean(Δy) where Δfx > 0: {up:2.2f}")
 # mean(Δy) where Δfx > 0: 8.99
 
-down = df["y_asymm"].diff()[df["Δfx"] < 0].mean()
+down = df["y"].diff()[df["Δfx"] < 0].mean()
 print(f"mean(Δy) where Δfx < 0: {down:2.2f}")
 # mean(Δy) where Δfx < 0: -8.92
 ```
@@ -69,11 +69,11 @@ Here is a different simulation of the transaction volume series:
 This series looks structurally identical to the previous one to the untrained eye, any observer would be forgiven if they blamed the slight differences on noise. In support, the summary statistics of this new series are very similar to the previous one:
 
 ```python
-up = df["y_symm"].diff()[df["Δfx"] > 0].mean()
+up = df["y_new"].diff()[df["Δfx"] > 0].mean()
 print(f"mean(Δy) where Δfx > 0: {up:2.2f}")
 # mean(Δy) where Δfx > 0: 8.88
 
-down = df["y_symm"].diff()[df["Δfx"] < 0].mean()
+down = df["y_new"].diff()[df["Δfx"] < 0].mean()
 print(f"mean(Δy) where Δfx < 0: {down:2.2f}")
 # mean(Δy) where Δfx < 0: -8.82
 ```
