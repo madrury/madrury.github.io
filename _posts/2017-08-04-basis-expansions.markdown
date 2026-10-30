@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "A Comparison of Basis Expansions in Regression"
+abstract: "Basis expansions allow linear regressions to fit non-linear relationships. We compare several common basis expansions, and advocate for linear and natural cubic splines."
 date:   2017-08-04
 categories: statistics
 redirect_from:

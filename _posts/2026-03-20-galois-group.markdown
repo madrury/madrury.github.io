@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "The Galois Group of $(x^5 - 7)(x^4 - 5)$"
+abstract: 'The splitting fields of $x^5 - 7$ and $x^4 - 5$ both contain $\sqrt{5}$. This makes computing the Galois group of their product pretty interesting.'
 date:   2026-03-19
 categories: mathematics
 redirect_from:

@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "How Does A Computer Calculate Eigenvalues?"
+abstract: "Textbook exercises compute eigenvalues from roots of the characteristic polynomial. What computers do is much neater."
 date:   2017-10-04
 categories: statistics
 redirect_from:
