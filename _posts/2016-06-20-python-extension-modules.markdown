@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Writing a C Extension Module for Python"
+abstract: "How to write a Python module in C."
 date:   2016-06-20 08:52:55 -0700
 categories: programming
 redirect_from:

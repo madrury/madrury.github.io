@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "The Probabilistic Interpretation of AUC"
+abstract: "A picture proof that AUC is the probability a randomly chosen positive example is scored above a randomly chosen negative one."
 date:   2017-06-21
 categories: statistics
 redirect_from:

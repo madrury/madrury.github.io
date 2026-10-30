@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "The Fictions of Mean Reversion"
+abstract: "A cautionary tale of data analysis, chasing the ghosts of mean reversion, and the protective power of testing asymmetric effects."
 date:   2026-04-08
 categories: mathematics
 redirect_from:

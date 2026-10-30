@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "All of Nothing is True"
+abstract: "`all([])` is `True` and `any([])` is `False`, and that's the only sensible choice."
 date:   2026-07-30
 categories: programming
 redirect_from:

@@ -2,6 +2,7 @@
 layout: post
 title:  "Marginalizing Multiplicative Noise Applied to Regression Predictors is Ridge Regression"
 short_title: "Marginalizing Multiplicative Noise is Ridge Regression"
+abstract: "An uncommon view of ridge regression, with proof and simulation."
 date:   2017-08-12
 updated: 2026-10-21
 categories: statistics

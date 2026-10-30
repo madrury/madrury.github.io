@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "A Deep Dive Into How R Fits a Linear Model"
+abstract: "What happens when you call `lm` in R? At the bottom is some of the oldest open source code still in use."
 date:   2016-07-20 08:52:55 -0700
 categories: statistics
 redirect_from:

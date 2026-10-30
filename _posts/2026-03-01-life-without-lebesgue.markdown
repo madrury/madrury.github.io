@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Life Without Lebesgue"
+abstract: "In a reckless spirit, we evaluate a tricky limit of integrals without the Lebesgue convergence theorems."
 date:   2026-03-01
 categories: mathematics
 redirect_from:
