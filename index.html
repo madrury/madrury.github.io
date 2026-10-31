@@ -2,39 +2,35 @@
 layout: default
 ---
 
-<div class="wrapper">
-  <div class="home">
+<div class="home">
 
-    <ul class="post-list">
-      {% for post in site.posts %}
-        <li>
-          <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
-          <div class="post-summary">
-            <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">
-              {{ post.short_title | default: post.title }}
-            </a>
-            {% if post.abstract %}
-              <div class="post-abstract">{{ post.abstract | markdownify }}</div>
-            {% endif %}
-          </div>
-        </li>
-      {% endfor %}
-    </ul>
-
-    <ul class="post-list">
-      <h3>Interactive</h3>
+  <ul class="post-list">
+    {% for post in site.posts %}
       <li>
-        <span class="post-meta">Jul 24, 2016</span>
+        <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
         <div class="post-summary">
-          <a class="post-link" href="/smoothers">Interactive Scatter Plot Smoothers</a>
+          <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">
+            {{ post.short_title | default: post.title }}
+          </a>
+          {% if post.abstract %}
+            <div class="post-abstract">{{ post.abstract | markdownify }}</div>
+          {% endif %}
         </div>
       </li>
-    </ul>
+    {% endfor %}
+  </ul>
 
-  <!--
-    <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | prepend: site.baseurl }}">via RSS</a></p>
-  -->
+  <ul class="post-list">
+    <h3>Interactive</h3>
+    <li>
+      <span class="post-meta">Jul 24, 2016</span>
+      <a class="post-link" href="/smoothers">Interactive Scatter Plot Smoothers</a>
+    </li>
+  </ul>
 
-  </div>
+<!--
+  <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | prepend: site.baseurl }}">via RSS</a></p>
+-->
+
 </div>
 
