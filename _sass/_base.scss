@@ -72,6 +72,9 @@ figcaption {
     font-size: $small-font-size;
 }
 
+blockquote.typewriter {
+  font-family: "Courier Prime", monospace;
+}
 
 
 /**
@@ -200,6 +203,7 @@ pre {
     }
 }
 
+.comrades {color: #f00000}
 .penance {color: #f00000}
 .updated {color: #0f0099}
 
