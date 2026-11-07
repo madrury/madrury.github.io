@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Confidence Intervals for the Profit Maximizing Price"
-abstract: 'We submit to the Grand Nagus a confidence interval for a profit maximizing price.'
+abstract: 'We submit to the Grand Nagus a confidence interval for the profit maximizing price.'
 date: 2026-11-01
 categories: statistics
 ---
@@ -13,6 +13,7 @@ categories: statistics
 $$
 \newcommand{\identity}{\mathbb{1}}
 \newcommand{\defeq}{\mathrel{\mathop:}=}
+\newcommand{\lawof}{\mathcal{L}}
 \newcommand{\P}{\operatorname{P}}
 \newcommand{\E}{\operatorname{E}}
 \newcommand{\sign}{\operatorname{sign}}
@@ -21,7 +22,7 @@ $$
 $$
 </div>
 
-It's in the rules of aquisition: we are interested in maximizing our profit.[^Ferengi] 
+It's in the rules of aquisition: we want to maximize our profit.[^Ferengi] 
 
 When pricing a product, it is a basic strategy to set a price that maximizes expected profit. Mature organizations often employ analysts or data scientists whose sole role is to solve this estimation problem: what is this profit maximizing price?
 
@@ -43,29 +44,29 @@ Imagine a potential customer considering whether to purchase some product for an
 
 As the firm attempting to sell the product, we are interested in measuring two things:
 
-  - Does the customer purchase the product, do they *participate* in the transaction? We model this as the binary random variable $$D$$.
+  - Does the customer purchase the product, do they *participate* in the transaction? We model this as the binary random variable $$D$$ [^decision].
   - Given that the customer purchases the product, what is the profit we obtain $$Y$$?
 
-In case the customer does *not* purchase, we define the profit $$Y$$ to be zero deterministically:
+In case the customer does *not* purchase, we define the profit $$Y$$ to be deterministically zero:
 
 $$ D = 0 \implies Y = 0 $$
 
 Otherwise, $$Y$$ may be a random[^random-influences] or deterministic function of $$X$$. In this essay we model $$Y$$ as a random variable, and estimate its dependence on $$X$$ with a model.
 
-We have the freedom to set prices $$X$$ to meet our firm's objectives. The most basic way to look at it is: we would like to set prices so as to maximize the conditional profit $$Y \mid X$$. Given that $$Y$$ is a random function of $$X$$, it makes more sense to seek a price maximizing its conditional expectation $$\E[Y \mid X = x]$$, a deterministic function of $$X$$. This sets the game:
+We have the freedom to set prices $$X$$ to meet our firm's objectives. The most basic way to look at it is: we would like to set prices so as to maximize the conditional profit $$Y \mid X$$. Given that $$Y$$ is a random function of $$X$$, we can't take that completely literally, this is what expectations are for. We seek a price maximizing the conditional expected profit $$\E[Y \mid X = x]$$, a deterministic function of $$X$$. This sets the game:
 
 {% capture goal %}
-Determine the price $$X = x$$ that maximizes the expected profit $$\E[Y \mid X = x]$$.
+Determine the price $$X = x$$ that maximizes the conditional expected profit $$\E[Y \mid X = x]$$.
 {% endcapture %}
 {% include goal.html content=goal name="Goal" %}
 
-There is a useful factorization of the expected profit. The purchase decision $$D$$ mediates, so we can condition on $$D$$ and apply the [law of total expectation](https://en.wikipedia.org/wiki/Law_of_total_expectation):
+There is a useful factorization of the conditional expected profit. The purchase decision $$D$$ mediates, so we can condition on $$D$$ and apply the [law of total expectation](https://en.wikipedia.org/wiki/Law_of_total_expectation):
 
 $$
 \begin{align}
-\E[Y \mid X = x]
+\E[Y & \mid X = x] \\
   &= \E[Y \mid D = 0, X = x] \, \P(D = 0 \mid X = x) \\
-  &\qquad + \E[Y \mid D = 1, X = x] \, \P(D = 1 \mid X = x)
+  & \quad + \E[Y \mid D = 1, X = x] \, \P(D = 1 \mid X = x)
 \end{align}
 $$
 
@@ -79,7 +80,7 @@ These final two quantities will occupy us for a while, so let's give them some n
 
 Intuitively, the participation should decrease monotonically to zero as $$x \rightarrow \infty$$, and the intensity should increase monotonically to $$\infty$$ as $$x \rightarrow \infty$$. Their product is a balancing act:
 
-  - For small $$x$$, customers are likely to purchase but we're unlikely to make much profit when they do; we may even be down if the price is too low. Our expected profit is small.
+  - For small $$x$$, customers are likely to purchase but we're unlikely to make much profit when they do; we may even be down latinum if the price is too low. Our expected profit is small.
   - For moderate $$x$$, customers are less likely to purchase, but when they do we make more profit, so on average we do better.
   - For large $$x$$, customers will essentially never purchase, so we make essentially zero profit.
 
@@ -96,15 +97,15 @@ If we're to have any hope at maximizing the expected profit in practice, we bett
 | 1.18 |   0 | 0.00 |
 | 1.63 |   1 | 0.49 |
 
-Since we'll have observed $$X$$ for at most a finite number of possible values, and the purchase decision (and possibly the conditional profit) are random, we need a model to estimate the participation and intensity. Possibly the simplest approach is linear regression for $$Y \mid D = 1, X = x$$:
+Since we'll have observed $$X$$ for at most a finite number of possible values, and the purchase decision (and possibly the conditional profit) are random, we need a model to estimate the participation and intensity. Possibly the simplest approach is linear regression for the intensity:
 
-$$ Y \mid D = 1, X = x \sim \text{Normal}(\mu = a + bx, \sigma^2) $$ 
+$$ \lawof \left( Y \mid D = 1, X = x \right) = \text{Normal}(\mu = a + bx, \sigma^2) $$ 
 
-and a logistic regression for $$D \mid X = x$$:
+and a logistic regression for participation:
 
-$$ D \mid X = x \sim \text{Bernoulli}(p = s(\alpha + \beta x)) $$
+$$ \lawof \left( D \mid X = x \right) = \text{Bernoulli}(p = s(\alpha + \beta x)) $$
 
-where we've used the common notation $$s$$ for the logistic function:
+where the $$\lawof$$ reads "law of", and we've used the common notation $$s$$ for the logistic function:
 
 $$ s(t) \defeq \frac{1}{1 + \exp(-t)} $$
 
@@ -123,9 +124,9 @@ We turn to an analysis of this class of functions, with the following goals:
 These goals will occupy us for the next section.
 
 
-## Analysis of the Argmaximum
+## Analysis of the Critical Point
 
-In this section, we work with a static participation-intensity function; the parameters $$a, b, \alpha, \beta$$ are fixed. Throughout, we assume that $$b \neq 0$$ and $$\beta \neq 0$$: 
+In this section, we work with a static participation-intensity function; the parameters $$a, b, \alpha, \beta$$ are fixed. Throughout, we assume that $$b \neq 0$$ and $$\beta \neq 0$$.
 
 - If $$b = 0$$, the intensity does not depend on the price, which is unrealistic. 
 - If $$\beta = 0$$, the participation does not depend on the price, and $$f$$ is linear, with no critical point at all.
@@ -231,7 +232,7 @@ The [**Lambert W Function**](https://en.wikipedia.org/wiki/Lambert_W_function) i
 
 $$ W(z) \exp(W(z)) = z $$
 
-The $$W$$ function is very useful for [solving equations](https://en.wikipedia.org/wiki/Lambert_W_function#Solving_equations) of the shape `linear = exponential`, which ours is. We demonstrate how this works with our example:
+The $$W$$ function is very useful for [solving equations](https://en.wikipedia.org/wiki/Lambert_W_function#Solving_equations) of the shape `linear = exponential`. We demonstrate how this works with our example:
 
 $$
 \begin{align}
@@ -300,15 +301,15 @@ Our job is to use this data to estimate the curve's parameters $$a, b, \alpha, \
 
 $$ D = 0 \implies Y = 0 \quad \text{deterministically} $$
 
-$$ Y \mid D = 1, X = x \sim \text{Normal}(\mu = a + bx, \sigma^2) $$ 
+$$ \lawof \left( Y \mid D = 1, X = x \right) = \text{Normal}(\mu = a + bx, \sigma^2) $$ 
 
-$$ D \mid X = x \sim \text{Bernoulli}(p = s(\alpha + \beta x)) $$ 
+$$ \lawof \left( D \mid X = x \right) = \text{Bernoulli}(p = s(\alpha + \beta x)) $$ 
  
 Given this setup, we can estimate $$\params = (a, b, \sigma, \alpha, \beta)$$ by maximum likelihood.
 
 ### Maximum Likelihood
 
-Crucially, in our setup: $$D$$ is observable.[^not-always-the-case] This means the proper likelihood for an observation $$y, d, x$$ is the *joint* probability of observing $$D = d, Y \in [y, y + dy]$$ under the parameters $$\params$$ when $$X = x$$:
+Crucially, in our setup: $$D$$ is observable.[^not-always-the-case] This means the proper likelihood for an observation $$(y, d, x)$$ derives from the *joint* probability of observing $$D = d, Y \in [y, y + dy]$$ under the parameters $$\params$$ when $$X = x$$:
 
 $$ 
 \P \left( Y \in [y, y + dy], D = d \mid X = x \right)
@@ -317,12 +318,12 @@ $$
 which factors as:
 
 $$
-\P(D = d \mid X = x) \P(Y \in [y, y + dy] \mid D = d, X = x)
+\P(Y \in [y, y + dy] \mid D = d, X = x) \P(D = d \mid X = x)
 $$
 
 Let's look at this product in two cases.
 
-**Case $$d = 0$$**: Here $$y = 0$$ deterministically, so the likelihood is:
+**Case $$d = 0$$**: Here $$y = 0$$ deterministically, so any such datapoint must have $$y = 0$$ as well. The first factor is always one, and the likelihood of such a datapoint $$(y=0, d=0, x)$$ is:
 
 $$
 \begin{align}
@@ -331,23 +332,23 @@ L(\params; 0, 0, x) &= \P(D = 0 \mid X = x) \\
 \end{align}
 $$
 
-**Case $$d = 1$$**: Here both factors are retained. We can write the second factor as an integral over the (Gaussian) density
+**Case $$d = 1$$**: Here both factors are retained. We can write the first factor as an integral over the Gaussian density:
  
-$$p(y \mid x, D = 1) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp \left(- \frac{(y - a - bx)^2}{2 \sigma^2} \right)$$ 
+$$p(y \mid D = 1, x) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp \left(- \frac{(y - a - bx)^2}{2 \sigma^2} \right)$$ 
 
-of $$Y \mid D = 1, X = x$$: 
+which results in:
 
 $$
 \begin{align}
 \P(D = 1 & \mid X = x) \P(Y \in [y, y + dy] \mid D = 1, X = x) \\
-&= s(\alpha + \beta x) \int_y^{y + dy} p(t \mid x, D = 1) \, dt
+&= s(\alpha + \beta x) \int_y^{y + dy} p(t \mid  D = 1, x) \, dt
 \end{align}
 $$
 
 Dividing by $$dy$$ and letting $$dy \rightarrow 0$$ gives the contribution to the likelihood:
 
 $$
-L(\params; y, 1, x) = s(\alpha + \beta x) \, p(y \mid x, D = 1)
+L(\params; y, 1, x) = s(\alpha + \beta x) \, p(y \mid D = 1, x)
 $$
 
 Taken over an entire dataset $$\dataset = \left\{ y_i, d_i, x_i \right\}$$, we get the full likelihood as a product:
@@ -355,17 +356,16 @@ Taken over an entire dataset $$\dataset = \left\{ y_i, d_i, x_i \right\}$$, we g
 $$
 \begin{align}
 L(\params; \dataset) & \defeq \prod_i \P(D = d_i \mid X = x_i) \prod_{i: \ d_i = 1} p(y_i \mid x_i, D = 1) \\
-&= \prod_i s(\alpha + \beta x_i)^{d_i} (1 - s(\alpha + \beta x_i))^{1 - d_i} \prod_{i: \ d_i = 1} p(y_i \mid x_i, D = 1)
+&= \prod_i s(\alpha + \beta x_i)^{d_i} (1 - s(\alpha + \beta x_i))^{1 - d_i} \prod_{i: \ d_i = 1} p(y_i \mid D = 1, x_i)
 \end{align}
 $$
 
-The first factor here is the likelihood of a logistic regression model for $$D \mid X$$, fit to all the available data. This factor depends only on the parameters $$\alpha, \beta$$. The second factor is the likelihood for a linear model of $$Y \mid X, D = 1$$, but fit to only data with $$D = 1$$. This factor depends only on the parameters $$a, b, \sigma$$. Thus we may maximize the likelihood by maximizing each factor individually. This justifies fitting:
+The first factor here is the likelihood of a logistic regression model for $$D \mid X$$, fit to all the available data. This factor depends only on the parameters $$\alpha, \beta$$. The second factor is the likelihood for a linear model of $$Y \mid X, D = 1$$, but fit to only data with $$D = 1$$. This factor depends only on the parameters $$a, b, \sigma$$. Because each factor depends on distinct parameters, we may maximize the likelihood by maximizing each factor individually. This justifies fitting:
 
 - A logistic regression to all the $$d_i, x_i$$ to estimate the parameters $$\alpha, \beta$$.
 - A linear regression to only the subset of data with $$d_i = 1$$ to estimate the parameters $$a, b, \sigma$$.
 
 This simple split-and-fit procedure gives the maximum likelihood estimate of the participation-intensity curve fit to the observed data.
-
 
 ![A Blue Participation-Intensity Curve and an Orange Curve Closeby]({{ site.url }}/img/pif_participation_intensity_fit.png){: .center-img}
 
@@ -373,9 +373,9 @@ In the figure above, we've fixed a <span>true curve</span>{: .blue} and generate
 
 ![A Blue Participation-Intensity Curve and a Bundle of Orange Curves Around It]({{ site.url }}/img/pif_participation_intensity_fits.png){: .center-img}
 
-The fit curves bundle around the truth, as we would anticipate. We've noted with <span>tick marks</span>{: .orange} the critical point of the fit curves, using the methods of the previous section. They vary around the true critical point. In the next section, we will estimate the variance of these estimated critical points.
+The fit curves bundle around the truth, as we would anticipate. We've noted with <span>tick marks</span>{: .orange} the critical point of the fit curves, using the methods of the previous section. They vary around the true critical point. In the next section, we will estimate the variance of these critical points.
 
-### Parameter Covariances
+### Asymptotics
 
 
 ## An Interval for the Argmaximum
@@ -383,6 +383,8 @@ The fit curves bundle around the truth, as we would anticipate. We've noted with
 ## Curious Coverage
 
 [^Ferengi]: To stomach the context of this one, it may help to imagine oneself a Ferengi.
+
+[^decision]: $$D$$ for *decision*. Using the tempting $$P$$ would conflict with the very similar $$\P$$ for "probability of".
 
 [^random-influences]: Profits may be influenced by exogenous factors such as cost of goods sold, shipping costs, or needing to close the bar because of meddling chief security officers.
 
